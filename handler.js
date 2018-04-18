@@ -1,16 +1,76 @@
 'use strict';
 
-module.exports.hello = (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
+const rootURL = "http://bobcat.library.nyu.edu/primo-explore/search?query=";
+
+module.exports.persistent = (event, context, callback) => {
+  let targetURI;
+  return (
+    Promise.resolve(event)
+      .then(() => {
+        const params = event.queryStringParameters;
+        targetURI = getURI(params);
+      })
+      .then(() => callback(null, {
+        statusCode: 302,
+        headers: {
+          Location: targetURI,
+        },
+      }))
+      .catch(new Error())
+  ); // Fail function with error
+};
+
+function getURI(params) {
+  let url = rootURL;
+  switch (params) {
+    case params.lcn:
+      url = handleLCN(params, url);
+      break;
+    case params.oclc:
+      url = handleOCLC(params, url);
+      break;
+    case params.isbn:
+      url = handleISBN(params, url);
+      break;
+    case params.issn:
+      url = handleISSN(params, url);
+      break;
+  }
+
+  url = handleInstitution(params, url);
+  return url;
+}
+
+function handleInstitution(params, baseURL) {
+  const institutionsToVid = {
+    nyu: "NYU",
+    ns: "NS",
+    cu: "CU",
+    nyuad: "NYUAD",
+    nyush: "NYUSH",
+    bhs: "BHS",
+    nyhs: "NYHS",
+    nysid: "NYSID",
+    hsl: "HSL"
   };
 
-  callback(null, response);
+  const inst = params.institution.toLowerCase();
+  const vid = institutionsToVid[inst];
+  return `${rootURL}&vid=${vid}`;
+}
 
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
-};
+function handleLCN(params) {
+
+}
+
+function handleOCLC(params) {
+
+}
+
+function handleISBN(params) {
+
+}
+
+function handleISSN(params) {
+
+}

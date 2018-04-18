@@ -55,11 +55,11 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
+  persistent:
+    handler: handler.persistent
     events:
      - http:
-         path: hello
+         path: persistent
          method: get
 
 #    The following are a few example events you can configure
