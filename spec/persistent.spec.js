@@ -23,7 +23,7 @@ describe('persistent', () => {
 
   describe('institution view', () => {
     institutions.forEach((institution) => {
-      it(`should handle ${institution}`, (done) => {
+      it(`should handle ${institution} parameter`, (done) => {
         lambda.event({
           "resource": "/persistent",
           "path": "/persistent",
@@ -39,6 +39,24 @@ describe('persistent', () => {
         .verify(done);
       });
     });
+
+    it('should default to nyu without an institution parameter', (done) => {
+      lambda.event({
+        "resource": "/persistent",
+        "path": "/persistent",
+        "httpMethod": "GET",
+        "queryStringParameters": null
+      })
+      .expectResult(result => {
+        expect(result.statusCode).toEqual(302);
+        expect(result.headers.Location).toEqual(`${rootURL}&vid=NYU`);
+      })
+      .verify(done);
+    });
+  });
+
+  describe('isbn', () => {
+
   });
 
 });

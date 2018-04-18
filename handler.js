@@ -21,6 +21,8 @@ module.exports.persistent = (event, context, callback) => {
 };
 
 function getURI(params) {
+  if (params === null) { return `${rootURL}&vid=NYU`; }
+  
   let url = rootURL;
   switch (params) {
     case params.lcn:
@@ -41,7 +43,7 @@ function getURI(params) {
   return url;
 }
 
-function handleInstitution(params, baseURL) {
+function handleInstitution(params) {
   const institutionsToVid = {
     nyu: "NYU",
     ns: "NS",
