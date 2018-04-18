@@ -22,7 +22,7 @@ module.exports.persistent = (event, context, callback) => {
 
 function getURI(params) {
   if (params === null) { return `${rootURL}&vid=NYU`; }
-  
+
   let url = rootURL;
   switch (params) {
     case params.lcn:
@@ -57,7 +57,7 @@ function handleInstitution(params) {
   };
 
   const inst = params.institution.toLowerCase();
-  const vid = institutionsToVid[inst];
+  const vid = institutionsToVid[inst] || "NYU";
   return `${rootURL}&vid=${vid}`;
 }
 
