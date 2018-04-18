@@ -24,26 +24,17 @@ function getURI(params) {
   if (params === null) { return `${rootURL}&vid=NYU`; }
 
   let url = rootURL;
-  switch (params) {
-    case params.lcn:
-      url = handleLCN(params, url);
-      break;
-    case params.oclc:
-      url = handleOCLC(params, url);
-      break;
-    case params.isbn:
-      url = handleISBN(params, url);
-      break;
-    case params.issn:
-      url = handleISSN(params, url);
-      break;
-  }
+
+  if (params.lcn) { url = handleLCN(params); }
+  else if (params.oclc) { url = handleOCLC(params); }
+  else if (params.issn) { url = handleISSN(params); }
+  else if (params.isbn) { url = handleISBN(params); }
 
   url = handleInstitution(params, url);
   return url;
 }
 
-function handleInstitution(params) {
+function handleInstitution(params, url) {
   const institutionsToVid = {
     nyu: "NYU",
     ns: "NS",
@@ -56,17 +47,17 @@ function handleInstitution(params) {
     hsl: "HSL"
   };
 
-  const inst = params.institution.toLowerCase();
-  const vid = institutionsToVid[inst] || "NYU";
-  return `${rootURL}&vid=${vid}`;
+  const inst = (params.institution || 'nyu').toLowerCase();
+  const vid = institutionsToVid[inst] || 'NYU';
+  return `${url}&vid=${vid}`;
 }
 
 function handleLCN(params) {
-
+  return `${rootURL}any,exact,${params.lcn}`;
 }
 
 function handleOCLC(params) {
-
+  
 }
 
 function handleISBN(params) {
