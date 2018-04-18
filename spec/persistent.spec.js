@@ -24,9 +24,6 @@ describe('persistent', () => {
   describe("null query", () => {
     it('should redirect to nyu search', (done) => {
       lambda.event({
-        "resource": "/persistent",
-        "path": "/persistent",
-        "httpMethod": "GET",
         "queryStringParameters": null
       })
       .expectResult(result => {
@@ -41,9 +38,6 @@ describe('persistent', () => {
     institutions.forEach((institution) => {
       it(`should redirect to ${institution} search`, (done) => {
         lambda.event({
-          "resource": "/persistent",
-          "path": "/persistent",
-          "httpMethod": "GET",
           "queryStringParameters": {
             institution
           }
@@ -58,9 +52,6 @@ describe('persistent', () => {
 
     it('should redirect to nyu if institution invalid', (done) => {
       lambda.event({
-        "resource": "/persistent",
-        "path": "/persistent",
-        "httpMethod": "GET",
         "queryStringParameters": {
           institution: "banana"
         }
