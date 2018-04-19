@@ -62,6 +62,14 @@ functions:
          path: persistent
          method: get
 
+functions:
+  persistent:
+    handler: handler.oclc
+    events:
+     - http:
+         path: persistent/oclc
+         method: get
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
