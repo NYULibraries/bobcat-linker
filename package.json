@@ -5,6 +5,7 @@
   "devDependencies": {
     "jasmine": "^3.1.0",
     "jasmine-spec-reporter": "^4.2.1",
-    "lambda-tester": "^3.3.0"
+    "lambda-tester": "^3.3.0",
+    "nock": "^9.2.5"
   }
 }
