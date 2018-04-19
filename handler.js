@@ -79,5 +79,7 @@ function handleISxN(isXn) {
 }
 
 function getOclcURI(params) {
-  http.get(`${BASE_API_URL}/${params.oclc}`);
+  http.get(`${BASE_API_URL}/${params.oclc}`, (response) => {
+    // parseXML here
+  });
 }
