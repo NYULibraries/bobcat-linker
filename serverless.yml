@@ -62,8 +62,7 @@ functions:
          path: persistent
          method: get
 
-functions:
-  persistent:
+  oclc:
     handler: handler.oclc
     events:
      - http:
