@@ -47,7 +47,6 @@ function getURI(params) {
   if (params.lcn) { url = handleLCN(params.lcn); }
   else if (params.isbn || params.issn) { url = handleISxN(params.isbn || params.issn); }
   else if (params.isbn) { url = handleISxN(params); }
-  else if (params.oclc) { url = handleOCLC(params); }
 
   url = handleInstitution(params, url);
   return url;
