@@ -1,7 +1,9 @@
 const LambdaTester = require('lambda-tester');
 const persistent = require('../handler').persistent;
 
-const rootURL = "http://bobcat.library.nyu.edu/primo-explore/search?query=";
+const BASE_SEARCH_URL = "http://bobcat.library.nyu.edu/primo-explore/search?";
+const BASE_FULLDISPLAY_URL = "http://bobcat.library.nyu.edu/primo-explore/fulldisplay?";
+const ADVANCED_MODE = "mode=advanced";
 
 const institutions = [ 'NYU', 'NS', 'CU', 'NYUAD', 'NYUSH', 'BHS', 'NYHS', 'HSL' ];
 
@@ -13,13 +15,13 @@ describe('persistent', () => {
   });
 
   describe("null query", () => {
-    it('should redirect to nyu search', (done) => {
+    it('should redirect to NYU search', (done) => {
       return lambda.event({
         "queryStringParameters": null
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${rootURL}&vid=NYU`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=NYU`);
       })
       .verify(done);
     });
@@ -35,13 +37,13 @@ describe('persistent', () => {
         })
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${rootURL}&vid=${institution}`);
+          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${institution}`);
         })
         .verify(done);
       });
     });
 
-    it('should redirect to nyu if institution invalid', (done) => {
+    it('should redirect to NYU search if institution invalid', (done) => {
       return lambda.event({
         "queryStringParameters": {
           institution: "banana"
@@ -49,16 +51,16 @@ describe('persistent', () => {
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${rootURL}&vid=NYU`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=NYU`);
       })
       .verify(done);
     });
   }); // end institution view
 
-  describe('lcn', () => {
+  describe('LCN', () => {
     describe('with a valid institution', () => {
       institutions.forEach(institution => {
-        it(`should redirect to ${institution}\'s search page with lcn query`, (done) => {
+        it(`should redirect to ${institution}\'s fulldisplay page with LCN record`, (done) => {
           const lcn = "abcd123456789";
           return lambda.event({
             "queryStringParameters": {
@@ -68,7 +70,7 @@ describe('persistent', () => {
           })
           .expectResult(result => {
             expect(result.statusCode).toEqual(302);
-            expect(result.headers.Location).toEqual(`${rootURL}any,exact,${lcn}&vid=${institution}`);
+            expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=${institution}`);
           })
           .verify(done);
         });
@@ -88,12 +90,12 @@ describe('persistent', () => {
         })
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${rootURL}any,exact,${lcn}&vid=NYU`);
+          expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=NYU`);
         })
         .verify(done);
       });
 
-      it("should redirect to NYU's search page with lcn query", (done) => {
+      it("should redirect to NYU's fulldisplay view of record", (done) => {
         const institution = "banana";
         const lcn = "abcd123456789";
         return lambda.event({
@@ -104,14 +106,14 @@ describe('persistent', () => {
         })
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${rootURL}any,exact,${lcn}&vid=NYU`);
+          expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=NYU`);
         })
         .verify(done);
       });
     });
 
     describe('without an institution', () => {
-      it("should redirect to NYU's search page with lcn query", (done) => {
+      it("should redirect to NYU's fulldisplay view of record", (done) => {
         const lcn = "abcd123456789";
         return lambda.event({
           "queryStringParameters": {
@@ -120,13 +122,13 @@ describe('persistent', () => {
         })
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${rootURL}any,exact,${lcn}&vid=NYU`);
+          expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=NYU`);
         })
         .verify(done);
       });
     });
 
-    describe('with extra non-lcn parameters', () => {
+    describe('with extra non-LCN parameters', () => {
       it('should ignore non-lcn parameters', (done) => {
         const institution = "nyu";
         const lcn = "abcd123456789";
@@ -141,11 +143,10 @@ describe('persistent', () => {
         })
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${rootURL}any,exact,${lcn}&vid=${institution.toUpperCase()}`);
+          expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=${institution.toUpperCase()}`);
         })
         .verify(done);
       });
     });
-  }); // end lcn
-
+  }); // end LCN
 });

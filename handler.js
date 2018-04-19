@@ -1,6 +1,7 @@
 'use strict';
 
-const rootURL = "http://bobcat.library.nyu.edu/primo-explore/search?query=";
+const BASE_SEARCH_URL = "http://bobcat.library.nyu.edu/primo-explore/search?";
+const BASE_FULLDISPLAY_URL = "http://bobcat.library.nyu.edu/primo-explore/fulldisplay?";
 
 module.exports.persistent = (event, context, callback) => {
   let targetURI;
@@ -21,14 +22,13 @@ module.exports.persistent = (event, context, callback) => {
 };
 
 function getURI(params) {
-  if (params === null) { return `${rootURL}&vid=NYU`; }
+  if (params === null) { return `${BASE_SEARCH_URL}&vid=NYU`; }
 
-  let url = rootURL;
-
+  let url = BASE_SEARCH_URL;
   if (params.lcn) { url = handleLCN(params); }
   else if (params.oclc) { url = handleOCLC(params); }
-  else if (params.issn) { url = handleISSN(params); }
-  else if (params.isbn) { url = handleISBN(params); }
+  else if (params.issn) { url = handleISxN(params); }
+  else if (params.isbn) { url = handleISxN(params); }
 
   url = handleInstitution(params, url);
   return url;
@@ -53,17 +53,11 @@ function handleInstitution(params, url) {
 }
 
 function handleLCN(params) {
-  return `${rootURL}any,exact,${params.lcn}`;
+  return `${BASE_FULLDISPLAY_URL}&docid=${params.lcn}`;
 }
 
 function handleOCLC(params) {
-  
 }
 
-function handleISBN(params) {
-
-}
-
-function handleISSN(params) {
-
+function handleISxN(params) {
 }
