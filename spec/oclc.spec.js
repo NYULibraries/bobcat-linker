@@ -8,18 +8,18 @@ describe('oclc', () => {
   describe("when http request made", () => {
     const req = nock(new RegExp(`${BASE_API_URL}`));
 
-    it('should make a GET request to appropriate URL', () => {
+    it('should make a GET request to appropriate URL', (done) => {
       const oclcId = "82671871";
       const url = BASE_API_URL + oclcId;
     });
   });
 
-  describe('when ISBN found', (done) => {
+  describe('when ISBN found', () => {
     const isbn = "9780596529260";
     const oclcId = "82671871";
     const institution = "NYU";
 
-    it("should use the record's first ISBN", () => {
+    it("should use the record's first ISBN", (done) => {
       return oclc.event({
         "queryStringParameters": {
           oclcId,
@@ -34,12 +34,12 @@ describe('oclc', () => {
     });
   });
 
-  describe('when ISSN found', (done) => {
+  describe('when ISSN found', () => {
     const issn = "0028-0836";
     const oclcId = "1586310";
     const institution = "NYU";
 
-    it("should use the record's first ISSN", () => {
+    it("should use the record's first ISSN", (done) => {
       return oclc.event({
         "queryStringParameters": {
           oclcId,
