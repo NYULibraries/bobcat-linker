@@ -14,7 +14,7 @@ describe('persistent', () => {
 
   describe("null query", () => {
     it('should redirect to nyu search', (done) => {
-      lambda.event({
+      return lambda.event({
         "queryStringParameters": null
       })
       .expectResult(result => {
@@ -28,7 +28,7 @@ describe('persistent', () => {
   describe('institution view', () => {
     institutions.forEach((institution) => {
       it(`should redirect to ${institution} search`, (done) => {
-        lambda.event({
+        return lambda.event({
           "queryStringParameters": {
             institution
           }
@@ -42,7 +42,7 @@ describe('persistent', () => {
     });
 
     it('should redirect to nyu if institution invalid', (done) => {
-      lambda.event({
+      return lambda.event({
         "queryStringParameters": {
           institution: "banana"
         }
@@ -53,14 +53,14 @@ describe('persistent', () => {
       })
       .verify(done);
     });
-  });
+  }); // end institution view
 
   describe('lcn', () => {
     describe('with a valid institution', () => {
       institutions.forEach(institution => {
         it(`should redirect to ${institution}\'s search page with lcn query`, (done) => {
           const lcn = "abcd123456789";
-          lambda.event({
+          return lambda.event({
             "queryStringParameters": {
               institution,
               lcn
@@ -80,7 +80,7 @@ describe('persistent', () => {
       it(`should account for mis-capitalization`, (done) => {
         const institution = "nYu";
         const lcn = "abcd123456789";
-        lambda.event({
+        return lambda.event({
           "queryStringParameters": {
             institution,
             lcn
@@ -93,10 +93,10 @@ describe('persistent', () => {
         .verify(done);
       });
 
-      it(`should redirect to NYU's search page with lcn query`, (done) => {
+      it("should redirect to NYU's search page with lcn query", (done) => {
         const institution = "banana";
         const lcn = "abcd123456789";
-        lambda.event({
+        return lambda.event({
           "queryStringParameters": {
             institution,
             lcn
@@ -111,9 +111,9 @@ describe('persistent', () => {
     });
 
     describe('without an institution', () => {
-      it(`should redirect to NYU's search page with lcn query`, (done) => {
+      it("should redirect to NYU's search page with lcn query", (done) => {
         const lcn = "abcd123456789";
-        lambda.event({
+        return lambda.event({
           "queryStringParameters": {
             lcn
           }
@@ -127,8 +127,25 @@ describe('persistent', () => {
     });
 
     describe('with extra non-lcn parameters', () => {
-      
+      it('should ignore non-lcn parameters', (done) => {
+        const institution = "nyu";
+        const lcn = "abcd123456789";
+        return lambda.event({
+          "queryStringParameters": {
+            institution,
+            lcn,
+            oclc: "1234",
+            isbn: "1234",
+            issn: "1234"
+          }
+        })
+        .expectResult(result => {
+          expect(result.statusCode).toEqual(302);
+          expect(result.headers.Location).toEqual(`${rootURL}any,exact,${lcn}&vid=${institution.toUpperCase()}`);
+        })
+        .verify(done);
+      });
     });
-  });
+  }); // end lcn
 
 });
