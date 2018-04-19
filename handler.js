@@ -20,6 +20,23 @@ module.exports.persistent = (event, context, callback) => {
   );
 };
 
+module.exports.oclc = (event, context, callback) => {
+  let targetURI;
+  return (
+    Promise.resolve(event)
+    .then(() => {
+      const params = event.queryStringParameters;
+      targetURI = getOclcURI(params);
+    })
+    .then(() => callback(null, {
+      statusCode: 302,
+      headers: {
+        Location: targetURI,
+      },
+    }))
+  );
+};
+
 function getURI(params) {
   if (params === null) { return `${BASE_SEARCH_URL}&vid=NYU`; }
 
@@ -55,9 +72,10 @@ function handleLCN(lcn) {
   return `${BASE_FULLDISPLAY_URL}&docid=${lcn}`;
 }
 
-function handleOCLC(params) {
-}
-
 function handleISxN(isXn) {
   return `${BASE_SEARCH_URL}query=isbn,contains,${isXn}&mode=advanced`;
+}
+
+function getOclcURI(params) {
+
 }

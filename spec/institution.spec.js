@@ -1,9 +1,10 @@
-const { LAMBDA, BASE_SEARCH_URL, INSTITUTIONS } = require("./helpers/constants");
+const { BASE_SEARCH_URL, INSTITUTIONS } = require("./helpers/constants");
+const { persistent } = require("./helpers/constants").lambdas;
 
 describe('basic persistent query', () => {
   describe("null query", () => {
     it('should redirect to NYU search', (done) => {
-      return LAMBDA.event({
+      return persistent.event({
         "queryStringParameters": null
       })
       .expectResult(result => {
@@ -17,7 +18,7 @@ describe('basic persistent query', () => {
   describe('institution view ONLY', () => {
     it(`should account for mis-capitalization`, (done) => {
       const institution = 'nYu';
-      return LAMBDA.event({
+      return persistent.event({
         "queryStringParameters": {
           institution
         }
@@ -31,7 +32,7 @@ describe('basic persistent query', () => {
 
     INSTITUTIONS.forEach((institution) => {
       it(`should redirect to ${institution} search`, (done) => {
-        return LAMBDA.event({
+        return persistent.event({
           "queryStringParameters": {
             institution
           }
@@ -45,7 +46,7 @@ describe('basic persistent query', () => {
     });
 
     it('should redirect to NYU search if institution invalid', (done) => {
-      return LAMBDA.event({
+      return persistent.event({
         "queryStringParameters": {
           institution: "banana"
         }

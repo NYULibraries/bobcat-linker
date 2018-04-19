@@ -5,5 +5,9 @@ exports.INSTITUTIONS = [ 'NYU', 'NS', 'CU', 'NYUAD', 'NYUSH', 'BHS', 'NYHS', 'HS
 
 const LambdaTester = require('lambda-tester');
 const persistent = require('../../handler').persistent;
+const oclc = require('../../handler').oclc;
 
-exports.LAMBDA = LambdaTester(persistent);
+exports.lambdas = {
+  persistent: LambdaTester(persistent),
+  oclc: LambdaTester(oclc),
+};

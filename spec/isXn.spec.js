@@ -1,11 +1,12 @@
-const { LAMBDA, BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, INSTITUTIONS, ADVANCED_MODE } = require("./helpers/constants");
+const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, INSTITUTIONS, ADVANCED_MODE } = require("./helpers/constants");
+const { persistent } = require("./helpers/constants").lambdas;
 
 describe('ISBN/ISSN', () => {
   describe('with a valid institution', () => {
     INSTITUTIONS.forEach(institution => {
       it(`should redirect to ${institution}\'s fulldisplay page with ISBN record`, (done) => {
         const isbn = "abcd123456789";
-        return LAMBDA.event({
+        return persistent.event({
           "queryStringParameters": {
             institution,
             isbn
@@ -25,7 +26,7 @@ describe('ISBN/ISSN', () => {
     it(`should account for mis-capitalization`, (done) => {
       const institution = "nYu";
       const isbn = "abcd123456789";
-      return LAMBDA.event({
+      return persistent.event({
         "queryStringParameters": {
           institution,
           isbn
@@ -41,7 +42,7 @@ describe('ISBN/ISSN', () => {
     it("should redirect to NYU's search page with ISBN search", (done) => {
       const institution = "banana";
       const isbn = "abcd123456789";
-      return LAMBDA.event({
+      return persistent.event({
         "queryStringParameters": {
           institution,
           isbn
@@ -58,7 +59,7 @@ describe('ISBN/ISSN', () => {
   describe('without an institution', () => {
     it("should redirect to NYU's search page with ISBN search", (done) => {
       const isbn = "abcd123456789";
-      return LAMBDA.event({
+      return persistent.event({
         "queryStringParameters": {
           isbn
         }
@@ -75,7 +76,7 @@ describe('ISBN/ISSN', () => {
     it('should prioritize LCN parameter over all others', (done) => {
       const institution = "nyu";
       const lcn = "abcd123456789";
-      return LAMBDA.event({
+      return persistent.event({
         "queryStringParameters": {
           institution,
           lcn,
@@ -94,7 +95,7 @@ describe('ISBN/ISSN', () => {
     it('should prioritize ISBN over non-LCN', (done) => {
       const institution = "nyu";
       const isbn = "12345678isbn";
-      return LAMBDA.event({
+      return persistent.event({
         "queryStringParameters": {
           institution,
           isbn,
