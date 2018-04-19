@@ -1,4 +1,4 @@
-const { LAMBDA, BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, INSTITUTIONS } = require("./helpers/constants");
+const { LAMBDA, BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, INSTITUTIONS, ADVANCED_MODE } = require("./helpers/constants");
 
 describe('ISBN/ISSN', () => {
   describe('with a valid institution', () => {
@@ -13,7 +13,7 @@ describe('ISBN/ISSN', () => {
         })
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&vid=${institution}`);
+          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${institution}`);
         })
         .verify(done);
       });
@@ -33,7 +33,7 @@ describe('ISBN/ISSN', () => {
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&vid=${institution.toUpperCase()}`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${institution.toUpperCase()}`);
       })
       .verify(done);
     });
@@ -49,7 +49,7 @@ describe('ISBN/ISSN', () => {
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&vid=NYU`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=NYU`);
       })
       .verify(done);
     });
@@ -65,7 +65,7 @@ describe('ISBN/ISSN', () => {
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&vid=NYU`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=NYU`);
       })
       .verify(done);
     });
@@ -104,7 +104,7 @@ describe('ISBN/ISSN', () => {
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&vid=${institution.toUpperCase()}`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${institution.toUpperCase()}`);
       })
       .verify(done);
     });

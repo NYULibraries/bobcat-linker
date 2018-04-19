@@ -60,5 +60,5 @@ function handleOCLC(params) {
 }
 
 function handleISxN(isXn) {
-  return `${BASE_SEARCH_URL}query=isbn,contains,${isXn}`;
+  return `${BASE_SEARCH_URL}query=isbn,contains,${isXn}&mode=advanced`;
 }
