@@ -1,19 +1,19 @@
-const { LAMBDA, BASE_FULLDISPLAY_URL, INSTITUTIONS } = require("./helpers/constants");
+const { LAMBDA, BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, INSTITUTIONS } = require("./helpers/constants");
 
-describe('LCN', () => {
+describe('ISBN/ISSN', () => {
   describe('with a valid institution', () => {
     INSTITUTIONS.forEach(institution => {
-      it(`should redirect to ${institution}\'s fulldisplay page with LCN record`, (done) => {
-        const lcn = "abcd123456789";
+      it(`should redirect to ${institution}\'s fulldisplay page with ISBN record`, (done) => {
+        const isbn = "abcd123456789";
         return LAMBDA.event({
           "queryStringParameters": {
             institution,
-            lcn
+            isbn
           }
         })
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=${institution}`);
+          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&vid=${institution}`);
         })
         .verify(done);
       });
@@ -24,55 +24,55 @@ describe('LCN', () => {
   describe('with an invalid institution', () => {
     it(`should account for mis-capitalization`, (done) => {
       const institution = "nYu";
-      const lcn = "abcd123456789";
+      const isbn = "abcd123456789";
       return LAMBDA.event({
         "queryStringParameters": {
           institution,
-          lcn
+          isbn
         }
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=NYU`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&vid=${institution.toUpperCase()}`);
       })
       .verify(done);
     });
 
-    it("should redirect to NYU's fulldisplay view of record", (done) => {
+    it("should redirect to NYU's search page with ISBN search", (done) => {
       const institution = "banana";
-      const lcn = "abcd123456789";
+      const isbn = "abcd123456789";
       return LAMBDA.event({
         "queryStringParameters": {
           institution,
-          lcn
+          isbn
         }
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=NYU`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&vid=NYU`);
       })
       .verify(done);
     });
   });
 
   describe('without an institution', () => {
-    it("should redirect to NYU's fulldisplay view of record", (done) => {
-      const lcn = "abcd123456789";
+    it("should redirect to NYU's search page with ISBN search", (done) => {
+      const isbn = "abcd123456789";
       return LAMBDA.event({
         "queryStringParameters": {
-          lcn
+          isbn
         }
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=NYU`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&vid=NYU`);
       })
       .verify(done);
     });
   });
 
-  describe('with extra non-LCN parameters', () => {
-    it('should ignore non-lcn parameters', (done) => {
+  describe('with extra non-ISBN parameters', () => {
+    it('should prioritize LCN parameter over all others', (done) => {
       const institution = "nyu";
       const lcn = "abcd123456789";
       return LAMBDA.event({
@@ -87,6 +87,24 @@ describe('LCN', () => {
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
         expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=${institution.toUpperCase()}`);
+      })
+      .verify(done);
+    });
+
+    it('should prioritize ISBN over non-LCN', (done) => {
+      const institution = "nyu";
+      const isbn = "12345678isbn";
+      return LAMBDA.event({
+        "queryStringParameters": {
+          institution,
+          isbn,
+          oclc: "1234oclc",
+          issn: "1234issn"
+        }
+      })
+      .expectResult(result => {
+        expect(result.statusCode).toEqual(302);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&vid=${institution.toUpperCase()}`);
       })
       .verify(done);
     });

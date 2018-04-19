@@ -26,9 +26,9 @@ function getURI(params) {
 
   let url = BASE_SEARCH_URL;
   if (params.lcn) { url = handleLCN(params); }
-  else if (params.oclc) { url = handleOCLC(params); }
-  else if (params.issn) { url = handleISxN(params); }
+  else if (params.isbn || params.issn) { url = handleISxN(params.isbn || params.issn); }
   else if (params.isbn) { url = handleISxN(params); }
+  else if (params.oclc) { url = handleOCLC(params); }
 
   url = handleInstitution(params, url);
   return url;
@@ -59,5 +59,6 @@ function handleLCN(params) {
 function handleOCLC(params) {
 }
 
-function handleISxN(params) {
+function handleISxN(isXn) {
+  return `${BASE_SEARCH_URL}query=isbn,contains,${isXn}`;
 }
