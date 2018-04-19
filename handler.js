@@ -2,6 +2,9 @@
 
 const BASE_SEARCH_URL = "http://bobcat.library.nyu.edu/primo-explore/search?";
 const BASE_FULLDISPLAY_URL = "http://bobcat.library.nyu.edu/primo-explore/fulldisplay?";
+const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
+
+const http = require('http');
 
 module.exports.persistent = (event, context, callback) => {
   let targetURI;
@@ -77,5 +80,5 @@ function handleISxN(isXn) {
 }
 
 function getOclcURI(params) {
-  
+  http.get(`${BASE_API_URL}/${params.oclc}`);
 }

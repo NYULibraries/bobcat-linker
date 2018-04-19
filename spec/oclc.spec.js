@@ -2,15 +2,29 @@ const { BASE_SEARCH_URL, INSTITUTIONS, ADVANCED_MODE } = require("./helpers/cons
 const { oclc } = require("./helpers/constants").lambdas;
 const nock = require('nock');
 
-describe('oclc', () => {
-  const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content/";
+describe('OCLC', () => {
+  const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
 
-  describe("when http request made", () => {
-    const req = nock(new RegExp(`${BASE_API_URL}`));
+  describe("when OCLC provided", () => {
+    const oclcId = "82671871";
+    const institution = "nyu";
 
-    it('should make a GET request to appropriate URL', (done) => {
-      const oclcId = "82671871";
-      const url = BASE_API_URL + oclcId;
+    it('should make a GET request to WorldCat', (done) => {
+      const req = nock(BASE_API_URL)
+                    .get(`/${oclcId}`)
+                    .reply(200, 'Hello from Webcat!');
+
+      return oclc.event({
+        "queryStringParameters": {
+          oclc: oclcId,
+          institution
+        }
+      })
+      .expectResult(result => {
+        expect(req.isDone()).toBe(true);
+      })
+      .verify(done);
+
     });
   });
 
@@ -22,7 +36,7 @@ describe('oclc', () => {
     it("should use the record's first ISBN", (done) => {
       return oclc.event({
         "queryStringParameters": {
-          oclcId,
+          oclc: oclcId,
           institution
         }
       })
@@ -42,7 +56,7 @@ describe('oclc', () => {
     it("should use the record's first ISSN", (done) => {
       return oclc.event({
         "queryStringParameters": {
-          oclcId,
+          oclc: oclcId,
           institution
         }
       })
