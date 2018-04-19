@@ -25,7 +25,7 @@ function getURI(params) {
   if (params === null) { return `${BASE_SEARCH_URL}&vid=NYU`; }
 
   let url = BASE_SEARCH_URL;
-  if (params.lcn) { url = handleLCN(params); }
+  if (params.lcn) { url = handleLCN(params.lcn); }
   else if (params.isbn || params.issn) { url = handleISxN(params.isbn || params.issn); }
   else if (params.isbn) { url = handleISxN(params); }
   else if (params.oclc) { url = handleOCLC(params); }
@@ -52,8 +52,8 @@ function handleInstitution(params, url) {
   return `${url}&vid=${vid}`;
 }
 
-function handleLCN(params) {
-  return `${BASE_FULLDISPLAY_URL}&docid=${params.lcn}`;
+function handleLCN(lcn) {
+  return `${BASE_FULLDISPLAY_URL}&docid=${lcn}`;
 }
 
 function handleOCLC(params) {
