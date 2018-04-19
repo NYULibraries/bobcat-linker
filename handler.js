@@ -17,8 +17,7 @@ module.exports.persistent = (event, context, callback) => {
           Location: targetURI,
         },
       }))
-      .catch(new Error())
-  ); // Fail function with error
+  );
 };
 
 function getURI(params) {
