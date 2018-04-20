@@ -18,6 +18,39 @@ describe('OCLC', () => {
     spyOn(console, 'error');
   });
 
+  describe('with a valid institution', () => {
+    let isbnRecRequest;
+    beforeEach(() => {
+      isbnRecRequest =
+        nock(BASE_API_URL)
+          .get(`/${worldCatISBN.oclc}`)
+          .query(true)
+          .reply(200, worldCatISBN.xml);
+    });
+
+    INSTITUTIONS.forEach(institution => {
+      it(`should redirect to ${institution}\'s fulldisplay page`, (done) => {
+        const isbn = worldCatISBN.isbn;
+        const oclcId = worldCatISBN.oclc;
+        const lcn = "abcd123456789";
+
+        return oclc.event({
+          "queryStringParameters": {
+            institution,
+            oclc: oclcId
+          }
+        })
+        .expectResult(result => {
+          expect(isbnRecRequest.isDone()).toBe(true);
+          expect(result.statusCode).toEqual(302);
+          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${institution}`);
+        })
+        .verify(done);
+      });
+    });
+
+  });
+
   describe("when OCLC provided", () => {
     const institution = "nyu";
     it('should make a GET request to WorldCat', (done) => {

@@ -91,7 +91,7 @@ function fetchOclcURI(params, key) {
         const xml = parseXml(response.data);
         const isXn = getIsXnFromXml(xml);
         if (isXn) {
-          return handleInstitution(params.institution, handleISxN(isXn));
+          return handleInstitution(params, handleISxN(isXn));
         }
       },
       // if HTTP get goes wrong
