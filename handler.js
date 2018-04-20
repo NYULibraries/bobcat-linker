@@ -95,19 +95,31 @@ function fetchOclcURI(params) {
       axios
       .get(`${BASE_API_URL}/${params.oclc}`)
       .then(response => {
-
         const xml = parseXml(response.data);
-        const isbn = getIsbnTextFromXml(xml);
-        return isbn ? handleInstitution(params.institution, handleISxN(isbn)) : null;
+        const isXn = getIsXnTextFromXml(xml);
+        if (isXn) {
+          return handleInstitution(params.institution, handleISxN(isXn));
+        }
       },
-      // if axios get goes wrong
+      // if HTTP get goes wrong
       err => { console.error(err.message); })
     // if parseXml goes wrong
     .catch(err => { console.error(err.message); })
   );
 }
 
-function getIsbnTextFromXml(xml) {
+function getIsXnTextFromXml(xml) {
+  return (
+    // get ISBN
+    getXmlSubfield(xml, { tag: '020', code: 'a' }) ||
+    // get ISSN
+    getXmlSubfield(xml, { tag: '022', code: 'a' }) ||
+    // can't find either
+    null
+  );
+}
+
+function getXmlSubfield(xml, { tag, code }) {
   try {
     return(
       xml
@@ -115,14 +127,14 @@ function getIsbnTextFromXml(xml) {
       .children[0].children
       // find first ISBN element
       .find(el =>
-        el.name === 'datafield' && el.attributes.tag === '020'
+        el.name === 'datafield' && el.attributes.tag === tag
       ).children
       // find corresponding number element
       .find(el =>
-        el.name === 'subfield' && el.attributes.code === "a"
+        el.name === 'subfield' && el.attributes.code === code
       )
       // get text
-      .children[0].text
+      .children[0].text.trim()
     );
   } catch(err) {
     return null;
