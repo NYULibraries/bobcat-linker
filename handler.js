@@ -25,26 +25,17 @@ module.exports.persistent = (event, context, callback) => {
 };
 
 module.exports.oclc = (event, context, callback) => {
-  let targetURI;
   return (
     Promise.resolve(event)
       .then(() => {
         const params = event.queryStringParameters;
-
-        return new Promise((resolve, reject) => {
-          fetchOclcURI(params)
-            .then((uri) => {
-                resolve(uri);
-                reject(new Error("Unable to make create URI from OCLC data"));
-            });
-        });
+        return fetchOclcURI(params);
       })
-      .then(uri => { targetURI = uri; }, err => { console.error(err.message); })
       .then(
-        () => callback(null, {
+        (uri) => callback(null, {
           statusCode: 302,
           headers: {
-            Location: targetURI,
+            Location: uri,
           },
         })
       )
