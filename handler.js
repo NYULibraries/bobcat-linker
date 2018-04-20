@@ -35,20 +35,20 @@ module.exports.oclc = (event, context, callback) => {
           fetchOclcURI(params)
             .then((uri) => {
                 resolve(uri);
-                reject(new Error("Unable to get OCLC record data"));
+                reject(new Error("Unable to make create URI from OCLC data"));
             });
         });
       })
-      .then(uri => { targetURI = uri; } )
+      .then(uri => { targetURI = uri; }, err => { console.error(err); })
       .then(
         () => callback(null, {
           statusCode: 302,
           headers: {
             Location: targetURI,
           },
-        }),
-        err => console.log(err)
+        })
       )
+      .catch(callback)
   );
 };
 
@@ -95,15 +95,16 @@ function fetchOclcURI(params) {
       axios
       .get(`${BASE_API_URL}/${params.oclc}`)
       .then(response => {
+
         const xml = parseXml(response.data);
         const isbn = getIsbnTextFromXml(xml);
-
         return isbn ? handleInstitution(params.institution, handleISxN(isbn)) : null;
       },
-      err => {
-        console.log(err);
-      })
-    );
+      // if axios get goes wrong
+      err => { console.error(err.message); })
+    // if parseXml goes wrong
+    .catch(err => { console.error(err.message); })
+  );
 }
 
 function getIsbnTextFromXml(xml) {

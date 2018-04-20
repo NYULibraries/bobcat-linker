@@ -58,6 +58,27 @@ describe('OCLC', () => {
       })
       .verify(done);
     });
+
+    it("should work with significant delays", (done) => {
+      const delayedRequest =
+        nock(BASE_API_URL)
+          .get(`/${worldCatISBN.oclc}`)
+          .delayBody(2000)
+          .reply(200, worldCatISBN.xml);
+
+      return oclc.event({
+        "queryStringParameters": {
+          oclc: oclcId,
+          institution
+        }
+      })
+      .expectResult(result => {
+        expect(isbnRecRequest.isDone()).toBe(true);
+        expect(result.statusCode).toEqual(302);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${institution.toUpperCase()}`);
+      })
+      .verify(done);
+    });
   });
 
   // describe('when ISSN found', () => {
