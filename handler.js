@@ -20,7 +20,7 @@ module.exports.persistent = (event, context, callback) => {
           Location: targetURI,
         },
       }))
-      .catch(callback)
+      .catch(err => { callback(err); })
   );
 };
 
@@ -30,17 +30,17 @@ module.exports.oclc = (event, context, callback) => {
       .then(() => {
         const params = event.queryStringParameters;
         const key = process.env.WORLDCAT_API_KEY;
-        return fetchOclcURI(params, key);
+        return fetchOclcURI(params, key, callback);
       })
       .then(
-        (uri) => callback(null, {
+        uri => callback(null, {
           statusCode: 302,
           headers: {
             Location: uri,
           },
         })
       )
-      .catch(callback)
+      .catch(err => { callback(err); })
   );
 };
 
@@ -82,7 +82,7 @@ function handleISxN(isXn) {
   return `${BASE_SEARCH_URL}query=isbn,contains,${isXn}&mode=advanced`;
 }
 
-function fetchOclcURI(params, key) {
+function fetchOclcURI(params, key, cb) {
     const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
 
     return (
@@ -96,9 +96,9 @@ function fetchOclcURI(params, key) {
         }
       },
       // if HTTP get goes wrong
-      err => { console.error(err.message); })
-    // if parseXml goes wrong
-    .catch(err => { console.error(err.message); })
+      err => { cb(new Error ('OCLC resource not found')); })
+      // if parseXml goes wrong
+      .catch(err => { cb(err); })
   );
 }
 
@@ -107,9 +107,8 @@ function getIsXnFromXml(xml) {
     // get ISBN
     getXmlSubfield(xml, { tag: '020', code: 'a' }) ||
     // get ISSN
-    getXmlSubfield(xml, { tag: '022', code: 'a' }) ||
-    // can't find either
-    null
+    getXmlSubfield(xml, { tag: '022', code: 'a' })
+    // or null
   );
 }
 

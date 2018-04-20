@@ -118,7 +118,7 @@ describe('OCLC', () => {
         nock(BASE_API_URL)
         .get("/anyId123")
         .query(true)
-        .reply(200, "Welcome to WorldCat!");
+        .reply(200, worldCatISBN.xml);
 
       return oclc.event({
         "queryStringParameters": {
@@ -137,7 +137,7 @@ describe('OCLC', () => {
         nock(BASE_API_URL)
           .get("/anyId123")
           .query({ wskey: MOCK_API_KEY })
-          .reply(200, "Welcome to WorldCat!");
+          .reply(200, worldCatISBN.xml);
 
       return oclc.event({
         "queryStringParameters": {
@@ -157,26 +157,51 @@ describe('OCLC', () => {
 
     describe('of xml parsing', () => {
       let genericRequest;
+      const mockId = "anyId123";
       beforeEach(() => {
         genericRequest =
           nock(BASE_API_URL)
-            .get("/anyId123").query(true)
-            .reply(200, "Welcome to WorldCat!");
+            .get(`/${mockId}`).query(true)
+            .reply(200, 'Welcome to WorldCat');
       });
 
-      it('should log xml parsing error', (done) => {
+      it('should return xml parsing error', (done) => {
         return oclc.event({
           "queryStringParameters": {
-            oclc: "anyId123",
+            oclc: mockId,
             institution
           }
         })
-        .expectResult(result => {
-          expect(console.error).toHaveBeenCalled();
+        .expectError(error => {
+          expect(error.message).toContain('Root element is missing or invalid');
         })
         .verify(done);
       });
     });
+
+    describe('of WorldCat fetch', () => {
+      let genericRequest;
+      const mockId = "anyId123";
+      beforeEach(() => {
+        genericRequest =
+          nock(BASE_API_URL)
+            .get(`/${mockId}`).query(true)
+            .reply(400);
+      });
+      it("should show 'OCLC resource not found' error", (done) => {
+        return oclc.event({
+          "queryStringParameters": {
+            oclc: mockId,
+            institution
+          }
+        })
+        .expectError(error => {
+          expect(error.message).toEqual('OCLC resource not found');
+        })
+        .verify(done);
+      });
+    });
+
   });
 
   describe('when ISBN found', () => {
