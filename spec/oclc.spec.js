@@ -3,13 +3,15 @@ const { oclc } = require("./helpers/constants").lambdas;
 const nock = require('nock');
 
 const worldCatISBN = require('./helpers/worldcat-isbn.fixture.js');
+const worldCatISSN = require('./helpers/worldcat-issn.fixture.js');
 
 describe('OCLC', () => {
   const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
 
-  let genericRequest, isbnRecRequest;
   describe("when OCLC provided", () => {
+    const institution = "nyu";
 
+    let genericRequest;
     beforeEach(() => {
       genericRequest =
         nock(BASE_API_URL)
@@ -17,7 +19,6 @@ describe('OCLC', () => {
           .reply(200, "Welcome to WorldCat!");
     });
 
-    const institution = "nyu";
     it('should make a GET request to WorldCat', (done) => {
       return oclc.event({
         "queryStringParameters": {
@@ -32,7 +33,40 @@ describe('OCLC', () => {
     });
   });
 
+  describe('on failure', () => {
+    const institution = "nyu";
+
+    beforeEach(() => {
+      spyOn(console, 'error');
+    });
+
+    describe('of xml parsing', () => {
+      let genericRequest;
+      beforeEach(() => {
+        genericRequest =
+          nock(BASE_API_URL)
+            .get("/anyId123")
+            .reply(200, "Welcome to WorldCat!");
+      });
+
+      it('should log xml parsing error', (done) => {
+        return oclc.event({
+          "queryStringParameters": {
+            oclc: "anyId123",
+            institution
+          }
+        })
+        .expectResult(result => {
+          expect(console.error).toHaveBeenCalled();
+        })
+        .verify(done);
+      });
+    });
+  });
+
   describe('when ISBN found', () => {
+
+    let isbnRecRequest;
     beforeEach(() => {
       isbnRecRequest =
         nock(BASE_API_URL)
@@ -81,25 +115,33 @@ describe('OCLC', () => {
     });
   });
 
-  // describe('when ISSN found', () => {
-  //   const issn = "0028-0836";
-  //   const oclcId = "1586310";
-  //   const institution = "NYU";
-  //
-  //   it("should use the record's first ISSN", (done) => {
-  //     return oclc.event({
-  //       "queryStringParameters": {
-  //         oclc: oclcId,
-  //         institution
-  //       }
-  //     })
-  //     .expectResult(result => {
-  //       expect(result.statusCode).toEqual(302);
-  //       expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${issn}&${ADVANCED_MODE}&vid=${institution.toUpperCase()}`);
-  //     })
-  //     .verify(done);
-  //   });
-  // });
+  describe('when ISSN found', () => {
+    const issn = worldCatISSN.issn;
+    const oclcId = worldCatISSN.oclc;
+    const institution = "nyu";
+
+    let issnRecRequest;
+    beforeEach(() => {
+      issnRecRequest =
+        nock(BASE_API_URL)
+          .get(`/${worldCatISSN.oclc}`)
+          .reply(200, worldCatISSN.xml);
+    });
+
+    it("should use the record's first ISSN", (done) => {
+      return oclc.event({
+        "queryStringParameters": {
+          oclc: oclcId,
+          institution
+        }
+      })
+      .expectResult(result => {
+        expect(result.statusCode).toEqual(302);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${issn}&${ADVANCED_MODE}&vid=${institution.toUpperCase()}`);
+      })
+      .verify(done);
+    });
+  });
 
   afterEach(() => {
     nock.cleanAll();

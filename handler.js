@@ -39,7 +39,7 @@ module.exports.oclc = (event, context, callback) => {
             });
         });
       })
-      .then(uri => { targetURI = uri; }, err => { console.error(err); })
+      .then(uri => { targetURI = uri; }, err => { console.error(err.message); })
       .then(
         () => callback(null, {
           statusCode: 302,

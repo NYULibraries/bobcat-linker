@@ -55,5 +55,5 @@ exports.xml = `<?xml version="1.0" encoding="UTF-8"?>
 </record>
 `;
 
-exports.isbn = 9780596529260;
-exports.oclc = 82671871;
+exports.isbn = "9780596529260";
+exports.oclc = "82671871";
