@@ -96,7 +96,7 @@ function fetchOclcURI(params, key, cb) {
         }
       },
       // if HTTP get goes wrong
-      err => { cb(new Error ('OCLC resource not found')); })
+      err => { cb(err); })
       // if parseXml goes wrong
       .catch(err => { cb(err); })
   );

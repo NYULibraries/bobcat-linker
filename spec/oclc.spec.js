@@ -186,9 +186,9 @@ describe('OCLC', () => {
         genericRequest =
           nock(BASE_API_URL)
             .get(`/${mockId}`).query(true)
-            .reply(400);
+            .reply(404);
       });
-      it("should show 'OCLC resource not found' error", (done) => {
+      it("should show corresponding status error", (done) => {
         return oclc.event({
           "queryStringParameters": {
             oclc: mockId,
@@ -196,7 +196,7 @@ describe('OCLC', () => {
           }
         })
         .expectError(error => {
-          expect(error.message).toEqual('OCLC resource not found');
+          expect(error.response.status).toEqual(404);
         })
         .verify(done);
       });
