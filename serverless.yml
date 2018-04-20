@@ -44,8 +44,8 @@ provider:
 #            - "/*"
 
 # you can define service wide environment variables here
- environment:
-   WORLDCAT_API_KEY: ${ssm:WORLDCAT_API_KEY}
+  environment:
+    WORLDCAT_API_KEY: ${ssm:WORLDCAT_API_KEY}
 
 # you can add packaging information here
 #package:
