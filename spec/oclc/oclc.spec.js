@@ -9,6 +9,20 @@ describe('OCLC', () => {
     process.env.WORLDCAT_API_KEY = MOCK_API_KEY;
   });
 
+  describe("null query", () => {
+    it('should redirect to NYU search', (done) => {
+      return oclc.event({
+        "queryStringParameters": null
+      })
+      .expectResult(result => {
+        expect(result.statusCode).toEqual(302);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=NYU`);
+      })
+      .verify(done);
+    });
+  });
+
+
   describe("when OCLC provided", () => {
     const institution = "nyu";
     it('should make a GET request to WorldCat', (done) => {
@@ -99,7 +113,6 @@ describe('OCLC', () => {
         .verify(done);
       });
     });
-
   });
 
   afterEach(() => {

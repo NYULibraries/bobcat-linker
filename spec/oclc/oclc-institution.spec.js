@@ -1,5 +1,5 @@
 const { BASE_SEARCH_URL, INSTITUTIONS, ADVANCED_MODE,
-        BASE_API_URL, MOCK_API_KEY } = require("../helpers/constants");
+        BASE_API_URL } = require("../helpers/constants");
 const { oclc } = require("../helpers/constants").lambdas;
 const worldCatISBN = require('../helpers/worldcat-isbn.fixture.js');
 const nock = require('nock');
@@ -94,7 +94,7 @@ describe('institution parameter', () => {
       });
     });
   });
-  
+
   afterEach(() => {
     nock.cleanAll();
   });

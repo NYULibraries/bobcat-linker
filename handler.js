@@ -3,9 +3,6 @@
 const BASE_SEARCH_URL = "http://bobcat.library.nyu.edu/primo-explore/search?";
 const BASE_FULLDISPLAY_URL = "http://bobcat.library.nyu.edu/primo-explore/fulldisplay?";
 
-const axios = require('axios');
-const parseXml = require('@rgrove/parse-xml');
-
 module.exports.persistent = (event, context, callback) => {
   let targetURI;
   return (
@@ -83,6 +80,11 @@ function handleISxN(isXn) {
 }
 
 function fetchOclcURI(params, key, cb) {
+    if (params === null) { return `${BASE_SEARCH_URL}&vid=NYU`; }  
+
+    const axios = require('axios');
+    const parseXml = require('@rgrove/parse-xml');
+
     const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
 
     return (
