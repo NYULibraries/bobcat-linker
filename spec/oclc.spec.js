@@ -79,4 +79,8 @@ describe('OCLC', () => {
   //     .verify(done);
   //   });
   // });
+
+  afterEach(() => {
+    nock.cleanAll();
+  });
 });
