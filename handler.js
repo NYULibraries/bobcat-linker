@@ -2,7 +2,6 @@
 
 const BASE_SEARCH_URL = "http://bobcat.library.nyu.edu/primo-explore/search?";
 const BASE_FULLDISPLAY_URL = "http://bobcat.library.nyu.edu/primo-explore/fulldisplay?";
-const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
 
 const axios = require('axios');
 const parseXml = require('@rgrove/parse-xml');
@@ -29,7 +28,8 @@ module.exports.oclc = (event, context, callback) => {
     Promise.resolve(event)
       .then(() => {
         const params = event.queryStringParameters;
-        return fetchOclcURI(params);
+        const key = process.env.WORLDCAT_API_KEY;
+        return fetchOclcURI(params, key);
       })
       .then(
         (uri) => callback(null, {
@@ -81,10 +81,12 @@ function handleISxN(isXn) {
   return `${BASE_SEARCH_URL}query=isbn,contains,${isXn}&mode=advanced`;
 }
 
-function fetchOclcURI(params) {
+function fetchOclcURI(params, key) {
+    const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
+
     return (
       axios
-      .get(`${BASE_API_URL}/${params.oclc}`)
+      .get(`${BASE_API_URL}/${params.oclc}?wskey=${key}`)
       .then(response => {
         const xml = parseXml(response.data);
         const isXn = getIsXnFromXml(xml);

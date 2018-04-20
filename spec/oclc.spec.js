@@ -7,23 +7,26 @@ const worldCatISSN = require('./helpers/worldcat-issn.fixture.js');
 
 describe('OCLC', () => {
   const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
+  const MOCK_API_KEY = "922bfbc1-d6ad-417c-940b-50c07e8db080";
 
+  beforeEach(() => {
+    process.env.WORLDCAT_API_KEY = MOCK_API_KEY;
+  });
+
+  // spies
   beforeEach(() => {
     spyOn(console, 'error');
   });
 
   describe("when OCLC provided", () => {
     const institution = "nyu";
-
-    let genericRequest;
-    beforeEach(() => {
-      genericRequest =
-        nock(BASE_API_URL)
-          .get("/anyId123")
-          .reply(200, "Welcome to WorldCat!");
-    });
-
     it('should make a GET request to WorldCat', (done) => {
+      const genericRequest =
+        nock(BASE_API_URL)
+        .get("/anyId123")
+        .query(true)
+        .reply(200, "Welcome to WorldCat!");
+
       return oclc.event({
         "queryStringParameters": {
           oclc: "anyId123",
@@ -32,6 +35,25 @@ describe('OCLC', () => {
       })
       .expectResult(result => {
         expect(genericRequest.isDone()).toBe(true);
+      })
+      .verify(done);
+    });
+
+    it("should utilize API key", (done) => {
+      const reqWithApiKey =
+        nock(BASE_API_URL)
+          .get("/anyId123")
+          .query({ wskey: MOCK_API_KEY })
+          .reply(200, "Welcome to WorldCat!");
+
+      return oclc.event({
+        "queryStringParameters": {
+          oclc: "anyId123",
+          institution
+        }
+      })
+      .expectResult(result => {
+        expect(reqWithApiKey.isDone()).toBe(true);
       })
       .verify(done);
     });
@@ -45,7 +67,7 @@ describe('OCLC', () => {
       beforeEach(() => {
         genericRequest =
           nock(BASE_API_URL)
-            .get("/anyId123")
+            .get("/anyId123").query(true)
             .reply(200, "Welcome to WorldCat!");
       });
 
@@ -71,6 +93,7 @@ describe('OCLC', () => {
       isbnRecRequest =
         nock(BASE_API_URL)
           .get(`/${worldCatISBN.oclc}`)
+          .query(true)
           .reply(200, worldCatISBN.xml);
     });
 
@@ -97,6 +120,7 @@ describe('OCLC', () => {
       const delayedRequest =
         nock(BASE_API_URL)
           .get(`/${worldCatISBN.oclc}`)
+          .query(true)
           .delayBody(2000)
           .reply(200, worldCatISBN.xml);
 
@@ -125,6 +149,7 @@ describe('OCLC', () => {
       issnRecRequest =
         nock(BASE_API_URL)
           .get(`/${worldCatISSN.oclc}`)
+          .query(true)
           .reply(200, worldCatISSN.xml);
     });
 

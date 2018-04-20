@@ -20,7 +20,8 @@ service: lambda-sandbox # NOTE: update this with your service name
 provider:
   name: aws
   runtime: nodejs6.10
-  role: arn:aws:iam::638150973557:role/lambda-fxn
+  role: arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole # nyulitsdev
+  # role: arn:aws:iam::638150973557:role/lambda-fxn # libservices
 
 # you can overwrite defaults here
   stage: dev
@@ -43,8 +44,8 @@ provider:
 #            - "/*"
 
 # you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+ environment:
+   WORLDCAT_API_KEY: ${ssm:WORLDCAT_API_KEY}
 
 # you can add packaging information here
 #package:
