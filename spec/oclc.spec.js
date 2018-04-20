@@ -8,6 +8,10 @@ const worldCatISSN = require('./helpers/worldcat-issn.fixture.js');
 describe('OCLC', () => {
   const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
 
+  beforeEach(() => {
+    spyOn(console, 'error');
+  });
+
   describe("when OCLC provided", () => {
     const institution = "nyu";
 
@@ -35,10 +39,6 @@ describe('OCLC', () => {
 
   describe('on failure', () => {
     const institution = "nyu";
-
-    beforeEach(() => {
-      spyOn(console, 'error');
-    });
 
     describe('of xml parsing', () => {
       let genericRequest;
@@ -136,6 +136,7 @@ describe('OCLC', () => {
         }
       })
       .expectResult(result => {
+        expect(issnRecRequest.isDone()).toBe(true);
         expect(result.statusCode).toEqual(302);
         expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${issn}&${ADVANCED_MODE}&vid=${institution.toUpperCase()}`);
       })

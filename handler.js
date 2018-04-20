@@ -96,7 +96,7 @@ function fetchOclcURI(params) {
       .get(`${BASE_API_URL}/${params.oclc}`)
       .then(response => {
         const xml = parseXml(response.data);
-        const isXn = getIsXnTextFromXml(xml);
+        const isXn = getIsXnFromXml(xml);
         if (isXn) {
           return handleInstitution(params.institution, handleISxN(isXn));
         }
@@ -108,7 +108,7 @@ function fetchOclcURI(params) {
   );
 }
 
-function getIsXnTextFromXml(xml) {
+function getIsXnFromXml(xml) {
   return (
     // get ISBN
     getXmlSubfield(xml, { tag: '020', code: 'a' }) ||
