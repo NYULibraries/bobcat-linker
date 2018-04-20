@@ -20,6 +20,7 @@ module.exports.persistent = (event, context, callback) => {
           Location: targetURI,
         },
       }))
+      .catch(callback)
   );
 };
 
