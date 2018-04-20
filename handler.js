@@ -4,7 +4,8 @@ const BASE_SEARCH_URL = "http://bobcat.library.nyu.edu/primo-explore/search?";
 const BASE_FULLDISPLAY_URL = "http://bobcat.library.nyu.edu/primo-explore/fulldisplay?";
 const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
 
-const http = require('http');
+const axios = require('axios');
+const parseXml = require('@rgrove/parse-xml');
 
 module.exports.persistent = (event, context, callback) => {
   let targetURI;
@@ -27,16 +28,27 @@ module.exports.oclc = (event, context, callback) => {
   let targetURI;
   return (
     Promise.resolve(event)
-    .then(() => {
-      const params = event.queryStringParameters;
-      targetURI = getOclcURI(params);
-    })
-    .then(() => callback(null, {
-      statusCode: 302,
-      headers: {
-        Location: targetURI,
-      },
-    }))
+      .then(() => {
+        const params = event.queryStringParameters;
+
+        return new Promise((resolve, reject) => {
+          fetchOclcURI(params)
+            .then((uri) => {
+                resolve(uri);
+                reject(new Error("Unable to get OCLC record data"));
+            });
+        });
+      })
+      .then(uri => { targetURI = uri; } )
+      .then(
+        () => callback(null, {
+          statusCode: 302,
+          headers: {
+            Location: targetURI,
+          },
+        }),
+        err => console.log(err)
+      )
   );
 };
 
@@ -78,8 +90,40 @@ function handleISxN(isXn) {
   return `${BASE_SEARCH_URL}query=isbn,contains,${isXn}&mode=advanced`;
 }
 
-function getOclcURI(params) {
-  http.get(`${BASE_API_URL}/${params.oclc}`, (response) => {
-    // parseXML here
-  });
+function fetchOclcURI(params) {
+    return (
+      axios
+      .get(`${BASE_API_URL}/${params.oclc}`)
+      .then(response => {
+        const xml = parseXml(response.data);
+        const isbn = getIsbnTextFromXml(xml);
+
+        return isbn ? handleInstitution(params.institution, handleISxN(isbn)) : null;
+      },
+      err => {
+        console.log(err);
+      })
+    );
+}
+
+function getIsbnTextFromXml(xml) {
+  try {
+    return(
+      xml
+      // get first record's children
+      .children[0].children
+      // find first ISBN element
+      .find(el =>
+        el.name === 'datafield' && el.attributes.tag === '020'
+      ).children
+      // find corresponding number element
+      .find(el =>
+        el.name === 'subfield' && el.attributes.code === "a"
+      )
+      // get text
+      .children[0].text
+    );
+  } catch(err) {
+    return null;
+  }
 }
