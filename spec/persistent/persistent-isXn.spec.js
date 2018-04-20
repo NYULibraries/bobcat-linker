@@ -1,5 +1,5 @@
-const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, INSTITUTIONS, ADVANCED_MODE } = require("./helpers/constants");
-const { persistent } = require("./helpers/constants").lambdas;
+const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, INSTITUTIONS, ADVANCED_MODE } = require("../helpers/constants");
+const { persistent } = require("../helpers/constants").lambdas;
 
 describe('ISBN/ISSN', () => {
   describe('with a valid institution', () => {

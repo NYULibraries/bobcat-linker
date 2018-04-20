@@ -1,5 +1,5 @@
-const { BASE_FULLDISPLAY_URL, INSTITUTIONS } = require("./helpers/constants");
-const { persistent } = require("./helpers/constants").lambdas;
+const { BASE_FULLDISPLAY_URL, INSTITUTIONS } = require("../helpers/constants");
+const { persistent } = require("../helpers/constants").lambdas;
 
 describe('LCN', () => {
   describe('with a valid institution', () => {

@@ -48,11 +48,12 @@ provider:
     WORLDCAT_API_KEY: ${ssm:WORLDCAT_API_KEY}
 
 # you can add packaging information here
-#package:
+package:
+  exclude:
+    - spec/**
 #  include:
 #    - include-me.js
 #    - include-me-dir/**
-#  exclude:
 #    - exclude-me.js
 #    - exclude-me-dir/**
 
