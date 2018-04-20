@@ -7,37 +7,42 @@ const worldCatISBN = require('./helpers/worldcat-isbn.fixture.js');
 describe('OCLC', () => {
   const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
 
+  let genericRequest, isbnRecRequest;
   describe("when OCLC provided", () => {
-    const oclcId = "82671871";
+
+    beforeEach(() => {
+      genericRequest =
+        nock(BASE_API_URL)
+          .get("/anyId123")
+          .reply(200, "Welcome to WorldCat!");
+    });
+
     const institution = "nyu";
-
     it('should make a GET request to WorldCat', (done) => {
-      const req = nock(BASE_API_URL)
-                    .get(`/${oclcId}`)
-                    .reply(200, 'Hello from Webcat!');
-
       return oclc.event({
         "queryStringParameters": {
-          oclc: oclcId,
+          oclc: "anyId123",
           institution
         }
       })
       .expectResult(result => {
-        expect(req.isDone()).toBe(true);
+        expect(genericRequest.isDone()).toBe(true);
       })
       .verify(done);
     });
   });
 
   describe('when ISBN found', () => {
+    beforeEach(() => {
+      isbnRecRequest =
+        nock(BASE_API_URL)
+          .get(`/${worldCatISBN.oclc}`)
+          .reply(200, worldCatISBN.xml);
+    });
+
     const isbn = worldCatISBN.isbn;
     const oclcId = worldCatISBN.oclc;
     const institution = "NYU";
-    const req = nock(BASE_API_URL)
-                  .get(`/${oclcId}`)
-                  .reply(200, worldCatISBN.xml, {
-                    'Content-Type': 'application/xml'
-                  });
 
     it("should use the record's first ISBN", (done) => {
       return oclc.event({
@@ -47,7 +52,7 @@ describe('OCLC', () => {
         }
       })
       .expectResult(result => {
-        expect(req.isDone()).toBe(true);
+        expect(isbnRecRequest.isDone()).toBe(true);
         expect(result.statusCode).toEqual(302);
         expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${institution.toUpperCase()}`);
       })
