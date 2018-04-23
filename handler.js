@@ -18,7 +18,17 @@ module.exports.persistent = (event, context, callback) => {
           Location: targetURI,
         },
       }))
-      .catch(err => { callback(err); })
+      .catch(err => {
+        callback(err);
+
+        const uri = appendInstitutionToQuery(event.queryStringParameters.institution);
+        callback(null, {
+          statusCode: 302,
+          headers: {
+            Location: uri
+          }
+        });
+      })
   );
 };
 
@@ -38,7 +48,17 @@ module.exports.oclc = (event, context, callback) => {
           },
         })
       )
-      .catch(err => { callback(err); })
+      .catch(err => {
+        callback(err); // log the error
+
+        const uri = appendInstitutionToQuery(event.queryStringParameters.institution);
+        callback(null, {
+          statusCode: 302,
+          headers: {
+            Location: uri
+          }
+        });
+      })
   );
 };
 
@@ -54,6 +74,7 @@ function getURI(params) {
 }
 
 function appendInstitutionToQuery(institution, queryUrl) {
+  queryUrl = queryUrl || BASE_SEARCH_URL;
   const inst = (institution || 'nyu').toLowerCase();
   const vid = INSTITUTIONS_TO_VID[inst] || 'NYU';
   return `${queryUrl}&vid=${vid}`;
@@ -69,9 +90,10 @@ function generateISxNQuery(isXn) {
 
 function generateTitleAuthorQuery(title, author) {
   return `${BASE_SEARCH_URL}` +
-    (title ? `query=title,exact,${title},` : "") +
-    (title && author ? "AND&" : "") +
-    (author ? `query=creator,exact,${author},&mode=advanced` : "");
+    (title ? `query=title,exact,${title}` : "") +
+    (title && author ? ",AND&" : "") +
+    (author ? `query=creator,exact,${author}` : "") +
+    ",&mode=advanced";
 }
 
 function fetchOclcURI(params, key, cb) {
