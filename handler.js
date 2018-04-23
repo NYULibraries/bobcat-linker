@@ -1,7 +1,6 @@
 'use strict';
 
-const BASE_SEARCH_URL = "http://bobcat.library.nyu.edu/primo-explore/search?";
-const BASE_FULLDISPLAY_URL = "http://bobcat.library.nyu.edu/primo-explore/fulldisplay?";
+const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL } = require("./config/baseUrls.config.js");
 const { getUri, fetchOclcUri, institutionLandingUri } = require("./common/targetUri.js");
 
 module.exports.persistent = (event, context, callback) => {

@@ -1,7 +1,6 @@
 'use strict';
 
-const BASE_SEARCH_URL = "http://bobcat.library.nyu.edu/primo-explore/search?";
-const BASE_FULLDISPLAY_URL = "http://bobcat.library.nyu.edu/primo-explore/fulldisplay?";
+const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, BASE_API_URL } = require("../config/baseUrls.config.js");
 const { generateQuery, appendInstitutionToQuery, getFromMarc } = require("./queryUtils.js");
 
 exports.getUri = function getUri(params) {
@@ -24,8 +23,6 @@ exports.fetchOclcUri = function fetchOclcUri(params, key) {
 
   const axios = require('axios');
   const parseXml = require('@rgrove/parse-xml');
-
-  const BASE_API_URL = "http://www.worldcat.org/webservices/catalog/content";
 
   return (
     axios
