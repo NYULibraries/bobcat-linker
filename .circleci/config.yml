@@ -6,48 +6,78 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
       - image: circleci/node:6.10.3
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
-
     working_directory: ~/repo
-
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
-
       - run: yarn install
-
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run tests
-      - run: yarn test
+  test:
+    docker:
+      - image: circleci/node:6.10.3
+    steps:
+      - checkout
+      - run:
+          name: Test
+          command: yarn test
 
-  deployment:
-    production:
-      branch: master
-      commands:
-        - export LAMBDA_ROLE="arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole"
-        - yarn serverless config credentials --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} --profile circle-ci-prod -o
-        - yarn deploy --stage prod --conceal
+  deploy-dev:
+    docker:
+      - image: circleci/node:6.10.3
+    steps:
+      - checkout
+      - run:
+          name: Setup serverless configuration
+          command: |
+            export LAMBDA_ROLE="arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole"
+            yarn serverless config credentials --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} --profile circle-ci-dev -o
 
-  deployment:
-    development:
-      branch: development
-      commands:
-        - export LAMBDA_ROLE="arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole"
-        - yarn serverless config credentials --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} --profile circle-ci-dev -o
-        - yarn deploy --conceal
+      - run:
+          name: Deploy to AWS development server with serverless
+          command: yarn deploy --stage dev --conceal
+
+  deploy-prod:
+    docker:
+      - image: circleci/node:6.10.3
+    steps:
+      - checkout
+      - run:
+          name: Setup serverless configuration
+          command: |
+            export LAMBDA_ROLE="arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole"
+            yarn serverless config credentials --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} --profile circle-ci-prod -o
+
+      - run:
+          name: Deploy to AWS production server with serverless
+          command: yarn deploy --stage prod --conceal
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - deploy-dev:
+          requires:
+            - build
+            - test
+          filters:
+            - branches:
+              only: master
+      - deploy-prod:
+          requires:
+            - build
+            - test
+          filters:
+            - branches:
+              only: development
