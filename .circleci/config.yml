@@ -36,5 +36,18 @@ jobs:
       # run tests
       - run: yarn test
 
-      # deploy
-      - run: yarn deploy --conceal
+  deployment:
+    production:
+      branch: master
+      commands:
+        - export LAMBDA_ROLE="arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole"
+        - yarn serverless config credentials --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} --profile circle-ci-prod -o
+        - yarn deploy --stage prod --conceal
+
+  deployment:
+    development:
+      branch: development
+      commands:
+        - export LAMBDA_ROLE="arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole"
+        - yarn serverless config credentials --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} --profile circle-ci-dev -o
+        - yarn deploy --conceal
