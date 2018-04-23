@@ -33,7 +33,7 @@ describe('institution view ONLY', () => {
   });
 
   const defaultVid = INSTITUTIONS_TO_VID.default;
-  it(`should ${defaultVid} to NYU search if institution invalid`, (done) => {
+  it(`should redirect to ${defaultVid} search if institution invalid`, (done) => {
     return persistent.event({
       "queryStringParameters": {
         institution: "banana"
