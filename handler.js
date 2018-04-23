@@ -111,14 +111,14 @@ function fetchOclcURI(params, key) {
       .get(`${BASE_API_URL}/${params.oclc}?wskey=${key}`)
       .then(response => {
         const xml = parseXml(response.data);
-        const isXn = getIsXnFromXml(xml);
+        const isXn = getFromMarc(xml, "isbn") || getFromMarc(xml, "issn");
 
         if (isXn) {
           return appendInstitutionToQuery(params.institution, generateISxNQuery(isXn));
         }
 
-        const title = getTitleFromXml(xml);
-        const author = getAuthorFromXml(xml);
+        const title = getFromMarc(xml, "fullTitle");
+        const author = getFromMarc(xml, "author");
 
         return appendInstitutionToQuery(params.institution, generateTitleAuthorQuery(title, author));
       },
@@ -129,24 +129,31 @@ function fetchOclcURI(params, key) {
   );
 }
 
-function getIsXnFromXml(xml) {
-  return (
-    // get ISBN
-    getXmlSubfield(xml, { tag: '020', code: 'a' }) ||
-    // get ISSN
-    getXmlSubfield(xml, { tag: '022', code: 'a' })
-    // or null
-  );
+function getFromMarc(xml, param) {
+  const marcDatafields = {
+    isbn: { tag: '020', code: 'a' },
+    issn: { tag: '022', code: 'a' },
+    author: { tag: '100', code: 'a'},
+    title: { tag: '245', code: 'a'},
+    subtitle: { tag: '245', code: 'b'},
+    fullTitle: getTitleFromXml,
+  };
+
+  const datafields = marcDatafields[param];
+  let value;
+  if (typeof datafields === "function") {
+    value = datafields(xml);
+  } else {
+    value = getXmlSubfield(xml, datafields);
+  }
+
+  return value;
 }
 
 function getTitleFromXml(xml) {
-  const title = getXmlSubfield(xml, { tag: '245', code: 'a'});
-  const subtitle = getXmlSubfield(xml, { tag: '245', code: 'b'});
+  const title = getFromMarc(xml, "title");
+  const subtitle = getFromMarc(xml, "subtitle");
   return title + (subtitle ? " " : "") + subtitle;
-}
-
-function getAuthorFromXml(xml) {
-  return getXmlSubfield(xml, { tag: '100', code: 'a'});
 }
 
 function getXmlSubfield(xml, { tag, code }) {
