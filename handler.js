@@ -46,26 +46,32 @@ function getURI(params) {
   if (params === null) { return `${BASE_SEARCH_URL}&vid=NYU`; }
 
   let url = BASE_SEARCH_URL;
-  if (params.lcn) { url = handleLCN(params.lcn); }
-  else if (params.isbn || params.issn) { url = handleISxN(params.isbn || params.issn); }
-  else if (params.isbn) { url = handleISxN(params); }
+  if (params.lcn) { url = generateLCNQuery(params.lcn); }
+  else if (params.isbn || params.issn) { url = generateISxNQuery(params.isbn || params.issn); }
 
-  url = handleInstitution(params, url);
+  url = appendInstitutionToQuery(params.institution, url);
   return url;
 }
 
-function handleInstitution(params, url) {
-  const inst = (params.institution || 'nyu').toLowerCase();
+function appendInstitutionToQuery(institution, queryUrl) {
+  const inst = (institution || 'nyu').toLowerCase();
   const vid = INSTITUTIONS_TO_VID[inst] || 'NYU';
-  return `${url}&vid=${vid}`;
+  return `${queryUrl}&vid=${vid}`;
 }
 
-function handleLCN(lcn) {
+function generateLCNQuery(lcn) {
   return `${BASE_FULLDISPLAY_URL}&docid=${lcn}`;
 }
 
-function handleISxN(isXn) {
+function generateISxNQuery(isXn) {
   return `${BASE_SEARCH_URL}query=isbn,contains,${isXn}&mode=advanced`;
+}
+
+function generateTitleAuthorQuery(title, author) {
+  return "${BASE_SEARCH_URL}" +
+    (title ? `query=title,exact,${title},` : "") +
+    (title && author ? "AND" : "") +
+    (author ? `query=creator,exact,${author}&mode=advanced` : "");
 }
 
 function fetchOclcURI(params, key, cb) {
@@ -82,9 +88,15 @@ function fetchOclcURI(params, key, cb) {
       .then(response => {
         const xml = parseXml(response.data);
         const isXn = getIsXnFromXml(xml);
+
         if (isXn) {
-          return handleInstitution(params, handleISxN(isXn));
+          return appendInstitutionToQuery(params.institution, generateISxNQuery(isXn));
         }
+
+        const title = getTitleFromXml(xml);
+        const author = getAuthorFromXml(xml);
+
+        appendInstitutionToQuery(params.institution, generateTitleAuthorQuery(title, author));
       },
       // if HTTP get goes wrong
       err => { cb(err); })
@@ -101,6 +113,16 @@ function getIsXnFromXml(xml) {
     getXmlSubfield(xml, { tag: '022', code: 'a' })
     // or null
   );
+}
+
+function getTitleFromXml(xml) {
+  const title = getXmlSubfield(xml, { tag: '245', code: 'a'});
+  const subtitle = getXmlSubfield(xml, { tag: '245', code: 'b'});
+  return title + (subtitle ? " " : "") + subtitle;
+}
+
+function getAuthorFromXml(xml) {
+  return getXmlSubfield(xml, { tag: '100', code: 'a'}) || "";
 }
 
 function getXmlSubfield(xml, { tag, code }) {
@@ -121,6 +143,6 @@ function getXmlSubfield(xml, { tag, code }) {
       .children[0].text.trim()
     );
   } catch(err) {
-    return null;
+    return "";
   }
 }
