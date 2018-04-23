@@ -33,5 +33,11 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run tests!
+      # run tests
       - run: yarn test
+
+      # setup profile
+      - run: yarn serverless config credentials --provider aws --key $AWS_KEY --secret $AWS_SECRET --profile circle-ci
+
+      # deploy
+      - run: yarn deploy --conceal --aws-profile circle-ci
