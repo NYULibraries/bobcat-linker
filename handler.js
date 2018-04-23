@@ -68,10 +68,10 @@ function generateISxNQuery(isXn) {
 }
 
 function generateTitleAuthorQuery(title, author) {
-  return "${BASE_SEARCH_URL}" +
+  return `${BASE_SEARCH_URL}` +
     (title ? `query=title,exact,${title},` : "") +
-    (title && author ? "AND" : "") +
-    (author ? `query=creator,exact,${author}&mode=advanced` : "");
+    (title && author ? "AND&" : "") +
+    (author ? `query=creator,exact,${author},&mode=advanced` : "");
 }
 
 function fetchOclcURI(params, key, cb) {
@@ -96,7 +96,7 @@ function fetchOclcURI(params, key, cb) {
         const title = getTitleFromXml(xml);
         const author = getAuthorFromXml(xml);
 
-        appendInstitutionToQuery(params.institution, generateTitleAuthorQuery(title, author));
+        return appendInstitutionToQuery(params.institution, generateTitleAuthorQuery(title, author));
       },
       // if HTTP get goes wrong
       err => { cb(err); })
@@ -122,7 +122,7 @@ function getTitleFromXml(xml) {
 }
 
 function getAuthorFromXml(xml) {
-  return getXmlSubfield(xml, { tag: '100', code: 'a'}) || "";
+  return getXmlSubfield(xml, { tag: '100', code: 'a'});
 }
 
 function getXmlSubfield(xml, { tag, code }) {
