@@ -2,6 +2,7 @@
 
 const BASE_SEARCH_URL = "http://bobcat.library.nyu.edu/primo-explore/search?";
 const BASE_FULLDISPLAY_URL = "http://bobcat.library.nyu.edu/primo-explore/fulldisplay?";
+const INSTITUTIONS_TO_VID = require("./institutions.config.js");
 
 module.exports.persistent = (event, context, callback) => {
   let targetURI;
@@ -54,20 +55,8 @@ function getURI(params) {
 }
 
 function handleInstitution(params, url) {
-  const institutionsToVid = {
-    nyu: "NYU",
-    ns: "NS",
-    cu: "CU",
-    nyuad: "NYUAD",
-    nyush: "NYUSH",
-    bhs: "BHS",
-    nyhs: "NYHS",
-    nysid: "NYSID",
-    hsl: "HSL"
-  };
-
   const inst = (params.institution || 'nyu').toLowerCase();
-  const vid = institutionsToVid[inst] || 'NYU';
+  const vid = INSTITUTIONS_TO_VID[inst] || 'NYU';
   return `${url}&vid=${vid}`;
 }
 
@@ -80,7 +69,7 @@ function handleISxN(isXn) {
 }
 
 function fetchOclcURI(params, key, cb) {
-    if (params === null) { return `${BASE_SEARCH_URL}&vid=NYU`; }  
+    if (params === null) { return `${BASE_SEARCH_URL}&vid=NYU`; }
 
     const axios = require('axios');
     const parseXml = require('@rgrove/parse-xml');
