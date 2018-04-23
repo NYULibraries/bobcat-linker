@@ -49,13 +49,10 @@ provider:
 
 # you can add packaging information here
 package:
-  exclude:
-    - spec/**
-#  include:
-#    - include-me.js
-#    - include-me-dir/**
-#    - exclude-me.js
-#    - exclude-me-dir/**
+ include:
+   - handler.js
+   - common/**
+   - config/**
 
 functions:
   persistent:
