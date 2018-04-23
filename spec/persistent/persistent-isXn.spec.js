@@ -1,11 +1,15 @@
-const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, INSTITUTIONS, ADVANCED_MODE } = require("../helpers/constants");
+const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL,
+        INSTITUTIONS, INSTITUTIONS_TO_VID,
+        ADVANCED_MODE } = require("../helpers/constants");
 const { persistent } = require("../helpers/constants").lambdas;
 
 describe('ISBN/ISSN', () => {
   describe('with a valid institution', () => {
     INSTITUTIONS.forEach(institution => {
-      it(`should redirect to ${institution}\'s fulldisplay page with ISBN record`, (done) => {
+      it(`should redirect to ${institution.toUpperCase()}\'s fulldisplay page with ISBN record`, (done) => {
         const isbn = "abcd123456789";
+        const vid = INSTITUTIONS_TO_VID[institution];
+
         return persistent.event({
           "queryStringParameters": {
             institution,
@@ -14,7 +18,7 @@ describe('ISBN/ISSN', () => {
         })
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${institution}`);
+          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${vid}`);
         })
         .verify(done);
       });
@@ -23,6 +27,8 @@ describe('ISBN/ISSN', () => {
   });
 
   describe('with an invalid institution', () => {
+    const defaultVid = INSTITUTIONS_TO_VID.default;
+
     it(`should account for mis-capitalization`, (done) => {
       const institution = "nYu";
       const isbn = "abcd123456789";
@@ -34,12 +40,12 @@ describe('ISBN/ISSN', () => {
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${institution.toUpperCase()}`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=NYU`);
       })
       .verify(done);
     });
 
-    it("should redirect to NYU's search page with ISBN search", (done) => {
+    it(`should redirect to ${defaultVid}'s search page with ISBN search`, (done) => {
       const institution = "banana";
       const isbn = "abcd123456789";
       return persistent.event({
@@ -50,14 +56,16 @@ describe('ISBN/ISSN', () => {
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=NYU`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${defaultVid}`);
       })
       .verify(done);
     });
   });
 
   describe('without an institution', () => {
-    it("should redirect to NYU's search page with ISBN search", (done) => {
+    const defaultVid = INSTITUTIONS_TO_VID.default;
+
+    it(`should redirect to ${defaultVid}'s search page with ISBN search`, (done) => {
       const isbn = "abcd123456789";
       return persistent.event({
         "queryStringParameters": {
@@ -66,7 +74,7 @@ describe('ISBN/ISSN', () => {
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=NYU`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${defaultVid}`);
       })
       .verify(done);
     });

@@ -1,4 +1,5 @@
 module.exports = {
+  default: "NYU",
   nyu: "NYU",
   ns: "NS",
   cu: "CU",

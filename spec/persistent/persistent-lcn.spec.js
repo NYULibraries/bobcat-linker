@@ -1,10 +1,11 @@
-const { BASE_FULLDISPLAY_URL, INSTITUTIONS } = require("../helpers/constants");
+const { BASE_FULLDISPLAY_URL, INSTITUTIONS, INSTITUTIONS_TO_VID } = require("../helpers/constants");
 const { persistent } = require("../helpers/constants").lambdas;
 
 describe('LCN', () => {
   describe('with a valid institution', () => {
     INSTITUTIONS.forEach(institution => {
-      it(`should redirect to ${institution}\'s fulldisplay page with LCN record`, (done) => {
+      const vid = INSTITUTIONS_TO_VID[institution];
+      it(`should redirect to ${institution.toUpperCase()}\'s fulldisplay page with LCN record`, (done) => {
         const lcn = "abcd123456789";
         return persistent.event({
           "queryStringParameters": {
@@ -14,7 +15,7 @@ describe('LCN', () => {
         })
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=${institution}`);
+          expect(result.headers.Location).toEqual(`${BASE_FULLDISPLAY_URL}&docid=${lcn}&vid=${vid}`);
         })
         .verify(done);
       });

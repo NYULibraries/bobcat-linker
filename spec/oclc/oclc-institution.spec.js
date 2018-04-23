@@ -1,5 +1,5 @@
-const { BASE_SEARCH_URL, INSTITUTIONS, ADVANCED_MODE,
-        BASE_API_URL } = require("../helpers/constants");
+const { BASE_SEARCH_URL, INSTITUTIONS, INSTITUTIONS_TO_VID,
+        ADVANCED_MODE, BASE_API_URL } = require("../helpers/constants");
 const { oclc } = require("../helpers/constants").lambdas;
 const worldCatISBN = require('../helpers/worldcat-isbn.fixture.js');
 const nock = require('nock');
@@ -16,7 +16,8 @@ describe('institution parameter', () => {
 
   describe('with a valid institution', () => {
     INSTITUTIONS.forEach(institution => {
-      it(`should redirect to ${institution}\'s fulldisplay page`, (done) => {
+      it(`should redirect to ${institution.toUpperCase()}\'s fulldisplay page`, (done) => {
+        const vid = INSTITUTIONS_TO_VID[institution];
         const isbn = worldCatISBN.isbn;
         const oclcId = worldCatISBN.oclc;
 
@@ -29,7 +30,7 @@ describe('institution parameter', () => {
         .expectResult(result => {
           expect(isbnRecRequest.isDone()).toBe(true);
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${institution}`);
+          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${vid}`);
         })
         .verify(done);
       });
@@ -37,8 +38,11 @@ describe('institution parameter', () => {
   });
 
   describe('with an invalid institution', () => {
+    const defaultVid = INSTITUTIONS_TO_VID.default;
+
     it(`should account for mis-capitalization`, (done) => {
       const institution = "nYu";
+      const vid = INSTITUTIONS_TO_VID[institution.toLowerCase()];
       const isbn = worldCatISBN.isbn;
       const oclcId = worldCatISBN.oclc;
 
@@ -51,12 +55,12 @@ describe('institution parameter', () => {
       .expectResult(result => {
         expect(isbnRecRequest.isDone()).toBe(true);
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${institution.toUpperCase()}`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${vid}`);
       })
       .verify(done);
     });
 
-    it("should redirect to NYU's fulldisplay view of record", (done) => {
+    it(`should redirect to ${defaultVid}'s fulldisplay view of record`, (done) => {
       const institution = "banana";
       const isbn = worldCatISBN.isbn;
       const oclcId = worldCatISBN.oclc;
@@ -70,7 +74,7 @@ describe('institution parameter', () => {
       .expectResult(result => {
         expect(isbnRecRequest.isDone()).toBe(true);
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=NYU`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${defaultVid}`);
       })
       .verify(done);
     });
@@ -79,7 +83,7 @@ describe('institution parameter', () => {
       const oclcId = worldCatISBN.oclc;
       const isbn = worldCatISBN.isbn;
 
-      it("should redirect to NYU's fulldisplay view of record", (done) => {
+      it(`should redirect to ${defaultVid}'s fulldisplay view of record`, (done) => {
         return oclc.event({
           "queryStringParameters": {
             oclc: oclcId
@@ -88,7 +92,7 @@ describe('institution parameter', () => {
         .expectResult(result => {
           expect(isbnRecRequest.isDone()).toBe(true);
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=NYU`);
+          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${defaultVid}`);
         })
         .verify(done);
       });

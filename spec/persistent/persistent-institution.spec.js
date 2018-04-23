@@ -1,4 +1,4 @@
-const { BASE_SEARCH_URL, INSTITUTIONS } = require("../helpers/constants");
+const { BASE_SEARCH_URL, INSTITUTIONS, INSTITUTIONS_TO_VID } = require("../helpers/constants");
 const { persistent } = require("../helpers/constants").lambdas;
 
 describe('institution view ONLY', () => {
@@ -11,13 +11,14 @@ describe('institution view ONLY', () => {
     })
     .expectResult(result => {
       expect(result.statusCode).toEqual(302);
-      expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${institution.toUpperCase()}`);
+      expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=NYU`);
     })
     .verify(done);
   });
 
   INSTITUTIONS.forEach((institution) => {
-    it(`should redirect to ${institution} search`, (done) => {
+    const vid = INSTITUTIONS_TO_VID[institution];
+    it(`should redirect to ${institution.toUpperCase()}'s search`, (done) => {
       return persistent.event({
         "queryStringParameters": {
           institution
@@ -25,13 +26,14 @@ describe('institution view ONLY', () => {
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${institution}`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${vid}`);
       })
       .verify(done);
     });
   });
 
-  it('should redirect to NYU search if institution invalid', (done) => {
+  const defaultVid = INSTITUTIONS_TO_VID.default;
+  it(`should ${defaultVid} to NYU search if institution invalid`, (done) => {
     return persistent.event({
       "queryStringParameters": {
         institution: "banana"
@@ -39,7 +41,7 @@ describe('institution view ONLY', () => {
     })
     .expectResult(result => {
       expect(result.statusCode).toEqual(302);
-      expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=NYU`);
+      expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${defaultVid}`);
     })
     .verify(done);
   });
