@@ -5,21 +5,23 @@ const BASE_FULLDISPLAY_URL = "http://bobcat.library.nyu.edu/primo-explore/fulldi
 const INSTITUTIONS_TO_VID = require("./institutions.config.js");
 
 module.exports.persistent = (event, context, callback) => {
-  let targetURI;
   return (
     Promise.resolve(event)
       .then(() => {
         const params = event.queryStringParameters;
-        targetURI = getURI(params);
+        return getURI(params);
       })
-      .then(() => callback(null, {
-        statusCode: 302,
-        headers: {
-          Location: targetURI,
-        },
-      }))
+      .then(
+        uri => {
+        callback(null, {
+          statusCode: 302,
+          headers: {
+            Location: uri,
+          },
+        });
+      })
       .catch(err => {
-        callback(err);
+        console.error(err);
 
         const uri = appendInstitutionToQuery(event.queryStringParameters.institution);
         callback(null, {
@@ -38,7 +40,7 @@ module.exports.oclc = (event, context, callback) => {
       .then(() => {
         const params = event.queryStringParameters;
         const key = process.env.WORLDCAT_API_KEY;
-        return fetchOclcURI(params, key, callback);
+        return fetchOclcURI(params, key);
       })
       .then(
         uri => callback(null, {
@@ -49,7 +51,7 @@ module.exports.oclc = (event, context, callback) => {
         })
       )
       .catch(err => {
-        callback(err); // log the error
+        console.error(err);
 
         const uri = appendInstitutionToQuery(event.queryStringParameters.institution);
         callback(null, {
@@ -96,7 +98,7 @@ function generateTitleAuthorQuery(title, author) {
     ",&mode=advanced";
 }
 
-function fetchOclcURI(params, key, cb) {
+function fetchOclcURI(params, key) {
     if (params === null) { return `${BASE_SEARCH_URL}&vid=NYU`; }
 
     const axios = require('axios');
@@ -121,9 +123,9 @@ function fetchOclcURI(params, key, cb) {
         return appendInstitutionToQuery(params.institution, generateTitleAuthorQuery(title, author));
       },
       // if HTTP get goes wrong
-      err => { cb(err); })
+      err => { throw err; })
       // if parseXml goes wrong
-      .catch(err => { cb(err); })
+      .catch(err => { throw err; })
   );
 }
 

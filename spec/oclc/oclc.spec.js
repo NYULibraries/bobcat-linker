@@ -1,4 +1,4 @@
-const { BASE_SEARCH_URL, INSTITUTIONS, ADVANCED_MODE, BASE_API_URL, MOCK_API_KEY } = require("../helpers/constants");
+const { BASE_SEARCH_URL, INSTITUTIONS_TO_VID, ADVANCED_MODE, BASE_API_URL, MOCK_API_KEY } = require("../helpers/constants");
 const { oclc } = require("../helpers/constants").lambdas;
 const nock = require('nock');
 const worldCatISBN = require('../helpers/worldcat-isbn.fixture.js');
@@ -65,7 +65,11 @@ describe('OCLC', () => {
   });
 
   describe('on failure', () => {
-    const institution = "nyu";
+    const defaultVid = INSTITUTIONS_TO_VID.default;
+
+    beforeEach(() => {
+      spyOn(console, 'error');
+    });
 
     describe('of xml parsing', () => {
       let genericRequest;
@@ -77,15 +81,27 @@ describe('OCLC', () => {
             .reply(200, 'Welcome to WorldCat');
       });
 
-      it('should return xml parsing error', (done) => {
+      it('should log xml parsing error in Lambda', (done) => {
         return oclc.event({
           "queryStringParameters": {
-            oclc: mockId,
-            institution
+            oclc: mockId
           }
         })
-        .expectError(error => {
-          expect(error.message).toContain('Root element is missing or invalid');
+        .expectResult(result => {
+          expect(console.error.calls.mostRecent().args[0]).toMatch(/Root element is missing or invalid/);
+        })
+        .verify(done);
+      });
+
+      it('should redirect to institution\'s search page', (done) => {
+        return oclc.event({
+          "queryStringParameters": {
+            oclc: mockId
+          }
+        })
+        .expectResult(result => {
+          expect(result.statusCode).toEqual(302);
+          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${defaultVid}`);
         })
         .verify(done);
       });
@@ -100,15 +116,28 @@ describe('OCLC', () => {
             .get(`/${mockId}`).query(true)
             .reply(404);
       });
-      it("should show corresponding status error", (done) => {
+
+      it("should log the status error in Lambda", (done) => {
         return oclc.event({
           "queryStringParameters": {
-            oclc: mockId,
-            institution
+            oclc: mockId
           }
         })
-        .expectError(error => {
-          expect(error.response.status).toEqual(404);
+        .expectResult(result => {
+          expect(console.error.calls.mostRecent().args[0]).toMatch(/Request failed with status code 404/);
+        })
+        .verify(done);
+      });
+
+      it('should redirect to institution\'s search page', (done) => {
+        return oclc.event({
+          "queryStringParameters": {
+            oclc: mockId
+          }
+        })
+        .expectResult(result => {
+          expect(result.statusCode).toEqual(302);
+          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${defaultVid}`);
         })
         .verify(done);
       });
