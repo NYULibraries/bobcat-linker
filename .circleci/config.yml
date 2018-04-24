@@ -16,6 +16,7 @@ jobs:
           - v1-dependencies-
       - run: yarn install
       - save_cache:
+          key: v1-dependencies-{{ checksum "package.json" }}
           paths:
             - /tmp/node_modules
 
