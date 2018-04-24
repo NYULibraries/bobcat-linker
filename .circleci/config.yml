@@ -30,11 +30,11 @@ jobs:
           command: |
             export LAMBDA_ROLE="arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole"
             yarn install
-                      yarn serverless config credentials \
-                        --provider aws
-                        --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} \
-                        --profile circle-ci-dev
-
+            yarn serverless config credentials \
+              --provider aws
+              --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} \
+              --profile circle-ci-dev
+      - run:
           name: Deploy to AWS development server with serverless
           command: yarn deploy --stage --aws-profile circle-ci-dev --profile circle --conceal
 
