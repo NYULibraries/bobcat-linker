@@ -20,35 +20,50 @@ jobs:
           name: Test
           command: docker-compose run test
 
+  build:
+    docker:
+      - image: circleci/node:6.10.3
+    steps:
+      - checkout
+      - run:
+          name: Setup dependencies and deploy via serverless
+          command: |
+            yarn install
+            export LAMBDA_ROLE=$LAMBDA_ROLE_DEV
+            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_DEV
+            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_DEV
+            yarn deploy --stage dev --conceal
+
   deploy-dev:
     docker:
       - image: circleci/node:6.10.3
     steps:
       - checkout
       - run:
-          name: Setup npm dependencies
-          command: yarn install
-      - run:
-          name: Setup serverless credentials & deploy
+          name: Setup dependencies and deploy via serverless to dev
           command: |
+            yarn install
             export LAMBDA_ROLE=$LAMBDA_ROLE_DEV
-            yarn serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID_DEV --secret $AWS_SECRET_ACCESS_KEY_DEV --profile circle-ci-dev
-            yarn deploy --stage dev --aws-profile circle-ci-dev --conceal
+            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_DEV
+            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_DEV
+            yarn deploy --stage dev --conceal
 
   deploy-prod:
     docker:
       - image: circleci/node:6.10.3
     steps:
+    docker:
+      - image: circleci/node:6.10.3
+    steps:
       - checkout
       - run:
-          name: Setup npm dependencies
-          command: yarn install
-      - run:
-          name: Setup serverless credentials & deploy
+          name: Setup dependencies and deploy via serverless to prod
           command: |
+            yarn install
             export LAMBDA_ROLE=$LAMBDA_ROLE_PROD
-            yarn serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID_PROD --secret $AWS_SECRET_ACCESS_KEY_PROD --profile circle-ci-prod
-            yarn deploy --stage prod --aws-profile circle-ci-prod --conceal
+            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_PROD
+            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_PROD
+            yarn deploy --stage prod --conceal
 
 workflows:
   version: 2
