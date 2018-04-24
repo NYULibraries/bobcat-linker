@@ -5,8 +5,8 @@ const INSTITUTIONS_TO_VID = require("../config/institutions.config.js");
 
 function appendInstitutionToQuery(institution, queryUrl) {
   queryUrl = queryUrl;
-  const inst = (institution || 'nyu').toLowerCase();
-  const vid = INSTITUTIONS_TO_VID[inst] || 'NYU';
+  const inst = (institution || 'default').toLowerCase();
+  const vid = INSTITUTIONS_TO_VID[inst] || INSTITUTIONS_TO_VID.default;
   return `${queryUrl}&vid=${vid}`;
 }
 

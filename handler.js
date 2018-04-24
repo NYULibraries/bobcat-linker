@@ -21,8 +21,9 @@ module.exports.persistent = (event, context, callback) => {
       })
       .catch(err => {
         console.error(err);
-
-        const uri = institutionLandingUri(event.queryStringParameters.institution);
+        const params = event.queryStringParameters;
+        const institution = params ? params.institution : null;
+        const uri = institutionLandingUri(institution);
         callback(null, {
           statusCode: 302,
           headers: {

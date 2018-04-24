@@ -10,13 +10,14 @@ describe('OCLC', () => {
   });
 
   describe("null query", () => {
-    it('should redirect to NYU search', (done) => {
+    it('should redirect to default view\'s search', (done) => {
+      const defaultVid = INSTITUTIONS_TO_VID.default;
       return oclc.event({
         "queryStringParameters": null
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=NYU`);
+        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${defaultVid}`);
       })
       .verify(done);
     });
@@ -129,17 +130,22 @@ describe('OCLC', () => {
         .verify(done);
       });
 
-      it('should redirect to institution\'s search page', (done) => {
-        return oclc.event({
-          "queryStringParameters": {
-            oclc: mockId
-          }
-        })
-        .expectResult(result => {
-          expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${defaultVid}`);
-        })
-        .verify(done);
+      Object.keys(INSTITUTIONS_TO_VID).forEach(institution => {
+        const vid = INSTITUTIONS_TO_VID[institution];
+
+        it(`should redirect to ${institution}'s search page`, (done) => {
+          return oclc.event({
+            "queryStringParameters": {
+              oclc: mockId,
+              institution
+            }
+          })
+          .expectResult(result => {
+            expect(result.statusCode).toEqual(302);
+            expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${vid}`);
+          })
+          .verify(done);
+        });
       });
     });
   });
