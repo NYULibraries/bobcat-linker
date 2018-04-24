@@ -26,14 +26,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Setup serverless configuration
-          command: |
-            export LAMBDA_ROLE=$LAMBDA_ROLE_DEV
-            yarn install
-            yarn serverless config credentials \
-              --provider aws \
-              --key $AWS_ACCESS_KEY_ID_DEV --secret $AWS_SECRET_ACCESS_KEY_DEV \
-              --profile circle-ci-dev
+          name: Setup npm dependencies
+          command: yarn install
+      - run:
+          name: Setup env
+          command: export LAMBDA_ROLE=LAMBDA_ROLE_DEV
+      - run:
+          name: Setup serverless credentials
+          command: yarn serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID_DEV --secret $AWS_SECRET_ACCESS_KEY_DEV --profile circle-ci-dev
       - run:
           name: Deploy to AWS development server with serverless
           command: yarn deploy --stage dev --aws-profile circle-ci-dev --conceal
