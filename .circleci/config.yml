@@ -38,7 +38,7 @@ jobs:
             export STAGE=dev
             docker-compose run deploy
 
-  deploy-dev:
+  deploy-prod:
     <<: *docker-defaults
     steps:
       - checkout
