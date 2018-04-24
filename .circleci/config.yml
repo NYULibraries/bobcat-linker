@@ -41,7 +41,7 @@ jobs:
             pip3 install docker-compose
       - run:
           name: Deploy via serverless to dev
-          command: docker-compose deploy
+          command: docker-compose run deploy
 
   deploy-prod:
     docker:
@@ -64,7 +64,7 @@ jobs:
             pip3 install docker-compose
       - run:
           name: Deploy via serverless to dev
-          command: docker-compose deploy
+          command: docker-compose run deploy
 workflows:
   version: 2
   build-and-deploy:
