@@ -19,7 +19,7 @@ service: bobcat-linker # NOTE: update this with your service name
 
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs6.10 
   role: ${env:LAMBDA_ROLE} # nyulitsdev
   # role: arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole # nyulitsdev
   # role: arn:aws:iam::638150973557:role/lambda-fxn # libservices

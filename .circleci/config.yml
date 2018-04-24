@@ -69,15 +69,13 @@ workflows:
             - build
       - deploy-dev:
           requires:
-            - build
             - test
           filters:
-            - branches:
+            branches:
               only: master
       - deploy-prod:
           requires:
-            - build
             - test
           filters:
-            - branches:
+            branches:
               only: development
