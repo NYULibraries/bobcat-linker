@@ -24,6 +24,7 @@ jobs:
     docker:
       - image: circleci/node:6.10.3
     steps:
+      - checkout
       - run:
           name: Setup serverless configuration
           command: |
@@ -37,6 +38,7 @@ jobs:
     docker:
       - image: circleci/node:6.10.3
     steps:
+      - checkout
       - run:
           name: Setup serverless configuration
           command: |
@@ -57,10 +59,10 @@ workflows:
             - build-and-test
           filters:
             branches:
-              only: master
+              only: development
       - deploy-prod:
           requires:
             - build-and-test
           filters:
             branches:
-              only: development
+              only: master
