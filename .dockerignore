@@ -1,0 +1,7 @@
+.circleci/
+.git/
+.serverless/
+node_modules/
+.gitignore/
+*.md
+serverless.yml

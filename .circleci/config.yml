@@ -6,8 +6,8 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:6.10.3
-    working_directory: ~/repo
+      - image: docker:18.03.0-ce-git
+    working_directory: ~/app
     steps:
       - checkout
       - restore_cache:
@@ -17,38 +17,33 @@ jobs:
       - run: yarn install
       - save_cache:
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+            - /tmp/node_modules
 
   test:
     docker:
-      - image: circleci/node:6.10.3
+      - image: docker:18.03.0-ce-git
     steps:
-      - checkout
       - run:
           name: Test
-          command: yarn test
+          command: docker-compose run test yarn test
 
   deploy-dev:
     docker:
       - image: circleci/node:6.10.3
     steps:
-      - checkout
       - run:
           name: Setup serverless configuration
           command: |
             export LAMBDA_ROLE="arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole"
             yarn serverless config credentials --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} --profile circle-ci-dev -o
-
       - run:
           name: Deploy to AWS development server with serverless
           command: yarn deploy --stage dev --conceal
 
   deploy-prod:
     docker:
-      - image: circleci/node:6.10.3
+      - image: docker:18.03.0-ce-git
     steps:
-      - checkout
       - run:
           name: Setup serverless configuration
           command: |
