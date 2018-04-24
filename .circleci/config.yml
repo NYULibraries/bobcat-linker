@@ -5,7 +5,8 @@
 version: 2
 jobs:
   build-and-test:
-    machine: true
+    docker:
+      - image: docker:18.03.0-ce-git
     working_directory: ~/app
     steps:
       - checkout
