@@ -4,23 +4,12 @@
 #
 version: 2
 jobs:
-  build:
-    docker:
-      - image: docker:18.03.0-ce-git
+  build-and-test:
+    machine: true
     working_directory: ~/app
     steps:
       - checkout
       - setup_remote_docker
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --no-cache py-pip
-            pip install docker-compose
-
-  test:
-    docker:
-      - image: docker:18.03.0-ce-git
-    steps:
       - run:
           name: Test
           command: docker-compose run test yarn test
@@ -40,7 +29,7 @@ jobs:
 
   deploy-prod:
     docker:
-      - image: docker:18.03.0-ce-git
+      - image: circleci/node:6.10.3
     steps:
       - run:
           name: Setup serverless configuration
@@ -56,19 +45,16 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - build
-      - test:
-          requires:
-            - build
+      - build-and-test
       - deploy-dev:
           requires:
-            - test
+            - build-and-test
           filters:
             branches:
               only: master
       - deploy-prod:
           requires:
-            - test
+            - build-and-test
           filters:
             branches:
               only: development
