@@ -18,7 +18,7 @@ jobs:
               pip3 install docker-compose
       - run:
           name: Test
-          command: docker-compose run test yarn test
+          command: docker-compose run test
 
   deploy-dev:
     docker:
@@ -29,14 +29,11 @@ jobs:
           name: Setup npm dependencies
           command: yarn install
       - run:
-          name: Setup env
-          command: export LAMBDA_ROLE=$LAMBDA_ROLE_DEV
-      - run:
-          name: Setup serverless credentials
-          command: yarn serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID_DEV --secret $AWS_SECRET_ACCESS_KEY_DEV --profile circle-ci-dev
-      - run:
-          name: Deploy to AWS development server with serverless
-          command: yarn deploy --stage dev --aws-profile circle-ci-dev --conceal
+          name: Setup serverless credentials & deploy
+          command: |
+            export LAMBDA_ROLE=$LAMBDA_ROLE_DEV
+            yarn serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID_DEV --secret $AWS_SECRET_ACCESS_KEY_DEV --profile circle-ci-dev
+            yarn deploy --stage dev --aws-profile circle-ci-dev --conceal
 
   deploy-prod:
     docker:
@@ -44,18 +41,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Setup serverless configuration
+          name: Setup npm dependencies
+          command: yarn install
+      - run:
+          name: Setup serverless credentials & deploy
           command: |
             export LAMBDA_ROLE=$LAMBDA_ROLE_PROD
-            yarn install
-            yarn serverless config credentials \
-              --provider aws \
-              --key $AWS_ACCESS_KEY_ID_PROD --secret $AWS_SECRET_ACCESS_KEY_PROD \
-              --profile circle-ci-prod
-
-      - run:
-          name: Deploy to AWS production server with serverless
-          command: yarn deploy --stage prod --aws-profile circle-ci-prod --conceal
+            yarn serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID_PROD --secret $AWS_SECRET_ACCESS_KEY_PROD --profile circle-ci-prod
+            yarn deploy --stage prod --aws-profile circle-ci-prod --conceal
 
 workflows:
   version: 2
