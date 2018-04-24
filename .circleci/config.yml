@@ -5,7 +5,7 @@ docker-defaults: &docker-defaults
   working_directory: ~/app
 
 dc-setup: &dc-setup
-  - run:
+  run:
       name: Setup docker-compose dependency
       command: |
         apk add --no-cache python3
@@ -18,7 +18,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      <<: *dc-setup
+      - <<: *dc-setup
       - run:
           name: Test
           command: docker-compose run test
@@ -28,7 +28,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      <<: *dc-setup
+      - <<: *dc-setup
       - run:
           name: Deploy via serverless to dev
           command: |
@@ -43,7 +43,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      <<: *dc-setup
+      - <<: *dc-setup
       - run:
           name: Deploy via serverless to prod
           command: |
