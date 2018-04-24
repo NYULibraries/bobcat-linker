@@ -30,10 +30,13 @@ jobs:
           command: |
             export LAMBDA_ROLE="arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole"
             yarn install
-            yarn serverless config credentials --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} --profile circle-ci-dev -o
-      - run:
+                      yarn serverless config credentials \
+                        --provider aws
+                        --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} \
+                        --profile circle-ci-dev
+
           name: Deploy to AWS development server with serverless
-          command: yarn deploy --stage dev --conceal
+          command: yarn deploy --stage --aws-profile circle-ci-dev --profile circle --conceal
 
   deploy-prod:
     docker:
@@ -45,11 +48,14 @@ jobs:
           command: |
             export LAMBDA_ROLE="arn:aws:iam::168375318165:role/AWSLambdaBasicExecutionRole"
             yarn install
-            yarn serverless config credentials --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} --profile circle-ci-prod -o
+            yarn serverless config credentials \
+              --provider aws
+              --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} \
+              --profile circle-ci-prod
 
       - run:
           name: Deploy to AWS production server with serverless
-          command: yarn deploy --stage prod --conceal
+          command: yarn deploy --stage --aws-profile circle-ci-prod prod --conceal
 
 workflows:
   version: 2
