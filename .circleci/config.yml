@@ -18,14 +18,6 @@ test: &test
 
 version: 2
 jobs:
-  test:
-    <<: *docker-defaults
-    steps:
-      - checkout
-      - setup_remote_docker
-      - <<: *dc-setup
-      - <<: *test
-
   deploy-dev:
     <<: *docker-defaults
     steps:
@@ -60,16 +52,12 @@ jobs:
 
 workflows:
   version: 2
-  build-and-deploy:
+  build-test-and-deploy:
     jobs:
-      - test:
-          filters:
-            branches:
-              ignore: /(master)|(development)/
       - deploy-dev:
           filters:
             branches:
-              only: development
+              ignore: master
       - deploy-prod:
           filters:
             branches:
