@@ -6,22 +6,25 @@ docker-defaults: &docker-defaults
 
 dc-setup: &dc-setup
   run:
-      name: Setup docker-compose dependency
-      command: |
-        apk add --no-cache python3
-        pip3 install docker-compose
+    name: Setup docker-compose dependency
+    command: |
+      apk add --no-cache python3
+      pip3 install docker-compose
+
+test: &test
+  run:
+    name: Test
+    command: docker-compose run test
 
 version: 2
 jobs:
-  build-and-test:
+  test:
     <<: *docker-defaults
     steps:
       - checkout
       - setup_remote_docker
       - <<: *dc-setup
-      - run:
-          name: Test
-          command: docker-compose run test
+      - <<: *test
 
   deploy-dev:
     <<: *docker-defaults
@@ -29,6 +32,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - <<: *dc-setup
+      - <<: *test
       - run:
           name: Deploy via serverless to dev
           command: |
@@ -44,6 +48,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - <<: *dc-setup
+      - <<: *test
       - run:
           name: Deploy via serverless to prod
           command: |
@@ -57,16 +62,15 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - build-and-test
+      - test:
+          filters:
+            branches:
+              ignore: /(master)|(development)/
       - deploy-dev:
-          requires:
-            - build-and-test
           filters:
             branches:
               only: development
       - deploy-prod:
-          requires:
-            - build-and-test
           filters:
             branches:
               only: master
