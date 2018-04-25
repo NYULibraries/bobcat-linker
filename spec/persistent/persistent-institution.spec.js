@@ -1,4 +1,5 @@
 const { BASE_SEARCH_URL, INSTITUTIONS, INSTITUTIONS_TO_VID } = require("../helpers/constants");
+const { escapeRegExp } = require("../helpers/common");
 const { persistent } = require("../helpers/constants").lambdas;
 
 describe('institution view ONLY', () => {
@@ -26,7 +27,14 @@ describe('institution view ONLY', () => {
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${vid}`);
+
+        const urlMatcher = new RegExp(
+          escapeRegExp(BASE_SEARCH_URL) +
+          ".*" +
+          escapeRegExp(`&vid=${vid}`)
+        );
+
+        expect(result.headers.Location).toMatch(urlMatcher);
       })
       .verify(done);
     });
@@ -41,7 +49,32 @@ describe('institution view ONLY', () => {
     })
     .expectResult(result => {
       expect(result.statusCode).toEqual(302);
-      expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${defaultVid}`);
+
+      const urlMatcher = new RegExp(
+        escapeRegExp(BASE_SEARCH_URL) +
+        ".*" +
+        escapeRegExp(`&vid=${defaultVid}`)
+      );
+
+      expect(result.headers.Location).toMatch(urlMatcher);
+    })
+    .verify(done);
+  });
+
+  it(`should redirect to ${defaultVid} search if no institution`, (done) => {
+    return persistent.event({
+      "queryStringParameters": { }
+    })
+    .expectResult(result => {
+      expect(result.statusCode).toEqual(302);
+
+      const urlMatcher = new RegExp(
+        escapeRegExp(BASE_SEARCH_URL) +
+        ".*" +
+        escapeRegExp(`&vid=${defaultVid}`)
+      );
+
+      expect(result.headers.Location).toMatch(urlMatcher);
     })
     .verify(done);
   });
