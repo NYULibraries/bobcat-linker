@@ -1,16 +1,65 @@
 'use strict';
 
-module.exports.hello = (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
-  };
+const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL } = require("./config/baseUrls.config.js");
+const { getUri, fetchOclcUri, institutionLandingUri } = require("./common/targetUri.js");
 
-  callback(null, response);
+module.exports.persistent = (event, context, callback) => {
+  return (
+    Promise.resolve(event)
+      .then(() => {
+        const params = event.queryStringParameters;
+        return getUri(params);
+      })
+      .then(
+        uri => {
+        callback(null, {
+          statusCode: 302,
+          headers: {
+            Location: uri,
+          },
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        const params = event.queryStringParameters;
+        const institution = params ? params.institution : null;
+        const uri = institutionLandingUri(institution);
+        callback(null, {
+          statusCode: 302,
+          headers: {
+            Location: uri
+          }
+        });
+      })
+  );
+};
 
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+module.exports.oclc = (event, context, callback) => {
+  return (
+    Promise.resolve(event)
+      .then(() => {
+        const params = event.queryStringParameters;
+        const key = process.env.WORLDCAT_API_KEY;
+        return fetchOclcUri(params, key);
+      })
+      .then(
+        uri => callback(null, {
+          statusCode: 302,
+          headers: {
+            Location: uri,
+          },
+        })
+      )
+      .catch(err => {
+        console.error(err);
+
+        const uri = institutionLandingUri(event.queryStringParameters.institution);
+        callback(null, {
+          statusCode: 302,
+          headers: {
+            Location: uri
+          }
+        });
+      })
+  );
 };

@@ -1,0 +1,64 @@
+# Aliases
+docker-defaults: &docker-defaults
+  docker:
+    - image: docker:17.11.0-ce
+  working_directory: ~/app
+
+dc-setup: &dc-setup
+  run:
+    name: Setup docker-compose dependency
+    command: |
+      apk add --no-cache python3
+      pip3 install docker-compose
+
+test: &test
+  run:
+    name: Test
+    command: docker-compose run test
+
+version: 2
+jobs:
+  deploy-dev:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+      - <<: *dc-setup
+      - <<: *test
+      - run:
+          name: Deploy via serverless to dev
+          command: |
+            export LAMBDA_ROLE=$LAMBDA_ROLE_DEV
+            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_DEV
+            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_DEV
+            export STAGE=dev
+            docker-compose run deploy
+
+  deploy-prod:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+      - <<: *dc-setup
+      - <<: *test
+      - run:
+          name: Deploy via serverless to prod
+          command: |
+            export LAMBDA_ROLE=$LAMBDA_ROLE_PROD
+            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_PROD
+            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_PROD
+            export STAGE=prod
+            docker-compose run deploy
+
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - deploy-dev:
+          filters:
+            branches:
+              ignore: master
+      - deploy-prod:
+          filters:
+            branches:
+              only: master
