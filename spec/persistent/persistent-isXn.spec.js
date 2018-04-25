@@ -53,7 +53,10 @@ describe('ISBN', () => {
     })
     .expectResult(result => {
       expect(result.statusCode).toEqual(302);
-      expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${institution.toUpperCase()}`);
+
+      const url = escapeRegExp(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}`);
+      const urlMatcher = new RegExp(url + ".*");
+      expect(result.headers.Location).toMatch(urlMatcher);
     })
     .verify(done);
   });

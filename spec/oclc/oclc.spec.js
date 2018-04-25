@@ -1,6 +1,6 @@
-const { BASE_SEARCH_URL, INSTITUTIONS_TO_VID,
-        INSTITUTIONS, ADVANCED_MODE,
+const { BASE_SEARCH_URL, ADVANCED_MODE,
         BASE_API_URL, MOCK_API_KEY } = require("../helpers/constants");
+const { escapeRegExp } = require("../helpers/common");
 const { oclc } = require("../helpers/constants").lambdas;
 const nock = require('nock');
 const worldCatISBN = require('../helpers/worldcat-isbn.fixture.js');
@@ -13,13 +13,15 @@ describe('OCLC', () => {
 
   describe("null query", () => {
     it('should redirect to default view\'s search', (done) => {
-      const defaultVid = INSTITUTIONS_TO_VID.default;
       return oclc.event({
-        "queryStringParameters": null
+        queryStringParameters: null
       })
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${defaultVid}`);
+
+        const url = escapeRegExp(BASE_SEARCH_URL);
+        const urlMatcher = new RegExp(url + ".*");
+        expect(result.headers.Location).toMatch(urlMatcher);
       })
       .verify(done);
     });
@@ -36,7 +38,7 @@ describe('OCLC', () => {
         .reply(200, worldCatISBN.xml);
 
       return oclc.event({
-        "queryStringParameters": {
+        queryStringParameters: {
           oclc: "anyId123",
           institution
         }
@@ -55,7 +57,7 @@ describe('OCLC', () => {
           .reply(200, worldCatISBN.xml);
 
       return oclc.event({
-        "queryStringParameters": {
+        queryStringParameters: {
           oclc: "anyId123",
           institution
         }
@@ -68,8 +70,6 @@ describe('OCLC', () => {
   });
 
   describe('on failure', () => {
-    const defaultVid = INSTITUTIONS_TO_VID.default;
-
     beforeEach(() => {
       spyOn(console, 'error');
     });
@@ -96,7 +96,7 @@ describe('OCLC', () => {
         .verify(done);
       });
 
-      it('should redirect to institution\'s search page', (done) => {
+      it('should redirect to search page', (done) => {
         return oclc.event({
           "queryStringParameters": {
             oclc: mockId
@@ -104,7 +104,10 @@ describe('OCLC', () => {
         })
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${defaultVid}`);
+
+          const url = escapeRegExp(BASE_SEARCH_URL);
+          const urlMatcher = new RegExp(url + ".*");
+          expect(result.headers.Location).toMatch(urlMatcher);
         })
         .verify(done);
       });
@@ -120,7 +123,7 @@ describe('OCLC', () => {
             .reply(404);
       });
 
-      it("should log the status error in Lambda", (done) => {
+      it('should log the status error in Lambda', (done) => {
         return oclc.event({
           "queryStringParameters": {
             oclc: mockId
@@ -132,22 +135,20 @@ describe('OCLC', () => {
         .verify(done);
       });
 
-      INSTITUTIONS.forEach(institution => {
-        const vid = INSTITUTIONS_TO_VID[institution];
+      it('should redirect to search page', (done) => {
+        return oclc.event({
+          "queryStringParameters": {
+            oclc: mockId
+          }
+        })
+        .expectResult(result => {
+          expect(result.statusCode).toEqual(302);
 
-        it(`should redirect to ${institution}'s search page`, (done) => {
-          return oclc.event({
-            "queryStringParameters": {
-              oclc: mockId,
-              institution
-            }
-          })
-          .expectResult(result => {
-            expect(result.statusCode).toEqual(302);
-            expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${vid}`);
-          })
-          .verify(done);
-        });
+          const url = escapeRegExp(BASE_SEARCH_URL);
+          const urlMatcher = new RegExp(url + ".*");
+          expect(result.headers.Location).toMatch(urlMatcher);
+        })
+        .verify(done);
       });
     });
   });

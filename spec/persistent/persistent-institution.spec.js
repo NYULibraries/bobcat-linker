@@ -17,7 +17,7 @@ describe('institution view ONLY', () => {
         const urlMatcher = new RegExp(
           escapeRegExp(BASE_SEARCH_URL) +
           ".*" +
-          escapeRegExp(`&vid=${vid}`)
+          escapeRegExp(`&search_scope=${institution}&vid=${vid}`)
         );
 
         expect(result.headers.Location).toMatch(urlMatcher);
@@ -36,7 +36,7 @@ describe('institution view ONLY', () => {
     })
     .expectResult(result => {
       expect(result.statusCode).toEqual(302);
-      expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${vid}`);
+      expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&search_scope=${institution.toLowerCase()}&vid=${vid}`);
     })
     .verify(done);
   });

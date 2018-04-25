@@ -5,9 +5,16 @@ const INSTITUTIONS_TO_VID = require("../config/institutions.config.js");
 
 function appendInstitutionToQuery(institution, queryUrl) {
   queryUrl = queryUrl;
-  const inst = (institution || 'default').toLowerCase();
-  const vid = INSTITUTIONS_TO_VID[inst] || INSTITUTIONS_TO_VID.default;
-  return `${queryUrl}&vid=${vid}`;
+
+  // account for mis-capitalization
+  institution = institution ? institution.toLowerCase() : institution;
+  // account for invalid institution
+  institution = INSTITUTIONS_TO_VID[institution] ? institution : "default";
+
+  const vid = INSTITUTIONS_TO_VID[institution];
+  return queryUrl +
+         (institution && institution !== 'default' ? `&search_scope=${institution}` : "") +
+         `&vid=${vid}`;
 }
 
 function generateQuery(param, ...ids) {
