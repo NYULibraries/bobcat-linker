@@ -4,8 +4,9 @@ test:
 
 deploy:
   build: .
-  command: yarn deploy --stage ${STAGE}
+  command: yarn deploy
   environment:
     - LAMBDA_ROLE
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
+    - STAGE
