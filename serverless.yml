@@ -1,4 +1,4 @@
-service: bobcat-linker # NOTE: update this with your service name
+service: bobcat-linker
 
 provider:
   name: aws
