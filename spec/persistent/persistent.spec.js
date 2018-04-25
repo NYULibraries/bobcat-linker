@@ -1,14 +1,16 @@
-const { BASE_SEARCH_URL, INSTITUTIONS } = require("../helpers/constants");
+const { BASE_SEARCH_URL, INSTITUTIONS_TO_VID } = require("../helpers/constants");
 const { persistent } = require("../helpers/constants").lambdas;
 
 describe("null query", () => {
-  it('should redirect to NYU search', (done) => {
+  const defaultVid = INSTITUTIONS_TO_VID.default;
+
+  it(`should redirect to ${defaultVid} search`, (done) => {
     return persistent.event({
       "queryStringParameters": null
     })
     .expectResult(result => {
       expect(result.statusCode).toEqual(302);
-      expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=NYU`);
+      expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}&vid=${defaultVid}`);
     })
     .verify(done);
   });
