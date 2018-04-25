@@ -10,7 +10,7 @@ function appendInstitutionToQuery(institution, queryUrl) {
   return `${queryUrl}&vid=${vid}`;
 }
 
-function generateQuery(ids, param) {
+function generateQuery(param, ...ids) {
   const queryFxns = {
     lcn: generateLCNQuery,
     isbn: generateISxNQuery,

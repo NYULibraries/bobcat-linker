@@ -5,16 +5,17 @@ const { generateQuery, appendInstitutionToQuery, getFromMarc } = require("./quer
 
 exports.getUri = function getUri(params) {
   if (params === null) { return `${BASE_SEARCH_URL}&vid=NYU`; }
-
   let url = BASE_SEARCH_URL;
-  if (params.lcn) {
-    url = generateQuery([params.lcn], "lcn");
+
+  const { lcn, isbn, issn, institution } = params;
+  if (lcn) {
+    url = generateQuery("lcn", lcn);
   }
-  else if (params.isbn || params.issn) {
-    url = generateQuery([params.isbn || params.issn], "isxn");
+  else if (isbn || issn) {
+    url = generateQuery("isxn", isbn || issn);
   }
 
-  url = appendInstitutionToQuery(params.institution, url);
+  url = appendInstitutionToQuery(institution, url);
   return url;
 };
 
@@ -24,21 +25,22 @@ exports.fetchOclcUri = function fetchOclcUri(params, key) {
   const axios = require('axios');
   const parseXml = require('@rgrove/parse-xml');
 
+  const { oclc, institution } = params;
   return (
     axios
-    .get(`${BASE_API_URL}/${params.oclc}?wskey=${key}`)
+    .get(`${BASE_API_URL}/${oclc}?wskey=${key}`)
     .then(response => {
       const xml = parseXml(response.data);
-      const isXn = getFromMarc(xml, "isbn") || getFromMarc(xml, "issn");
+      const isxn = getFromMarc(xml, "isbn") || getFromMarc(xml, "issn");
 
-      if (isXn) {
-        return appendInstitutionToQuery(params.institution, generateQuery([isXn], "isxn"));
+      if (isxn) {
+        return appendInstitutionToQuery(institution, generateQuery("isxn", isxn));
       }
 
       const title = getFromMarc(xml, "fullTitle");
       const author = getFromMarc(xml, "author");
 
-      return appendInstitutionToQuery(params.institution, generateQuery([title, author], "title-author"));
+      return appendInstitutionToQuery(institution, generateQuery("title-author", title, author));
     },
     // if HTTP get goes wrong
     err => { throw err; })
