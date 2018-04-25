@@ -31,8 +31,7 @@ jobs:
             export LAMBDA_ROLE=$LAMBDA_ROLE_DEV
             export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_DEV
             export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_DEV
-            export STAGE=dev
-            docker-compose run deploy
+            STAGE=dev docker-compose run deploy
 
   deploy-prod:
     <<: *docker-defaults
@@ -47,8 +46,7 @@ jobs:
             export LAMBDA_ROLE=$LAMBDA_ROLE_PROD
             export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_PROD
             export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_PROD
-            export STAGE=prod
-            docker-compose run deploy
+            STAGE=prod docker-compose run deploy
 
 workflows:
   version: 2
