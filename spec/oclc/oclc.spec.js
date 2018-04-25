@@ -1,4 +1,6 @@
-const { BASE_SEARCH_URL, INSTITUTIONS_TO_VID, ADVANCED_MODE, BASE_API_URL, MOCK_API_KEY } = require("../helpers/constants");
+const { BASE_SEARCH_URL, INSTITUTIONS_TO_VID,
+        INSTITUTIONS, ADVANCED_MODE,
+        BASE_API_URL, MOCK_API_KEY } = require("../helpers/constants");
 const { oclc } = require("../helpers/constants").lambdas;
 const nock = require('nock');
 const worldCatISBN = require('../helpers/worldcat-isbn.fixture.js');
@@ -130,7 +132,7 @@ describe('OCLC', () => {
         .verify(done);
       });
 
-      Object.keys(INSTITUTIONS_TO_VID).forEach(institution => {
+      INSTITUTIONS.forEach(institution => {
         const vid = INSTITUTIONS_TO_VID[institution];
 
         it(`should redirect to ${institution}'s search page`, (done) => {
