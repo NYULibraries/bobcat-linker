@@ -1,5 +1,6 @@
 const { BASE_SEARCH_URL, INSTITUTIONS, INSTITUTIONS_TO_VID,
         ADVANCED_MODE, BASE_API_URL } = require("../helpers/constants");
+const { escapeRegExp } = require("../helpers/common");
 const { oclc } = require("../helpers/constants").lambdas;
 const worldCatISBN = require('../helpers/worldcat-isbn.fixture.js');
 const nock = require('nock');
@@ -30,7 +31,14 @@ describe('institution parameter', () => {
         .expectResult(result => {
           expect(isbnRecRequest.isDone()).toBe(true);
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${vid}`);
+
+          const urlMatcher = new RegExp(
+            escapeRegExp(BASE_SEARCH_URL) +
+            ".*" +
+            escapeRegExp(`&vid=${vid}`)
+          );
+
+          expect(result.headers.Location).toMatch(urlMatcher);
         })
         .verify(done);
       });
@@ -55,7 +63,14 @@ describe('institution parameter', () => {
       .expectResult(result => {
         expect(isbnRecRequest.isDone()).toBe(true);
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${vid}`);
+
+        const urlMatcher = new RegExp(
+          escapeRegExp(BASE_SEARCH_URL) +
+          ".*" +
+          escapeRegExp(`&vid=${vid}`)
+        );
+
+        expect(result.headers.Location).toMatch(urlMatcher);
       })
       .verify(done);
     });
@@ -74,7 +89,14 @@ describe('institution parameter', () => {
       .expectResult(result => {
         expect(isbnRecRequest.isDone()).toBe(true);
         expect(result.statusCode).toEqual(302);
-        expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${defaultVid}`);
+
+        const urlMatcher = new RegExp(
+          escapeRegExp(BASE_SEARCH_URL) +
+          ".*" +
+          escapeRegExp(`&vid=${defaultVid}`)
+        );
+
+        expect(result.headers.Location).toMatch(urlMatcher);
       })
       .verify(done);
     });
@@ -92,7 +114,14 @@ describe('institution parameter', () => {
         .expectResult(result => {
           expect(isbnRecRequest.isDone()).toBe(true);
           expect(result.statusCode).toEqual(302);
-          expect(result.headers.Location).toEqual(`${BASE_SEARCH_URL}query=isbn,contains,${isbn}&${ADVANCED_MODE}&vid=${defaultVid}`);
+          
+          const urlMatcher = new RegExp(
+            escapeRegExp(BASE_SEARCH_URL) +
+            ".*" +
+            escapeRegExp(`&vid=${defaultVid}`)
+          );
+
+          expect(result.headers.Location).toMatch(urlMatcher);
         })
         .verify(done);
       });
