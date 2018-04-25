@@ -17,7 +17,7 @@ describe('institution parameter', () => {
 
   describe('with a valid institution', () => {
     INSTITUTIONS.forEach(institution => {
-      it(`should redirect to ${institution.toUpperCase()}\'s fulldisplay page`, (done) => {
+      it(`should redirect to ${institution.toUpperCase()}\'s search page`, (done) => {
         const vid = INSTITUTIONS_TO_VID[institution];
         const isbn = worldCatISBN.isbn;
         const oclcId = worldCatISBN.oclc;
@@ -35,7 +35,7 @@ describe('institution parameter', () => {
           const urlMatcher = new RegExp(
             escapeRegExp(BASE_SEARCH_URL) +
             ".*" +
-            escapeRegExp(`&vid=${vid}`)
+            escapeRegExp(`&search_scope=${institution}&vid=${vid}`)
           );
 
           expect(result.headers.Location).toMatch(urlMatcher);
@@ -67,7 +67,7 @@ describe('institution parameter', () => {
         const urlMatcher = new RegExp(
           escapeRegExp(BASE_SEARCH_URL) +
           ".*" +
-          escapeRegExp(`&vid=${vid}`)
+          escapeRegExp(`&search_scope=${institution.toLowerCase()}&vid=${vid}`)
         );
 
         expect(result.headers.Location).toMatch(urlMatcher);
@@ -114,7 +114,7 @@ describe('institution parameter', () => {
         .expectResult(result => {
           expect(isbnRecRequest.isDone()).toBe(true);
           expect(result.statusCode).toEqual(302);
-          
+
           const urlMatcher = new RegExp(
             escapeRegExp(BASE_SEARCH_URL) +
             ".*" +
