@@ -5,7 +5,7 @@ describe("null query", () => {
   const defaultVid = INSTITUTIONS_TO_VID.default;
 
   it(`should redirect to ${defaultVid} search`, (done) => {
-    return persistent.event({
+    persistent.event({
       "queryStringParameters": null
     })
     .expectResult(result => {

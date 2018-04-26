@@ -19,7 +19,7 @@ describe("with no ISBN or ISSN", () => {
     });
 
     it("should perform search with title (exact) query", (done) => {
-      return oclc.event({
+      oclc.event({
         "queryStringParameters": {
           oclc: oclcId
         }

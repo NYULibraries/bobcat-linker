@@ -22,7 +22,7 @@ describe('institution parameter', () => {
         const isbn = worldCatISBN.isbn;
         const oclcId = worldCatISBN.oclc;
 
-        return oclc.event({
+        oclc.event({
           "queryStringParameters": {
             institution,
             oclc: oclcId
@@ -54,7 +54,7 @@ describe('institution parameter', () => {
       const isbn = worldCatISBN.isbn;
       const oclcId = worldCatISBN.oclc;
 
-      return oclc.event({
+      oclc.event({
         "queryStringParameters": {
           institution,
           oclc: oclcId
@@ -80,7 +80,7 @@ describe('institution parameter', () => {
       const isbn = worldCatISBN.isbn;
       const oclcId = worldCatISBN.oclc;
 
-      return oclc.event({
+      oclc.event({
         "queryStringParameters": {
           institution,
           oclc: oclcId
@@ -106,7 +106,7 @@ describe('institution parameter', () => {
       const isbn = worldCatISBN.isbn;
 
       it(`should redirect to ${defaultVid}'s fulldisplay view of record`, (done) => {
-        return oclc.event({
+        oclc.event({
           "queryStringParameters": {
             oclc: oclcId
           }

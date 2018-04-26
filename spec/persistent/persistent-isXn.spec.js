@@ -8,7 +8,7 @@ const { persistent } = require("../helpers/constants").lambdas;
 describe('ISBN', () => {
   it(`should redirect to fulldisplay page with ISBN record`, (done) => {
     const isbn = "abcd123456789";
-    return persistent.event({
+    persistent.event({
       "queryStringParameters": {
         isbn
       }
@@ -25,7 +25,7 @@ describe('ISBN', () => {
 
   it(`should redirect to fulldisplay page with ISSN record`, (done) => {
     const issn = "abcd123456789";
-    return persistent.event({
+    persistent.event({
       "queryStringParameters": {
         issn
       }
@@ -43,7 +43,7 @@ describe('ISBN', () => {
   it('should prioritize ISBN over non-LCN', (done) => {
     const institution = "nyu";
     const isbn = "12345678isbn";
-    return persistent.event({
+    persistent.event({
       "queryStringParameters": {
         institution,
         isbn,
