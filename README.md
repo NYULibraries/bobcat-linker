@@ -1,6 +1,6 @@
 # bobcat-linker
 
-[![Coverage Status](https://coveralls.io/repos/github/NYULibraries/bobcat-linker/badge.svg?branch=feature%2Fcode_coverage)](https://coveralls.io/github/NYULibraries/bobcat-linker?branch=feature%2Fcode_coverage)
+[![Coverage Status](https://coveralls.io/repos/github/NYULibraries/bobcat-linker/badge.svg?branch=master)](https://coveralls.io/github/NYULibraries/bobcat-linker?branch=master)
 
 AWS Lambda functions for redirects from bobcat permalinks.
 
@@ -20,6 +20,12 @@ The following environment variables are used for deploying via [serverless](http
 * `STAGE`: `prod` or `dev`
 
 `WORLDCAT_API_KEY` is fetched from the [SSM Parameter store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html) by serverless.
+
+To upload a value to SSM Parameter store using AWS CLI:
+
+```bash
+aws ssm put-parameter --name WORLDCAT_API_KEY --value "12345abcdefg12345" --type String
+```
 
 ## Testing
 
@@ -101,4 +107,5 @@ OCLC record which lacks ISBN/ISSN data:
 
 ### Todo:
 
-Live demos
+- [ ] Live demos
+- [ ] Handling Lambda errors with [state machines](https://docs.aws.amazon.com/step-functions/latest/dg/tutorial-handling-error-conditions.html) with [serverless step functions](https://github.com/horike37/serverless-step-functions)
