@@ -19,6 +19,8 @@ The following environment variables are used for deploying via [serverless](http
 * `AWS_SECRET_ACCESS_KEY`
 * `STAGE`: `prod` or `dev`
 
+`WORLDCAT_API_KEY` is fetched from the [SSM Parameter store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html) by serverless. 
+
 ## Testing
 
 locally
