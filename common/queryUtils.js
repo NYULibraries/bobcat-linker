@@ -4,12 +4,10 @@ const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL } = require("../config/baseUrls.co
 const INSTITUTIONS_TO_VID = require("../config/institutions.config.js");
 
 function appendInstitutionToQuery(institution, queryUrl) {
-  queryUrl = queryUrl;
-
   // account for mis-capitalization
-  institution = institution ? institution.toLowerCase() : institution;
+  institution = institution && institution.toLowerCase();
   // account for invalid institution
-  institution = INSTITUTIONS_TO_VID[institution] ? institution : "default";
+  institution = (INSTITUTIONS_TO_VID[institution] && institution) || "default";
 
   const vid = INSTITUTIONS_TO_VID[institution];
   return queryUrl +
