@@ -1,12 +1,12 @@
 module.exports = {
-  default: "NYU",
-  nyu: "NYU",
-  ns: "NS",
-  cu: "CU",
-  nyuad: "NYUAD",
-  nyush: "NYUSH",
-  bhs: "BHS",
-  nyhs: "NYHS",
-  nysid: "NYSID",
-  hsl: "HSL"
+  default: "NYU-NUI",
+  nyu: "NYU-NUI",
+  ns: "NS-NUI",
+  cu: "CU-NUI",
+  nyuad: "NYUAD-NUI",
+  nyush: "NYUSH-NUI",
+  bhs: "BHS-NUI",
+  nyhs: "NYHS-NUI",
+  nysid: "NYSID-NUI",
+  hsl: "HSL-NUI"
 };
