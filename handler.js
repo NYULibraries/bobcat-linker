@@ -3,62 +3,42 @@
 const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL } = require("./config/baseUrls.config.js");
 const { getUri, fetchOclcUri, institutionLandingUri } = require("./common/targetUri.js");
 
-module.exports.persistent = (event, context, callback) => {
-  let uri;
-  try {
-    const params = event.queryStringParameters;
-    uri = getUri(params);
-  } catch(err) {
-    console.error(err);
-    const institution = (
-      event &&
-      event.queryStringParameters &&
-      event.queryStringParameters.institution
-    ) || null;
+module.exports.persistent = (event, context, callback) =>
+  Promise.resolve(event)
+    .then(() => {
+      const params = event.queryStringParameters;
+      return getUri(params);
+    })
+    .catch(err => handleError(err, event))
+    .then(uri => handleRedirect(uri, callback));
 
-    uri = institutionLandingUri(institution);
-  }
+module.exports.oclc = (event, context, callback) =>
+  Promise.resolve(event)
+    .then(() => {
+      const params = event.queryStringParameters;
+      const key = process.env.WORLDCAT_API_KEY;
+      return fetchOclcUri(params, key);
+    })
+    .catch(err => handleError(err, event))
+    .then(uri => handleRedirect(uri, callback));
 
-  return callback(null, {
+
+function handleError(err, event) {
+  console.error(err);
+  const institution = (
+    event &&
+    event.queryStringParameters &&
+    event.queryStringParameters.institution
+  ) || null;
+
+  return institutionLandingUri(institution);
+}
+
+function handleRedirect(uri, callback) {
+  callback(null, {
     statusCode: 302,
     headers: {
-      Location: uri
+      Location: uri,
     }
   });
-};
-
-module.exports.oclc = (event, context, callback) => {
-  return (
-    Promise.resolve(event)
-      .then(() => {
-        const params = event.queryStringParameters;
-        const key = process.env.WORLDCAT_API_KEY;
-        return fetchOclcUri(params, key);
-      })
-      .then(
-        uri => callback(null, {
-          statusCode: 302,
-          headers: {
-            Location: uri,
-          },
-        })
-      )
-      .catch(err => {
-        console.error(err);
-
-        const institution = (
-          event &&
-          event.queryStringParameters &&
-          event.queryStringParameters.institution
-        ) || null;
-
-        const uri = institutionLandingUri(institution);
-        callback(null, {
-          statusCode: 302,
-          headers: {
-            Location: uri
-          }
-        });
-      })
-  );
-};
+}
