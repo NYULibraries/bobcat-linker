@@ -46,7 +46,13 @@ module.exports.oclc = (event, context, callback) => {
       .catch(err => {
         console.error(err);
 
-        const uri = institutionLandingUri(event.queryStringParameters.institution);
+        const institution = (
+          event &&
+          event.queryStringParameters &&
+          event.queryStringParameters.institution
+        ) || null;
+
+        const uri = institutionLandingUri(institution);
         callback(null, {
           statusCode: 302,
           headers: {
