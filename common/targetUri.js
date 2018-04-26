@@ -2,25 +2,21 @@
 
 const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, BASE_API_URL } = require("../config/baseUrls.config.js");
 const { generateQuery, appendInstitutionToQuery, getFromMarc } = require("./queryUtils.js");
+const defaultVid = require("../config/institutions.config.js").default;
 
 exports.getUri = function getUri(params) {
-  if (params === null) { return `${BASE_SEARCH_URL}&vid=NYU`; }
-  let url = BASE_SEARCH_URL;
-
+  if (!params) { return appendInstitutionToQuery(null, BASE_SEARCH_URL); }
   const { lcn, isbn, issn, institution } = params;
-  if (lcn) {
-    url = generateQuery("lcn", lcn);
-  }
-  else if (isbn || issn) {
-    url = generateQuery("isxn", isbn || issn);
-  }
-
+  const isxn = isbn || issn;
+  let url = (lcn && generateQuery("lcn", lcn)) ||
+            (isxn && generateQuery("isxn", isxn)) ||
+            BASE_SEARCH_URL;
   url = appendInstitutionToQuery(institution, url);
   return url;
 };
 
 exports.fetchOclcUri = function fetchOclcUri(params, key) {
-  if (params === null) { return `${BASE_SEARCH_URL}&vid=NYU`; }
+  if (params === null) { return `${BASE_SEARCH_URL}&vid=${defaultVid}`; }
 
   const axios = require('axios');
   const parseXml = require('@rgrove/parse-xml');

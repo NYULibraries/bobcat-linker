@@ -17,6 +17,7 @@ package:
 
 functions:
   persistent:
+    memorySize: 128
     handler: handler.persistent
     events:
      - http:
@@ -24,6 +25,7 @@ functions:
          method: get
 
   oclc:
+    memorySize: 1024
     handler: handler.oclc
     events:
      - http:

@@ -1,4 +1,5 @@
 .circleci/
+coverage/
 .git/
 .serverless/
 node_modules/

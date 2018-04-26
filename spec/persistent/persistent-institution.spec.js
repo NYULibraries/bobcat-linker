@@ -6,7 +6,7 @@ describe('institution view ONLY', () => {
   INSTITUTIONS.forEach((institution) => {
     const vid = INSTITUTIONS_TO_VID[institution];
     it(`should redirect to ${institution.toUpperCase()}'s search`, (done) => {
-      return persistent.event({
+      persistent.event({
         "queryStringParameters": {
           institution
         }
@@ -29,7 +29,7 @@ describe('institution view ONLY', () => {
   it(`should account for mis-capitalization`, (done) => {
     const institution = 'nYu';
     const vid = INSTITUTIONS_TO_VID[institution.toLowerCase()];
-    return persistent.event({
+    persistent.event({
       "queryStringParameters": {
         institution
       }
@@ -43,7 +43,7 @@ describe('institution view ONLY', () => {
 
   const defaultVid = INSTITUTIONS_TO_VID.default;
   it(`should redirect to ${defaultVid} search if institution invalid`, (done) => {
-    return persistent.event({
+    persistent.event({
       "queryStringParameters": {
         institution: "banana"
       }
@@ -56,7 +56,7 @@ describe('institution view ONLY', () => {
   });
 
   it(`should redirect to ${defaultVid} search if no institution`, (done) => {
-    return persistent.event({
+    persistent.event({
       "queryStringParameters": { }
     })
     .expectResult(result => {

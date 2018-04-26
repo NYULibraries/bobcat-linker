@@ -1,12 +1,15 @@
 test:
   build: .
-  command: yarn test
+  command: yarn coveralls
+  environment:
+    COVERALLS_REPO_TOKEN:
+    CI:
 
 deploy:
   build: .
   command: yarn deploy
   environment:
-    - LAMBDA_ROLE
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    - STAGE
+    LAMBDA_ROLE:
+    AWS_ACCESS_KEY_ID:
+    AWS_SECRET_ACCESS_KEY:
+    STAGE:

@@ -18,7 +18,7 @@ describe('when ISSN found', () => {
   });
 
   it("should use the record's first ISSN", (done) => {
-    return oclc.event({
+    oclc.event({
       "queryStringParameters": {
         oclc: oclcId
       }

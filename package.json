@@ -1,9 +1,13 @@
 {
   "scripts": {
+    "coverage": "istanbul cover jasmine",
+    "coveralls": "yarn coverage && istanbul-coveralls",
     "test": "yarn jasmine",
     "deploy": "yarn serverless deploy"
   },
   "devDependencies": {
+    "istanbul": "^0.4.5",
+    "istanbul-coveralls": "^1.0.3",
     "jasmine": "^3.1.0",
     "jasmine-spec-reporter": "^4.2.1",
     "lambda-tester": "^3.3.0",

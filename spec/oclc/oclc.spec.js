@@ -13,7 +13,7 @@ describe('OCLC', () => {
 
   describe("null query", () => {
     it('should redirect to default view\'s search', (done) => {
-      return oclc.event({
+      oclc.event({
         queryStringParameters: null
       })
       .expectResult(result => {
@@ -37,7 +37,7 @@ describe('OCLC', () => {
         .query(true)
         .reply(200, worldCatISBN.xml);
 
-      return oclc.event({
+      oclc.event({
         queryStringParameters: {
           oclc: "anyId123",
           institution
@@ -56,7 +56,7 @@ describe('OCLC', () => {
           .query({ wskey: MOCK_API_KEY })
           .reply(200, worldCatISBN.xml);
 
-      return oclc.event({
+      oclc.event({
         queryStringParameters: {
           oclc: "anyId123",
           institution
@@ -85,7 +85,7 @@ describe('OCLC', () => {
       });
 
       it('should log xml parsing error in Lambda', (done) => {
-        return oclc.event({
+        oclc.event({
           "queryStringParameters": {
             oclc: mockId
           }
@@ -97,7 +97,7 @@ describe('OCLC', () => {
       });
 
       it('should redirect to search page', (done) => {
-        return oclc.event({
+        oclc.event({
           "queryStringParameters": {
             oclc: mockId
           }
@@ -124,7 +124,7 @@ describe('OCLC', () => {
       });
 
       it('should log the status error in Lambda', (done) => {
-        return oclc.event({
+        oclc.event({
           "queryStringParameters": {
             oclc: mockId
           }
@@ -136,7 +136,7 @@ describe('OCLC', () => {
       });
 
       it('should redirect to search page', (done) => {
-        return oclc.event({
+        oclc.event({
           "queryStringParameters": {
             oclc: mockId
           }

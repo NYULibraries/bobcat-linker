@@ -5,7 +5,7 @@ const { persistent } = require("../helpers/constants").lambdas;
 describe('LCN', () => {
   it(`should redirect to fulldisplay page with LCN record`, (done) => {
     const lcn = "abcd123456789";
-    return persistent.event({
+    persistent.event({
       "queryStringParameters": {
         lcn
       }
@@ -23,7 +23,7 @@ describe('LCN', () => {
   it('should ignore non-lcn parameters', (done) => {
     const institution = "nyu";
     const lcn = "abcd123456789";
-    return persistent.event({
+    persistent.event({
       "queryStringParameters": {
         institution,
         lcn,

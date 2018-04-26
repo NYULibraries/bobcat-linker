@@ -18,7 +18,7 @@ describe('when ISBN found', () => {
   });
 
   it("should use the record's first ISBN", (done) => {
-    return oclc.event({
+    oclc.event({
       "queryStringParameters": {
         oclc: oclcId
       }
@@ -42,7 +42,7 @@ describe('when ISBN found', () => {
         .delayBody(2000)
         .reply(200, xml);
 
-    return oclc.event({
+    oclc.event({
       "queryStringParameters": {
         oclc: oclcId
       }
