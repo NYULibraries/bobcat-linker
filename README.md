@@ -1,8 +1,8 @@
-# bobcat-persistent-link
+# bobcat-linker
 
 [![Coverage Status](https://coveralls.io/repos/github/NYULibraries/bobcat-linker/badge.svg?branch=feature%2Fcode_coverage)](https://coveralls.io/github/NYULibraries/bobcat-linker?branch=feature%2Fcode_coverage)
 
-AWS Lambda functions for BobCat Persistent Linking
+AWS Lambda functions for redirects from bobcat permalinks.
 
 ## Configuration
 
@@ -19,7 +19,7 @@ The following environment variables are used for deploying via [serverless](http
 * `AWS_SECRET_ACCESS_KEY`
 * `STAGE`: `prod` or `dev`
 
-`WORLDCAT_API_KEY` is fetched from the [SSM Parameter store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html) by serverless. 
+`WORLDCAT_API_KEY` is fetched from the [SSM Parameter store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html) by serverless.
 
 ## Testing
 
