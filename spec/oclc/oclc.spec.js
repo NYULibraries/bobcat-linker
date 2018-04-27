@@ -99,6 +99,7 @@ describe('OCLC', () => {
       it('should redirect to search page', (done) => {
         oclc.event({
           "queryStringParameters": {
+            institution: "nyu",
             oclc: mockId
           }
         })
@@ -108,6 +109,7 @@ describe('OCLC', () => {
           const url = escapeRegExp(`${BASE_SEARCH_URL}query=any,contains,${mockId}`);
           const urlMatcher = new RegExp(url + ".*");
           expect(result.headers.Location).toMatch(urlMatcher);
+          expect(result.headers.Location).toMatch(".*" + "&search_scope=" + ".*" + "&vid=");
         })
         .verify(done);
       });
@@ -138,15 +140,17 @@ describe('OCLC', () => {
       it('should redirect to search page', (done) => {
         oclc.event({
           "queryStringParameters": {
+            institution: "nyu",
             oclc: mockId
           }
         })
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
 
-          const url = escapeRegExp(BASE_SEARCH_URL);
+          const url = escapeRegExp(`${BASE_SEARCH_URL}query=any,contains,${mockId}`);
           const urlMatcher = new RegExp(url + ".*");
           expect(result.headers.Location).toMatch(urlMatcher);
+          expect(result.headers.Location).toMatch(".*" + "&search_scope=" + ".*" + "&vid=");
         })
         .verify(done);
       });

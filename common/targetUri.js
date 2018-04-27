@@ -59,12 +59,12 @@ exports.fetchOclcUri = function fetchOclcUri(params, key) {
     // if HTTP get goes wrong
     err => {
       console.error(err.message);
-      return baseQuery("oclc", oclc);
+      return concat(baseQuery("oclc", oclc), scope, vid);
     })
     // if parseXml goes wrong
     .catch(err => {
       console.error(err.message);
-      return baseQuery("oclc", oclc);
+      return concat(baseQuery("oclc", oclc), scope, vid);
     })
   );
 };
