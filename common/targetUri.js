@@ -33,7 +33,7 @@ exports.fetchOclcUri = function fetchOclcUri(params, key) {
         return appendInstitutionToQuery(institution, generateQuery("isxn", isxn));
       }
 
-      const title = getFromMarc(xml, "fullTitle");
+      const title = getFromMarc(xml, "title");
       const author = getFromMarc(xml, "author");
 
       return appendInstitutionToQuery(institution, generateQuery("title-author", title, author));
