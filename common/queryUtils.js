@@ -32,11 +32,14 @@ const generateTitleAuthorQuery = (title, author) => {
   );
 };
 
+const generateOCLCQuery = oclc => `${BASE_SEARCH_URL}query=any,contains,${oclc}&mode=advanced`;
+
 function baseQuery(param, ...ids) {
   const queryFxns = {
     lcn: generateLCNQuery,
     isxn: generateISxNQuery,
-    ["title-author"]: generateTitleAuthorQuery
+    ["title-author"]: generateTitleAuthorQuery,
+    oclc: generateOCLCQuery
   };
 
   const queryFxn = queryFxns[param] || (() => BASE_SEARCH_URL);

@@ -105,7 +105,7 @@ describe('OCLC', () => {
         .expectResult(result => {
           expect(result.statusCode).toEqual(302);
 
-          const url = escapeRegExp(BASE_SEARCH_URL);
+          const url = escapeRegExp(`${BASE_SEARCH_URL}query=any,contains,${mockId}`);
           const urlMatcher = new RegExp(url + ".*");
           expect(result.headers.Location).toMatch(urlMatcher);
         })
