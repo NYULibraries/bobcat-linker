@@ -3,15 +3,21 @@
 const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL } = require("../config/baseUrls.config.js");
 const INSTITUTIONS_TO_VID = require("../config/institutions.config.js");
 
-function appendInstitutionToQuery(institution, queryUrl) {
+function institutionView(institution) {
   // account for mis-capitalization
   institution = institution && institution.toLowerCase();
   // account for invalid and missing institution
   institution = (INSTITUTIONS_TO_VID[institution] && institution) || "default";
 
   const vid = INSTITUTIONS_TO_VID[institution];
-  const searchScope = institution !== 'default' ? `&search_scope=${institution}` : "";
-  return `${queryUrl}${searchScope}&vid=${vid}`;
+  return `&vid=${vid}`;
+}
+
+function searchScope(institution) {
+  institution = institution && institution.toLowerCase();
+  return INSTITUTIONS_TO_VID[institution] ?
+    `&search_scope=${institution}` :
+    "";
 }
 
 const generateLCNQuery = lcn => `${BASE_FULLDISPLAY_URL}&docid=${lcn}`;
@@ -26,12 +32,14 @@ const generateTitleAuthorQuery = (title, author) => {
   );
 };
 
-function generateQuery(param, ...ids) {
-  const queryFxn = {
+function baseQuery(param, ...ids) {
+  const queryFxns = {
     lcn: generateLCNQuery,
     isxn: generateISxNQuery,
     ["title-author"]: generateTitleAuthorQuery
-  }[param];
+  };
+
+  const queryFxn = queryFxns[param] || (() => BASE_SEARCH_URL);
 
   return queryFxn(...ids);
 }
@@ -69,6 +77,7 @@ function getMarcItemText(xml, { tag, code }) {
   } catch(err) { return ""; }
 }
 
-exports.generateQuery = generateQuery;
-exports.appendInstitutionToQuery = appendInstitutionToQuery;
+exports.baseQuery = baseQuery;
+exports.institutionView = institutionView;
 exports.getFromMarc = getFromMarc;
+exports.searchScope = searchScope;

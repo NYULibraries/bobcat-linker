@@ -1,27 +1,43 @@
 'use strict';
 
 const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, BASE_API_URL } = require("../config/baseUrls.config.js");
-const { generateQuery, appendInstitutionToQuery, getFromMarc } = require("./queryUtils.js");
+const { baseQuery, institutionView, searchScope, getFromMarc } = require("./queryUtils.js");
 const defaultVid = require("../config/institutions.config.js").default;
 
+// aliases "".concat for readability
+const concat = (...args) => "".concat(...args);
+
 exports.getUri = function getUri(params) {
-  if (!params) { return appendInstitutionToQuery(null, BASE_SEARCH_URL); }
+  if (!params) { return concat(BASE_SEARCH_URL, institutionView(null)); }
+
   const { lcn, isbn, issn, institution } = params;
   const isxn = isbn || issn;
-  let url = (lcn && generateQuery("lcn", lcn)) ||
-            (isxn && generateQuery("isxn", isxn)) ||
-            BASE_SEARCH_URL;
-  url = appendInstitutionToQuery(institution, url);
-  return url;
+
+  const paramName = (lcn && "lcn") || ((isbn || issn) && "isxn") || null;
+  const param = lcn || isbn || issn;
+
+  const baseUrl = baseQuery(paramName, param);
+  const scope = searchScope(institution);
+  const vid = institutionView(institution);
+
+  return concat(baseUrl, scope, vid);
 };
 
 exports.fetchOclcUri = function fetchOclcUri(params, key) {
-  if (params === null) { return `${BASE_SEARCH_URL}&vid=${defaultVid}`; }
+  if (params === null) {
+    return concat(
+      baseQuery(null),
+      institutionView(null)
+    );
+  }
 
   const axios = require('axios');
   const parseXml = require('@rgrove/parse-xml');
 
   const { oclc, institution } = params;
+  const scope = searchScope(institution);
+  const vid = institutionView(institution);
+
   return (
     axios
     .get(`${BASE_API_URL}/${oclc}?wskey=${key}`)
@@ -29,14 +45,16 @@ exports.fetchOclcUri = function fetchOclcUri(params, key) {
       const xml = parseXml(response.data);
       const isxn = getFromMarc(xml, "isbn") || getFromMarc(xml, "issn");
 
+      let baseUrl;
       if (isxn) {
-        return appendInstitutionToQuery(institution, generateQuery("isxn", isxn));
+        baseUrl = baseQuery("isxn", isxn);
+      } else {
+        const title = getFromMarc(xml, "title");
+        const author = getFromMarc(xml, "author");
+        baseUrl = baseQuery("title-author", title, author);
       }
 
-      const title = getFromMarc(xml, "title");
-      const author = getFromMarc(xml, "author");
-
-      return appendInstitutionToQuery(institution, generateQuery("title-author", title, author));
+      return concat(baseUrl, scope, vid);
     },
     // if HTTP get goes wrong
     err => { throw err; })
@@ -46,5 +64,6 @@ exports.fetchOclcUri = function fetchOclcUri(params, key) {
 };
 
 exports.institutionLandingUri = function institutionLandingUri(institution) {
-  return appendInstitutionToQuery(institution, BASE_SEARCH_URL);
+  const vid = institutionView(institution);
+  return concat(BASE_SEARCH_URL, vid);
 };
