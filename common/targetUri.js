@@ -16,11 +16,11 @@ exports.getUri = function getUri(params) {
   const paramName = (lcn && "lcn") || ((isbn || issn) && "isxn") || null;
   const param = lcn || isbn || issn;
 
-  const baseUrl = baseQuery(paramName, param);
+  const base = baseQuery(paramName, param);
   const scope = searchScope(institution);
   const vid = institutionView(institution);
 
-  return concat(baseUrl, scope, vid);
+  return concat(base, scope, vid);
 };
 
 exports.fetchOclcUri = function fetchOclcUri(params, key) {
@@ -45,16 +45,16 @@ exports.fetchOclcUri = function fetchOclcUri(params, key) {
       const xml = parseXml(response.data);
       const isxn = getFromMarc(xml, "isbn") || getFromMarc(xml, "issn");
 
-      let baseUrl;
+      let base;
       if (isxn) {
-        baseUrl = baseQuery("isxn", isxn);
+        base = baseQuery("isxn", isxn);
       } else {
         const title = getFromMarc(xml, "title");
         const author = getFromMarc(xml, "author");
-        baseUrl = baseQuery("title-author", title, author);
+        base = baseQuery("title-author", title, author);
       }
 
-      return concat(baseUrl, scope, vid);
+      return concat(base, scope, vid);
     },
     // if HTTP get goes wrong
     err => { throw err; })
