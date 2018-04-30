@@ -77,6 +77,7 @@ Returns a redirect HTTP response (302) with the corresponding URL in primo-explo
   * `lcn`
   * `isbn`
   * `issn`
+* On error: Redirects to Primo New UI search page of corresponding institution, or to default institution (NYU) view search page if institution parameter is missing.
 
 #### Examples
 
@@ -96,6 +97,7 @@ After fetching corresponding ISBN, ISSN, or title/author data from an OCLC recor
 * Parameters:
   * institution
   * oclc
+* On error: Redirects to Primo New UI search page of corresponding institution with a query containing the OCLC ID alone, or to default institution (NYU) view search page if institution parameter is missing.
 
 #### Examples
 
