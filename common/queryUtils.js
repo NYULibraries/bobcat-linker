@@ -2,6 +2,7 @@
 
 const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL } = require("../config/baseUrls.config.js");
 const INSTITUTIONS_TO_VID = require("../config/institutions.config.js");
+const ADVANCED_MODE = "&mode=advanced";
 
 function institutionView(institution) {
   // account for mis-capitalization
@@ -21,22 +22,25 @@ function searchScope(institution) {
 }
 
 const generateLCNQuery = lcn => `${BASE_FULLDISPLAY_URL}&docid=${lcn}`;
-const generateISxNQuery = isxn => `${BASE_SEARCH_URL}query=isbn,contains,${isxn}&mode=advanced`;
+const generateISxNQuery = isxn => `${BASE_SEARCH_URL}query=isbn,contains,${isxn}${ADVANCED_MODE}`;
+const generateOCLCQuery = oclc => `${BASE_SEARCH_URL}query=any,contains,${oclc}${ADVANCED_MODE}`;
 const generateTitleAuthorQuery = (title, author) => {
   return (
     `${BASE_SEARCH_URL}` +
       (title ? `query=title,exact,${title}` : "") +
       (title && author ? ",AND&" : "") +
       (author ? `query=creator,exact,${author}` : "") +
-      ",&mode=advanced"
+      `,${ADVANCED_MODE}`
   );
 };
+
 
 function baseQuery(param, ...ids) {
   const queryFxns = {
     lcn: generateLCNQuery,
     isxn: generateISxNQuery,
-    ["title-author"]: generateTitleAuthorQuery
+    ["title-author"]: generateTitleAuthorQuery,
+    oclc: generateOCLCQuery
   };
 
   const queryFxn = queryFxns[param] || (() => BASE_SEARCH_URL);
