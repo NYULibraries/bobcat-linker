@@ -31,7 +31,7 @@ exports.fetchOclcUri = function fetchOclcUri(params, key) {
     );
   }
 
-  const axios = require('axios');
+  const { get } = require('axios');
   const parseXml = require('@rgrove/parse-xml');
 
   const { oclc, institution } = params;
@@ -39,8 +39,7 @@ exports.fetchOclcUri = function fetchOclcUri(params, key) {
   const vid = institutionView(institution);
 
   return (
-    axios
-    .get(`${BASE_API_URL}/${oclc}?wskey=${key}`)
+    get(`${BASE_API_URL}/${oclc}?wskey=${key}`)
     .then(response => {
       const xml = parseXml(response.data);
       const isxn = getFromMarc(xml, "isbn") || getFromMarc(xml, "issn");
