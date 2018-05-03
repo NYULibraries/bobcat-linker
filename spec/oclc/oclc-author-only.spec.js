@@ -1,13 +1,10 @@
-const { BASE_SEARCH_URL, INSTITUTIONS_TO_VID, ADVANCED_MODE,
-        BASE_API_URL } = require("../helpers/constants");
+const { BASE_SEARCH_URL, ADVANCED_MODE, BASE_API_URL } = require("../helpers/constants");
 const { oclc } = require("../helpers/constants").lambdas;
 const { escapeRegExp } = require("../helpers/common");
 const { author, xml, oclc: oclcId } = require('../helpers/worldcat-author-only.fixture.js');
 const nock = require('nock');
 
 describe("with no ISBN or ISSN", () => {
-  const vid = INSTITUTIONS_TO_VID.default;
-
   describe("with author ONLY", () => {
     let authorOnlyRecRequest;
     beforeEach(() => {
