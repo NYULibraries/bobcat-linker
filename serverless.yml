@@ -20,14 +20,14 @@ functions:
     memorySize: 128
     handler: handler.persistent
     events:
-      - http:
-        path: persistent
-        method: get
+     - http:
+         path: persistent
+         method: get
 
   oclc:
     memorySize: 1024
     handler: handler.oclc
     events:
-      - http:
-        path: persistent/oclc
-        method: get
+     - http:
+         path: persistent/oclc
+         method: get
