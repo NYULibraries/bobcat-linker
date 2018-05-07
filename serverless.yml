@@ -1,33 +1,31 @@
-service: bobcat-linker
-
 provider:
   name: aws
-  runtime: nodejs6.10
-  role: ${env:LAMBDA_ROLE}
-  stage: ${env:STAGE}
+  service: bobcat-linker
   region: us-east-2
+  runtime: nodejs6.10
+  role: "${env:LAMBDA_ROLE}"
+  stage: "${env:STAGE}"
   environment:
-    WORLDCAT_API_KEY: ${ssm:WORLDCAT_API_KEY}
+    WORLDCAT_API_KEY: "${ssm:WORLDCAT_API_KEY}"
 
 package:
- include:
-   - handler.js
-   - common/**
-   - config/**
+  include:
+    - handler.js
+    - common/**
+    - config/**
 
 functions:
-  persistent:
-    memorySize: 128
-    handler: handler.persistent
-    events:
-     - http:
-         path: persistent
-         method: get
-
   oclc:
-    memorySize: 1024
-    handler: handler.oclc
     events:
-     - http:
-         path: persistent/oclc
-         method: get
+      - http:
+          method: get
+          path: persistent/oclc
+    handler: handler.oclc
+    memorySize: 1024
+  persistent:
+    events:
+      - http:
+          method: get
+          path: persistent
+    handler: handler.persistent
+    memorySize: 128
