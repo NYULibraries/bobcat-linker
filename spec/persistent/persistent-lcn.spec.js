@@ -1,4 +1,4 @@
-const { BASE_FULLDISPLAY_URL, INSTITUTIONS, INSTITUTIONS_TO_VID } = require("../helpers/constants");
+const { BASE_FULLDISPLAY_URL } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
 const { persistent } = require("../helpers/constants").lambdas;
 

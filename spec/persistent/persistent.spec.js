@@ -31,7 +31,7 @@ describe("null query", () => {
 
     it('should log error in Lambda', (done) => {
       persistent.event() // forces a TypeError: Cannot read property 'queryStringParameters' of undefined
-      .expectResult(result => {
+      .expectResult(() => {
         expect(console.error.calls.mostRecent().args[0]).toMatch(/TypeError: Cannot read/);
       })
       .verify(done);

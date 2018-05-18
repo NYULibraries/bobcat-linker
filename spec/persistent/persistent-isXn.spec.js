@@ -1,6 +1,4 @@
-const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL,
-        INSTITUTIONS, INSTITUTIONS_TO_VID,
-        ADVANCED_MODE } = require("../helpers/constants");
+const { BASE_SEARCH_URL, ADVANCED_MODE } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
 
 const { persistent } = require("../helpers/constants").lambdas;

@@ -1,5 +1,4 @@
-const { BASE_SEARCH_URL, INSTITUTIONS, INSTITUTIONS_TO_VID,
-        ADVANCED_MODE, BASE_API_URL } = require("../helpers/constants");
+const { BASE_SEARCH_URL, INSTITUTIONS, INSTITUTIONS_TO_VID, BASE_API_URL } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
 const { oclc } = require("../helpers/constants").lambdas;
 const worldCatISBN = require('../helpers/worldcat-isbn.fixture.js');
@@ -17,9 +16,8 @@ describe('institution parameter', () => {
 
   describe('with a valid institution', () => {
     INSTITUTIONS.forEach(institution => {
-      it(`should redirect to ${institution.toUpperCase()}\'s search page`, (done) => {
+      it(`should redirect to ${institution.toUpperCase()}'s search page`, (done) => {
         const vid = INSTITUTIONS_TO_VID[institution];
-        const isbn = worldCatISBN.isbn;
         const oclcId = worldCatISBN.oclc;
 
         oclc.event({
@@ -51,7 +49,6 @@ describe('institution parameter', () => {
     it(`should account for mis-capitalization`, (done) => {
       const institution = "nYu";
       const vid = INSTITUTIONS_TO_VID[institution.toLowerCase()];
-      const isbn = worldCatISBN.isbn;
       const oclcId = worldCatISBN.oclc;
 
       oclc.event({
@@ -77,7 +74,6 @@ describe('institution parameter', () => {
 
     it(`should redirect to ${defaultVid}'s fulldisplay view of record`, (done) => {
       const institution = "banana";
-      const isbn = worldCatISBN.isbn;
       const oclcId = worldCatISBN.oclc;
 
       oclc.event({
@@ -103,7 +99,6 @@ describe('institution parameter', () => {
 
     describe('without an institution', () => {
       const oclcId = worldCatISBN.oclc;
-      const isbn = worldCatISBN.isbn;
 
       it(`should redirect to ${defaultVid}'s fulldisplay view of record`, (done) => {
         oclc.event({

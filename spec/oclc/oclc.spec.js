@@ -1,5 +1,4 @@
-const { BASE_SEARCH_URL, ADVANCED_MODE,
-        BASE_API_URL, MOCK_API_KEY } = require("../helpers/constants");
+const { BASE_SEARCH_URL, BASE_API_URL, MOCK_API_KEY } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
 const { oclc } = require("../helpers/constants").lambdas;
 const nock = require('nock');
@@ -43,7 +42,7 @@ describe('OCLC', () => {
           institution
         }
       })
-      .expectResult(result => {
+      .expectResult(() => {
         expect(genericRequest.isDone()).toBe(true);
       })
       .verify(done);
@@ -62,7 +61,7 @@ describe('OCLC', () => {
           institution
         }
       })
-      .expectResult(result => {
+      .expectResult(() => {
         expect(reqWithApiKey.isDone()).toBe(true);
       })
       .verify(done);
@@ -75,13 +74,11 @@ describe('OCLC', () => {
     });
 
     describe('of xml parsing', () => {
-      let genericRequest;
       const mockId = "anyId123";
       beforeEach(() => {
-        genericRequest =
-          nock(BASE_API_URL)
-            .get(`/${mockId}`).query(true)
-            .reply(200, 'Welcome to WorldCat');
+        nock(BASE_API_URL)
+          .get(`/${mockId}`).query(true)
+          .reply(200, 'Welcome to WorldCat');
       });
 
       it('should log xml parsing error in Lambda', (done) => {
@@ -90,7 +87,7 @@ describe('OCLC', () => {
             oclc: mockId
           }
         })
-        .expectResult(result => {
+        .expectResult(() => {
           expect(console.error.calls.mostRecent().args[0]).toMatch(/Root element is missing or invalid/);
         })
         .verify(done);
@@ -116,13 +113,11 @@ describe('OCLC', () => {
     });
 
     describe('of WorldCat fetch', () => {
-      let genericRequest;
       const mockId = "anyId123";
       beforeEach(() => {
-        genericRequest =
-          nock(BASE_API_URL)
-            .get(`/${mockId}`).query(true)
-            .reply(404);
+        nock(BASE_API_URL)
+          .get(`/${mockId}`).query(true)
+          .reply(404);
       });
 
       it('should log the status error in Lambda', (done) => {
@@ -131,7 +126,7 @@ describe('OCLC', () => {
             oclc: mockId
           }
         })
-        .expectResult(result => {
+        .expectResult(() => {
           expect(console.error.calls.mostRecent().args[0]).toMatch(/Request failed with status code 404/);
         })
         .verify(done);
