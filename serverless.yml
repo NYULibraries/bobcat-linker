@@ -1,6 +1,6 @@
+service: bobcat-linker
 provider:
   name: aws
-  service: bobcat-linker
   region: us-east-2
   runtime: nodejs6.10
   role: "${env:LAMBDA_ROLE}"
