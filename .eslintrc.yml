@@ -5,8 +5,7 @@ parserOptions:
   sourceType: module
 rules:
   semi:
-  - error
-  - never
+  - warn
   no-unused-vars:
   - warn
   no-console: 0
