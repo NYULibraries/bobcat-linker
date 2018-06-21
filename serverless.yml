@@ -1,7 +1,7 @@
 service: bobcat-linker
 provider:
   name: aws
-  region: us-east-2
+  region: us-east-1
   runtime: nodejs6.10
   role: "${env:LAMBDA_ROLE}"
   stage: "${env:STAGE}"
