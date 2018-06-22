@@ -6,7 +6,7 @@ provider:
   role: "${env:LAMBDA_ROLE}"
   stage: "${env:STAGE}"
   environment:
-    WORLDCAT_API_KEY: "${ssm:WORLDCAT_API_KEY}"
+    WORLDCAT_API_KEY: "${env:WORLDCAT_API_KEY}"
 
 package:
   include:
