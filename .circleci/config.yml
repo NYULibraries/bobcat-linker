@@ -28,10 +28,10 @@ jobs:
       - run:
           name: Deploy via serverless to dev
           command: |
-            export LAMBDA_ROLE=$LAMBDA_ROLE_DEV
-            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_DEV
-            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_DEV
-            export WORLDCAT_API_KEY
+            LAMBDA_ROLE=$LAMBDA_ROLE_DEV \
+            AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_DEV \
+            AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_DEV \
+            WORLDCAT_API_KEY=$WORLDCAT_API_KEY \
             STAGE=dev docker-compose run deploy
 
   deploy-prod:
@@ -44,9 +44,10 @@ jobs:
       - run:
           name: Deploy via serverless to prod
           command: |
-            export LAMBDA_ROLE=$LAMBDA_ROLE_PROD
-            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_PROD
-            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_PROD
+            LAMBDA_ROLE=$LAMBDA_ROLE_PROD \
+            AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_PROD \
+            AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_PROD \
+            WORLDCAT_API_KEY=$WORLDCAT_API_KEY \
             STAGE=prod docker-compose run deploy
 
 workflows:
