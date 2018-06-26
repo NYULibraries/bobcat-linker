@@ -1,8 +1,7 @@
 'use strict';
 
-const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, BASE_API_URL } = require("../config/baseUrls.config.js");
+const { BASE_SEARCH_URL, BASE_API_URL } = require("../config/baseUrls.config.js");
 const { baseQuery, institutionView, searchScope, getFromMarc } = require("./queryUtils.js");
-const defaultVid = require("../config/institutions.config.js").default;
 
 // aliases "".concat for readability
 const concat = (...args) => "".concat(...args);
@@ -13,7 +12,7 @@ exports.getUri = function getUri(params) {
   const { lcn, isbn, issn, institution } = params;
   const isxn = isbn || issn;
 
-  const paramName = (lcn && "lcn") || ((isbn || issn) && "isxn") || null;
+  const paramName = (lcn && "lcn") || (isxn && "isxn") || null;
   const param = lcn || isbn || issn;
 
   const base = baseQuery(paramName, param);

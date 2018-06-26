@@ -1,12 +1,12 @@
 service: bobcat-linker
 provider:
   name: aws
-  region: us-east-2
+  region: us-east-1
   runtime: nodejs6.10
   role: "${env:LAMBDA_ROLE}"
   stage: "${env:STAGE}"
   environment:
-    WORLDCAT_API_KEY: "${ssm:WORLDCAT_API_KEY}"
+    WORLDCAT_API_KEY: "${env:WORLDCAT_API_KEY}"
 
 package:
   include:
@@ -29,3 +29,9 @@ functions:
           path: persistent
     handler: handler.persistent
     memorySize: 128
+
+resources:
+  Resources:
+    ApiGatewayRestApi:
+      Properties:
+        Name: "${self:service}-${self:provider.stage}"
