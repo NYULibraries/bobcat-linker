@@ -34,4 +34,4 @@ resources:
   Resources:
     ApiGatewayRestApi:
       Properties:
-        Name: "${self:service}-${self:stage}"
+        Name: "${self:service}-${self:provider.stage}"
