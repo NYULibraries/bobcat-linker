@@ -36,15 +36,8 @@ exports.fetchOclcUri = function fetchOclcUri(params, key) {
     get(`${BASE_API_URL}/${oclc}?wskey=${key}`)
     .then(response => {
       const xml = parseXml(response.data);
-      const params = {
-        isbn: getFromMarc(xml, "isbn"),
-        issn: getFromMarc(xml, "issn"),
-        author: getFromMarc(xml, "author"),
-        title: getFromMarc(xml, "title"),
-      };
-
+      const params = getFromMarc(xml, "isbn", "issn", "author", "title");
       const base = baseQuery(params);
-
       return concat(base, scope, vid);
     },
     // if HTTP get goes wrong

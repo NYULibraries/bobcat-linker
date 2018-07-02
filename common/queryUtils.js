@@ -70,21 +70,28 @@ const getMarcItemText = (xml, { tag, code }) => {
       // get text
       .children[0].text.trim();
   } catch(err) { return ""; }
-}
+};
 
-const getItemsFromMarcFields = (xml, fields) =>
-  fields.map(field => getMarcItemText(xml, field))
+const getTextFromMarcFields = (xml, fields) =>
+  fields
+    .reduce((res, field) => `${res} ${getMarcItemText(xml, field)}`, "")
+    .trim();
 
-const getFromMarc = (xml, param) => {
+const getFromMarc = (xml, ...paramsList) => {
   const paramFields = {
     isbn: [{ tag: '020', code: 'a' }],
     issn: [{ tag: '022', code: 'a' }],
     author: [{ tag: '100', code: 'a'}],
     title: [{ tag: '245', code: 'a'}, { tag: '245', code: 'b'}]
-  }[param];
+  };
 
-  return getItemsFromMarcFields(xml, paramFields).join(" ").trim();
-}
+  return (
+    paramsList.reduce((merged, key) => {
+      const prop = getTextFromMarcFields(xml, paramFields[key]);
+      return Object.assign(merged, { [key]: prop });
+    }, {})
+  );
+};
 
 module.exports = {
   baseQuery,
