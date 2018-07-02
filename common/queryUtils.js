@@ -21,49 +21,40 @@ function searchScope(institution) {
     "";
 }
 
-const generateLCNQuery = lcn => `${BASE_FULLDISPLAY_URL}&docid=${lcn}`;
-const generateISxNQuery = isxn => `${BASE_SEARCH_URL}query=isbn,contains,${isxn}${ADVANCED_MODE}`;
-const generateOCLCQuery = oclc => `${BASE_SEARCH_URL}query=any,contains,${oclc}${ADVANCED_MODE}`;
-const generateTitleAuthorQuery = (title, author) => {
-  return (
-    `${BASE_SEARCH_URL}` +
-      (title ? `query=title,exact,${title}` : "") +
-      (title && author ? ",AND&" : "") +
-      (author ? `query=creator,exact,${author}` : "") +
-      `,${ADVANCED_MODE}`
-  );
-};
+const generateLCNQuery = ({ lcn }) => `${BASE_FULLDISPLAY_URL}&docid=${lcn}`;
+const generateISxNQuery = ({ isbn, issn }) => `${BASE_SEARCH_URL}query=isbn,contains,${isbn || issn}${ADVANCED_MODE}`;
+const generateOCLCQuery = ({ oclc }) => `${BASE_SEARCH_URL}query=any,contains,${oclc}${ADVANCED_MODE}`;
+const generateTitleAuthorQuery = ({ title, author }) => (
+  BASE_SEARCH_URL +
+  (title ? `query=title,exact,${title}` : "") +
+  (title && author ? ",AND&" : "") +
+  (author ? `query=creator,exact,${author}` : "") +
+  `,${ADVANCED_MODE}`
+);
+
+const baseQuery = (params) => {
+  const searchParam =
+    params && // if params is null
+    ['lcn', 'isbn', 'issn', 'isxn',
+    'oclc', 'title', 'author'].find(p => params[p]);
 
 
-function baseQuery(param, ...ids) {
   const queryFxns = {
     lcn: generateLCNQuery,
+    isbn: generateISxNQuery,
+    issn: generateISxNQuery,
     isxn: generateISxNQuery,
-    ["title-author"]: generateTitleAuthorQuery,
-    oclc: generateOCLCQuery
+    title: generateTitleAuthorQuery,
+    author: generateTitleAuthorQuery,
+    oclc: generateOCLCQuery,
   };
 
-  const queryFxn = queryFxns[param] || (() => BASE_SEARCH_URL);
+  const queryFxn = queryFxns[searchParam];
 
-  return queryFxn(...ids);
-}
+  return queryFxn ? queryFxn(params) : BASE_SEARCH_URL;
+};
 
-function getFromMarc(xml, param) {
-  const paramFields = {
-    isbn: [{ tag: '020', code: 'a' }],
-    issn: [{ tag: '022', code: 'a' }],
-    author: [{ tag: '100', code: 'a'}],
-    title: [{ tag: '245', code: 'a'}, { tag: '245', code: 'b'}]
-  }[param];
-
-  return getItemsFromMarcFields(xml, paramFields).join(" ").trim();
-}
-
-function getItemsFromMarcFields(xml, fields) {
-  return fields.map(field => getMarcItemText(xml, field));
-}
-
-function getMarcItemText(xml, { tag, code }) {
+const getMarcItemText = (xml, { tag, code }) => {
   try {
     return xml
       // get first record's children
@@ -81,7 +72,23 @@ function getMarcItemText(xml, { tag, code }) {
   } catch(err) { return ""; }
 }
 
-exports.baseQuery = baseQuery;
-exports.institutionView = institutionView;
-exports.getFromMarc = getFromMarc;
-exports.searchScope = searchScope;
+const getItemsFromMarcFields = (xml, fields) =>
+  fields.map(field => getMarcItemText(xml, field))
+
+const getFromMarc = (xml, param) => {
+  const paramFields = {
+    isbn: [{ tag: '020', code: 'a' }],
+    issn: [{ tag: '022', code: 'a' }],
+    author: [{ tag: '100', code: 'a'}],
+    title: [{ tag: '245', code: 'a'}, { tag: '245', code: 'b'}]
+  }[param];
+
+  return getItemsFromMarcFields(xml, paramFields).join(" ").trim();
+}
+
+module.exports = {
+  baseQuery,
+  institutionView,
+  getFromMarc,
+  searchScope
+};

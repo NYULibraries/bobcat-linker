@@ -8,14 +8,9 @@ const concat = (...args) => "".concat(...args);
 
 exports.getUri = function getUri(params) {
   if (!params) { return concat(BASE_SEARCH_URL, institutionView(null)); }
+  const { institution } = params;
 
-  const { lcn, isbn, issn, institution } = params;
-  const isxn = isbn || issn;
-
-  const paramName = (lcn && "lcn") || (isxn && "isxn") || null;
-  const param = lcn || isbn || issn;
-
-  const base = baseQuery(paramName, param);
+  const base = baseQuery(params);
   const scope = searchScope(institution);
   const vid = institutionView(institution);
 
@@ -41,28 +36,26 @@ exports.fetchOclcUri = function fetchOclcUri(params, key) {
     get(`${BASE_API_URL}/${oclc}?wskey=${key}`)
     .then(response => {
       const xml = parseXml(response.data);
-      const isxn = getFromMarc(xml, "isbn") || getFromMarc(xml, "issn");
+      const params = {
+        isbn: getFromMarc(xml, "isbn"),
+        issn: getFromMarc(xml, "issn"),
+        author: getFromMarc(xml, "author"),
+        title: getFromMarc(xml, "title"),
+      };
 
-      let base;
-      if (isxn) {
-        base = baseQuery("isxn", isxn);
-      } else {
-        const title = getFromMarc(xml, "title");
-        const author = getFromMarc(xml, "author");
-        base = baseQuery("title-author", title, author);
-      }
+      const base = baseQuery(params);
 
       return concat(base, scope, vid);
     },
     // if HTTP get goes wrong
     err => {
       console.error(err.message);
-      return concat(baseQuery("oclc", oclc), scope, vid);
+      return concat(baseQuery({ oclc }), scope, vid);
     })
     // if parseXml goes wrong
     .catch(err => {
       console.error(err.message);
-      return concat(baseQuery("oclc", oclc), scope, vid);
+      return concat(baseQuery({ oclc }), scope, vid);
     })
   );
 };
