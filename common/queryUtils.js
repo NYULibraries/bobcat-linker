@@ -1,9 +1,9 @@
 'use strict';
 
-const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, BASE_API_URL } = require("../config/baseUrls.config.js");
-const INSTITUTIONS_TO_VID = require("../config/institutions.config.js");
-const ADVANCED_MODE = "&mode=advanced";
+const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, BASE_API_URL } = require("../config/baseUrls");
+const INSTITUTIONS_TO_VID = require("../config/institutions");
 const { getFromMarc } = require("./marcUtils");
+const ADVANCED_MODE = "&mode=advanced";
 
 const lcnQuery = ({ lcn }) => `${BASE_FULLDISPLAY_URL}&docid=${lcn}`;
 const isxnQuery = ({ isbn, issn }) => `${BASE_SEARCH_URL}query=isbn,contains,${isbn || issn}${ADVANCED_MODE}`;

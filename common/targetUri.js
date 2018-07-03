@@ -1,6 +1,6 @@
 'use strict';
 
-const { BASE_SEARCH_URL } = require("../config/baseUrls.config.js");
+const { BASE_SEARCH_URL } = require("../config/baseUrls");
 const { baseQuery, institutionView, searchScope } = require("./queryUtils.js");
 
 // aliases "".concat for readability

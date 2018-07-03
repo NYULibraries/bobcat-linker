@@ -10,23 +10,6 @@ AWS Lambda functions for redirects from bobcat permalinks.
 
 Configuration of views and base urls are handled via exported javascript objects in the `config/` directory.
 
-### Environment
-
-The following environment variables are used for deploying via [serverless](https://github.com/serverless/serverless).
-
-* `LAMBDA_ROLE`: role arn with AWSLambdaBasicExecutionRole. (e.g. `arn:aws:iam::123456789:role/AWSLambdaBasicExecutionRole`)
-* `AWS_ACCESS_KEY_ID`
-* `AWS_SECRET_ACCESS_KEY`
-* `STAGE`: `prod` or `dev`
-
-`WORLDCAT_API_KEY` is fetched from the [SSM Parameter store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html) by serverless.
-
-To upload a value to SSM Parameter store using AWS CLI:
-
-```bash
-aws ssm put-parameter --name WORLDCAT_API_KEY --value "12345abcdefg12345" --type String
-```
-
 ## Testing
 
 locally
@@ -65,6 +48,21 @@ docker:
 docker-compose run deploy
 ```
 
+### Environment
+
+The following environment variables are used for deploying via [serverless](https://github.com/serverless/serverless).
+
+* `LAMBDA_ROLE`: role arn with AWSLambdaBasicExecutionRole. (e.g. `arn:aws:iam::123456789:role/AWSLambdaBasicExecutionRole`)
+* `AWS_ACCESS_KEY_ID`
+* `AWS_SECRET_ACCESS_KEY`
+* `STAGE`: `prod` or `dev`
+* `WORLDCAT_API_KEY`
+
+Note: to upload a value to SSM Parameter store using AWS CLI:
+```bash
+aws ssm put-parameter --name WORLDCAT_API_KEY --value "12345abcdefg12345" --type String
+```
+
 ## Usage
 
 ### persistent/?{query}
@@ -77,37 +75,34 @@ Returns a redirect HTTP response (302) with the corresponding URL in primo-explo
   * `lcn`
   * `isbn`
   * `issn`
+  * `oclc`
 * On error: Redirects to Primo New UI search page of corresponding institution, or to default institution (NYU) view search page if institution parameter is missing.
 
 #### Examples
 
 ISBN/ISSN: Redirects to advanced-mode search view.
-* `/persistent?isbn=abcd123456&institution=nyu` redirects to:
+* `/persistent?isbn=9781784392406` redirects to:
 `{BASE_SEARCH_URL}?query=isbn,contains,abcd123456&mode=advanced&search_scope=nyu&vid=NYU`
 
+[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/prod/persistent?isbn=9781784392406&institution=nyu)
+
 LCN: redirect to Primo NUI's fulldisplay page.
-* `/persistent?lcn=aleph_xyz987&institution=nyu` redirects to:
+* `/persistent?lcn=nyu_aleph005819529` redirects to:
 `{BASE_FULL_DISPLAY_URL}?&docid=aleph_xyz987&search_scope=nyu&vid=NYU`
 
-### persistent/oclc?{query}
-
-After fetching corresponding ISBN, ISSN, or title/author data from an OCLC record, returns a redirect HTTP response (302) with the corresponding URL in primo-explore according to the query parameters
-
-* Function: `handler.oclc`
-* Parameters:
-  * institution
-  * oclc
-* On error: Redirects to Primo New UI search page of corresponding institution with a query containing the OCLC ID alone, or to default institution (NYU) view search page if institution parameter is missing.
-
-#### Examples
+[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/prod/persistent?lcn=nyu_aleph005819529&institution=nyu)
 
 OCLC record with ISBN/ISSN data:
-* `/persistent?oclc=2468013579&institution=nyu` redirects to: `{BASE_SEARCH_URL}?query=isbn,contains,{fetched_isbn/issn}&mode=advanced&search_scope=nyu&vid=NYU`
+* `/persistent?oclc=915038328` redirects to: `{BASE_SEARCH_URL}?query=isbn,contains,{fetched_isbn/issn}&mode=advanced&search_scope=nyu&vid=NYU`
+
+[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/prod/persistent?oclc=915038328&institution=nyu)
 
 OCLC record which lacks ISBN/ISSN data:
-* `/persistent?oclc=2468013579&institution=nyu` redirects to: `{BASE_SEARCH_URL}?query=title,exact,{fetched_title},AND&query=creator,exact,{fetched_author}&mode=advanced&search_scope=nyu&vid=NYU`
+* `/persistent?oclc=732098558` redirects to: `{BASE_SEARCH_URL}?query=title,exact,{fetched_title},AND&query=creator,exact,{fetched_author}&mode=advanced&search_scope=nyu&vid=NYU`
+
+[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/prod/persistent?oclc=732098558&institution=nyu)
 
 ### Todo:
 
-- [ ] Live demos
+- [x] Live demos
 - [ ] Handling Lambda errors with [state machines](https://docs.aws.amazon.com/step-functions/latest/dg/tutorial-handling-error-conditions.html) with [serverless step functions](https://github.com/horike37/serverless-step-functions)
