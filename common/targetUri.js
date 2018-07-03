@@ -6,10 +6,13 @@ const { baseQuery, institutionView, searchScope, getFromMarc } = require("./quer
 // aliases "".concat for readability
 const concat = (...args) => "".concat(...args);
 
-exports.getUri = function getUri(params) {
+exports.getUri = function getUri(params, key) {
   if (!params) { return concat(BASE_SEARCH_URL, institutionView(null)); }
-  const { institution } = params;
+  else if (!params.lcn && !params.isbn && !params.issn && params.oclc) {
+    return fetchOclcUri(params, key);
+  }
 
+  const { institution } = params;
   const base = baseQuery(params);
   const scope = searchScope(institution);
   const vid = institutionView(institution);
@@ -17,7 +20,7 @@ exports.getUri = function getUri(params) {
   return concat(base, scope, vid);
 };
 
-exports.fetchOclcUri = function fetchOclcUri(params, key) {
+function fetchOclcUri(params, key) {
   if (params === null) {
     return concat(
       baseQuery(null),

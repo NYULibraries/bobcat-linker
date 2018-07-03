@@ -1,6 +1,6 @@
 const { BASE_SEARCH_URL, INSTITUTIONS, INSTITUTIONS_TO_VID } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
-const { persistent } = require("../helpers/constants").lambdas;
+const { persistent } = require("../helpers/lambdas");
 
 describe('institution view ONLY', () => {
   INSTITUTIONS.forEach((institution) => {

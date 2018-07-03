@@ -1,6 +1,6 @@
 const { BASE_SEARCH_URL, BASE_API_URL, MOCK_API_KEY } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
-const { oclc } = require("../helpers/constants").lambdas;
+const { persistent } = require("../helpers/lambdas");
 const nock = require('nock');
 const worldCatISBN = require('../helpers/worldcat-isbn.fixture.js');
 
@@ -12,7 +12,7 @@ describe('OCLC', () => {
 
   describe("null query", () => {
     it('should redirect to default view\'s search', (done) => {
-      oclc.event({
+      persistent.event({
         queryStringParameters: null
       })
       .expectResult(result => {
@@ -36,7 +36,7 @@ describe('OCLC', () => {
         .query(true)
         .reply(200, worldCatISBN.xml);
 
-      oclc.event({
+      persistent.event({
         queryStringParameters: {
           oclc: "anyId123",
           institution
@@ -55,7 +55,7 @@ describe('OCLC', () => {
           .query({ wskey: MOCK_API_KEY })
           .reply(200, worldCatISBN.xml);
 
-      oclc.event({
+      persistent.event({
         queryStringParameters: {
           oclc: "anyId123",
           institution
@@ -82,7 +82,7 @@ describe('OCLC', () => {
       });
 
       it('should log xml parsing error in Lambda', (done) => {
-        oclc.event({
+        persistent.event({
           "queryStringParameters": {
             oclc: mockId
           }
@@ -94,7 +94,7 @@ describe('OCLC', () => {
       });
 
       it('should redirect to search page', (done) => {
-        oclc.event({
+        persistent.event({
           "queryStringParameters": {
             institution: "nyu",
             oclc: mockId
@@ -121,7 +121,7 @@ describe('OCLC', () => {
       });
 
       it('should log the status error in Lambda', (done) => {
-        oclc.event({
+        persistent.event({
           "queryStringParameters": {
             oclc: mockId
           }
@@ -133,7 +133,7 @@ describe('OCLC', () => {
       });
 
       it('should redirect to search page', (done) => {
-        oclc.event({
+        persistent.event({
           "queryStringParameters": {
             institution: "nyu",
             oclc: mockId
