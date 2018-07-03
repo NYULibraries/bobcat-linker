@@ -84,23 +84,23 @@ ISBN/ISSN: Redirects to advanced-mode search view.
 * `/persistent?isbn=9781784392406` redirects to:
 `{BASE_SEARCH_URL}?query=isbn,contains,abcd123456&mode=advanced&search_scope=nyu&vid=NYU`
 
-[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/prod/persistent?isbn=9781784392406&institution=nyu)
+[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/dev/persistent?isbn=9781784392406&institution=nyu)
 
 LCN: redirect to Primo NUI's fulldisplay page.
 * `/persistent?lcn=nyu_aleph005819529` redirects to:
 `{BASE_FULL_DISPLAY_URL}?&docid=aleph_xyz987&search_scope=nyu&vid=NYU`
 
-[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/prod/persistent?lcn=nyu_aleph005819529&institution=nyu)
+[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/dev/persistent?lcn=nyu_aleph005819529&institution=nyu)
 
 OCLC record with ISBN/ISSN data:
 * `/persistent?oclc=915038328` redirects to: `{BASE_SEARCH_URL}?query=isbn,contains,{fetched_isbn/issn}&mode=advanced&search_scope=nyu&vid=NYU`
 
-[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/prod/persistent?oclc=915038328&institution=nyu)
+[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/dev/persistent?oclc=915038328&institution=nyu)
 
 OCLC record which lacks ISBN/ISSN data:
 * `/persistent?oclc=732098558` redirects to: `{BASE_SEARCH_URL}?query=title,exact,{fetched_title},AND&query=creator,exact,{fetched_author}&mode=advanced&search_scope=nyu&vid=NYU`
 
-[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/prod/persistent?oclc=732098558&institution=nyu)
+[Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/dev/persistent?oclc=732098558&institution=nyu)
 
 ### Todo:
 
