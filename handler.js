@@ -2,19 +2,23 @@
 
 const { getUri, institutionLandingUri } = require("./common/targetUri.js");
 
-module.exports.persistent = (event, context, callback) => {
-  const getUriWithKey = getUri.bind(null, process.env.WORLDCAT_API_KEY);
-  return Promise.resolve(event)
-          .then(() => getUriWithKey(event.queryStringParameters))
-          .catch(err => handleError(err, event))
-          .then(uri => handleRedirect(uri, callback));
+module.exports.persistent = async (event, context, callback) => {
+  let uri;
+  try {
+    uri = await getUri(process.env.WORLDCAT_API_KEY, event.queryStringParameters);
+  } catch(err) {
+    uri = handleError(err, event);
+  }
+
+  return handleRedirect(uri, callback);
 };
 
 function handleError(err, event) {
   console.error(err);
-  let institution;
-  try { institution = event.queryStringParameters.institution; }
-  catch(_err) { institution = null; }
+  const institution = event
+                      && event.queryStringParameters
+                      && event.queryStringParameters.institution;
+
   return institutionLandingUri(institution);
 }
 

@@ -18,18 +18,17 @@ const oclcQuery = ({ oclc }) => `${BASE_SEARCH_URL}query=any,contains,${oclc}${A
 
 async function fetchOclcQuery(key, { oclc }) {
   const { get } = require('axios');
-  const parseXml = require('@rgrove/parse-xml');
 
-  return (
-    get(`${BASE_API_URL}/${oclc}?wskey=${key}`)
-      .then(({ data }) => parseXml(data))
-      .then(xml => getFromMarc(xml, "isbn", "issn", "author", "title"))
-      .then(params => baseQuery(key, params))
-      .catch(err => {
-        console.error(err.message);
-        return oclcQuery({ oclc });
-      })
-  );
+  try {
+    const { data } = await get(`${BASE_API_URL}/${oclc}?wskey=${key}`);
+    const xml = require('@rgrove/parse-xml')(data);
+    const params = getFromMarc(xml, "isbn", "issn", "author", "title");
+
+    return baseQuery(key, params);
+  } catch(err) {
+    console.error(err);
+    return oclcQuery({ oclc });
+  }
 }
 
 function institutionView(institution) {
