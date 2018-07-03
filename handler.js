@@ -1,25 +1,24 @@
 'use strict';
 
-const { getUri, fetchOclcUri, institutionLandingUri } = require("./common/targetUri.js");
+const { getUri, institutionLandingUri } = require("./common/targetUri.js");
 
-module.exports.persistent = (event, context, callback) =>
-  Promise.resolve(event)
-    .then(() => getUri(event.queryStringParameters))
-    .catch(err => handleError(err, event))
-    .then(uri => handleRedirect(uri, callback));
+module.exports.persistent = async (event, context, callback) => {
+  let uri;
+  try {
+    uri = await getUri(process.env.WORLDCAT_API_KEY, event.queryStringParameters);
+  } catch(err) {
+    uri = handleError(err, event);
+  }
 
-module.exports.oclc = (event, context, callback) =>
-  Promise.resolve(event)
-    .then(() => fetchOclcUri(event.queryStringParameters, process.env.WORLDCAT_API_KEY))
-    .catch(err => handleError(err, event))
-    .then(uri => handleRedirect(uri, callback));
-
+  return handleRedirect(uri, callback);
+};
 
 function handleError(err, event) {
   console.error(err);
-  let institution;
-  try { institution = event.queryStringParameters.institution; }
-  catch(_err) { institution = null; }
+  const institution = event
+                      && event.queryStringParameters
+                      && event.queryStringParameters.institution;
+
   return institutionLandingUri(institution);
 }
 

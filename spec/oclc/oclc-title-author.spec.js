@@ -1,6 +1,6 @@
 const { BASE_SEARCH_URL, ADVANCED_MODE, BASE_API_URL } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
-const { oclc } = require("../helpers/constants").lambdas;
+const { persistent } = require("../helpers/lambdas");
 const { author, title, xml, oclc: oclcId } = require('../helpers/worldcat-author-title.fixture.js');
 const nock = require('nock');
 
@@ -17,7 +17,7 @@ describe("with no ISBN or ISSN", () => {
     });
 
     it("should perform search with title (exact) and author (exact) query", (done) => {
-      oclc.event({
+      persistent.event({
         "queryStringParameters": {
           oclc: oclcId
         }

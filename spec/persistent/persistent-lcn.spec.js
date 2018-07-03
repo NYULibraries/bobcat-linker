@@ -1,6 +1,6 @@
 const { BASE_FULLDISPLAY_URL } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
-const { persistent } = require("../helpers/constants").lambdas;
+const { persistent } = require("../helpers/lambdas");
 
 describe('LCN', () => {
   it(`should redirect to fulldisplay page with LCN record`, (done) => {

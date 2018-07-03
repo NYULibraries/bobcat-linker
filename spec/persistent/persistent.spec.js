@@ -1,5 +1,5 @@
 const { BASE_SEARCH_URL, INSTITUTIONS_TO_VID } = require("../helpers/constants");
-const { persistent } = require("../helpers/constants").lambdas;
+const { persistent } = require("../helpers/lambdas");
 
 describe("null query", () => {
   const defaultVid = INSTITUTIONS_TO_VID.default;

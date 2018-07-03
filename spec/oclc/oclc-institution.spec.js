@@ -1,6 +1,6 @@
 const { BASE_SEARCH_URL, INSTITUTIONS, INSTITUTIONS_TO_VID, BASE_API_URL } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
-const { oclc } = require("../helpers/constants").lambdas;
+const { persistent } = require("../helpers/lambdas");
 const worldCatISBN = require('../helpers/worldcat-isbn.fixture.js');
 const nock = require('nock');
 
@@ -20,7 +20,7 @@ describe('institution parameter', () => {
         const vid = INSTITUTIONS_TO_VID[institution];
         const oclcId = worldCatISBN.oclc;
 
-        oclc.event({
+        persistent.event({
           "queryStringParameters": {
             institution,
             oclc: oclcId
@@ -51,7 +51,7 @@ describe('institution parameter', () => {
       const vid = INSTITUTIONS_TO_VID[institution.toLowerCase()];
       const oclcId = worldCatISBN.oclc;
 
-      oclc.event({
+      persistent.event({
         "queryStringParameters": {
           institution,
           oclc: oclcId
@@ -76,7 +76,7 @@ describe('institution parameter', () => {
       const institution = "banana";
       const oclcId = worldCatISBN.oclc;
 
-      oclc.event({
+      persistent.event({
         "queryStringParameters": {
           institution,
           oclc: oclcId
@@ -101,7 +101,7 @@ describe('institution parameter', () => {
       const oclcId = worldCatISBN.oclc;
 
       it(`should redirect to ${defaultVid}'s fulldisplay view of record`, (done) => {
-        oclc.event({
+        persistent.event({
           "queryStringParameters": {
             oclc: oclcId
           }

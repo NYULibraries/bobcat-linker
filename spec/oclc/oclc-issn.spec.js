@@ -1,6 +1,6 @@
 const { BASE_SEARCH_URL, ADVANCED_MODE, BASE_API_URL } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
-const { oclc } = require("../helpers/constants").lambdas;
+const { persistent } = require("../helpers/lambdas");
 const { issn, oclc: oclcId, xml } = require('../helpers/worldcat-issn.fixture.js');
 const nock = require('nock');
 
@@ -15,7 +15,7 @@ describe('when ISSN found', () => {
   });
 
   it("should use the record's first ISSN", (done) => {
-    oclc.event({
+    persistent.event({
       "queryStringParameters": {
         oclc: oclcId
       }

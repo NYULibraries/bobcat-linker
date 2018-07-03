@@ -1,7 +1,6 @@
 const { BASE_SEARCH_URL, ADVANCED_MODE } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
-
-const { persistent } = require("../helpers/constants").lambdas;
+const { persistent } = require("../helpers/lambdas");
 
 describe('ISBN', () => {
   it(`should redirect to fulldisplay page with ISBN record`, (done) => {

@@ -1,0 +1,5 @@
+{
+  "BASE_SEARCH_URL": "http://bobcat.library.nyu.edu/primo-explore/search?",
+  "BASE_FULLDISPLAY_URL": "http://bobcat.library.nyu.edu/primo-explore/fulldisplay?",
+  "BASE_API_URL": "http://www.worldcat.org/webservices/catalog/content"
+}

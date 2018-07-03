@@ -3,9 +3,10 @@
     "coverage": "istanbul cover jasmine",
     "coveralls": "yarn coverage && istanbul-coveralls",
     "test": "yarn jasmine",
-    "deploy": "yarn serverless deploy"
+    "deploy": "yarn serverless deploy --function persistent"
   },
   "devDependencies": {
+    "eslint": "^5.0.1",
     "istanbul": "^0.4.5",
     "istanbul-coveralls": "^1.0.3",
     "jasmine": "^3.1.0",
