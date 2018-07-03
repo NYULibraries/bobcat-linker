@@ -15,6 +15,13 @@ package:
     - config/**
 
 functions:
+  oclc:
+    events:
+      - http:
+          method: get
+          path: persistent/oclc
+    handler: handler.oclc
+    memorySize: 1024
   persistent:
     events:
       - http:
