@@ -14,7 +14,7 @@ dc-setup: &dc-setup
 test: &test
   run:
     name: Test
-    command: COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN docker-compose run test
+    command: docker-compose run test
 
 version: 2
 jobs:
