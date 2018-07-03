@@ -18,7 +18,7 @@ const getMarcItemText = (xml, { tag, code }) => {
 
 const getTextFromMarcFields = (xml, fields) =>
   fields
-    .reduce((res, field) => `${res} ${getMarcItemText(xml, field)}`, "")
+    .reduce((str, field) => `${str} ${getMarcItemText(xml, field)}`, "")
     .trim();
 
 const getFromMarc = (xml, ...paramsList) => {
