@@ -1,8 +1,36 @@
 'use strict';
 
-const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL } = require("../config/baseUrls.config.js");
+const { BASE_SEARCH_URL, BASE_FULLDISPLAY_URL, BASE_API_URL } = require("../config/baseUrls.config.js");
 const INSTITUTIONS_TO_VID = require("../config/institutions.config.js");
 const ADVANCED_MODE = "&mode=advanced";
+const { getFromMarc } = require("./marcUtils");
+
+const lcnQuery = ({ lcn }) => `${BASE_FULLDISPLAY_URL}&docid=${lcn}`;
+const isxnQuery = ({ isbn, issn }) => `${BASE_SEARCH_URL}query=isbn,contains,${isbn || issn}${ADVANCED_MODE}`;
+const titleAuthorQuery = ({ title, author }) => (
+  BASE_SEARCH_URL +
+  (title ? `query=title,exact,${title}` : "") +
+  (title && author ? ",AND&" : "") +
+  (author ? `query=creator,exact,${author}` : "") +
+  `,${ADVANCED_MODE}`
+);
+const oclcQuery = ({ oclc }) => `${BASE_SEARCH_URL}query=any,contains,${oclc}${ADVANCED_MODE}`;
+
+async function fetchOclcQuery(key, { oclc }) {
+  const { get } = require('axios');
+  const parseXml = require('@rgrove/parse-xml');
+
+  return (
+    get(`${BASE_API_URL}/${oclc}?wskey=${key}`)
+      .then(({ data }) => parseXml(data))
+      .then(xml => getFromMarc(xml, "isbn", "issn", "author", "title"))
+      .then(params => baseQuery(key, params))
+      .catch(err => {
+        console.error(err.message);
+        return oclcQuery({ oclc });
+      })
+  );
+}
 
 function institutionView(institution) {
   // account for mis-capitalization
@@ -21,77 +49,26 @@ function searchScope(institution) {
     "";
 }
 
-const generateLCNQuery = ({ lcn }) => `${BASE_FULLDISPLAY_URL}&docid=${lcn}`;
-const generateISxNQuery = ({ isbn, issn }) => `${BASE_SEARCH_URL}query=isbn,contains,${isbn || issn}${ADVANCED_MODE}`;
-const generateOCLCQuery = ({ oclc }) => `${BASE_SEARCH_URL}query=any,contains,${oclc}${ADVANCED_MODE}`;
-const generateTitleAuthorQuery = ({ title, author }) => (
-  BASE_SEARCH_URL +
-  (title ? `query=title,exact,${title}` : "") +
-  (title && author ? ",AND&" : "") +
-  (author ? `query=creator,exact,${author}` : "") +
-  `,${ADVANCED_MODE}`
-);
-
-const baseQuery = (params) => {
+async function baseQuery(key, params) {
   const searchParam =
     params && // if params is null
     ['lcn', 'isbn', 'issn', 'isxn',
     'oclc', 'title', 'author'].find(p => params[p]);
 
-
   const queryFxns = {
-    lcn: generateLCNQuery,
-    isbn: generateISxNQuery,
-    issn: generateISxNQuery,
-    isxn: generateISxNQuery,
-    title: generateTitleAuthorQuery,
-    author: generateTitleAuthorQuery,
-    oclc: generateOCLCQuery,
+    lcn: lcnQuery,
+    isbn: isxnQuery,
+    issn: isxnQuery,
+    isxn: isxnQuery,
+    title: titleAuthorQuery,
+    author: titleAuthorQuery,
+    oclc: fetchOclcQuery.bind(null, key),
   };
 
   const queryFxn = queryFxns[searchParam];
 
-  return queryFxn ? queryFxn(params) : BASE_SEARCH_URL;
-};
-
-const getMarcItemText = (xml, { tag, code }) => {
-  try {
-    return xml
-      // get first record's children
-      .children[0].children
-      // find first datafield element
-      .find(el =>
-        el.name === 'datafield' && el.attributes.tag === tag
-      ).children
-      // find corresponding subfield element
-      .find(el =>
-        el.name === 'subfield' && el.attributes.code === code
-      )
-      // get text
-      .children[0].text.trim();
-  } catch(err) { return ""; }
-};
-
-const getTextFromMarcFields = (xml, fields) =>
-  fields
-    .reduce((res, field) => `${res} ${getMarcItemText(xml, field)}`, "")
-    .trim();
-
-const getFromMarc = (xml, ...paramsList) => {
-  const paramFields = {
-    isbn: [{ tag: '020', code: 'a' }],
-    issn: [{ tag: '022', code: 'a' }],
-    author: [{ tag: '100', code: 'a'}],
-    title: [{ tag: '245', code: 'a'}, { tag: '245', code: 'b'}]
-  };
-
-  return (
-    paramsList.reduce((merged, key) => {
-      const prop = getTextFromMarcFields(xml, paramFields[key]);
-      return Object.assign(merged, { [key]: prop });
-    }, {})
-  );
-};
+  return await queryFxn ? queryFxn(params) : BASE_SEARCH_URL;
+}
 
 module.exports = {
   baseQuery,

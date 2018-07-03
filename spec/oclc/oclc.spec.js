@@ -6,10 +6,6 @@ const worldCatISBN = require('../helpers/worldcat-isbn.fixture.js');
 
 
 describe('OCLC', () => {
-  beforeEach(() => {
-    process.env.WORLDCAT_API_KEY = MOCK_API_KEY;
-  });
-
   describe("null query", () => {
     it('should redirect to default view\'s search', (done) => {
       persistent.event({

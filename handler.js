@@ -2,12 +2,13 @@
 
 const { getUri, institutionLandingUri } = require("./common/targetUri.js");
 
-module.exports.persistent = (event, context, callback) =>
-  Promise.resolve(event)
-    .then(() => getUri(event.queryStringParameters, process.env.WORLDCAT_API_KEY))
-    .catch(err => handleError(err, event))
-    .then(uri => handleRedirect(uri, callback));
-
+module.exports.persistent = (event, context, callback) => {
+  const getUriWithKey = getUri.bind(null, process.env.WORLDCAT_API_KEY);
+  return Promise.resolve(event)
+          .then(() => getUriWithKey(event.queryStringParameters))
+          .catch(err => handleError(err, event))
+          .then(uri => handleRedirect(uri, callback));
+};
 
 function handleError(err, event) {
   console.error(err);
