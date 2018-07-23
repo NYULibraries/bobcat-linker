@@ -6,11 +6,11 @@ const { baseQuery, institutionView, searchScope } = require("./queryUtils.js");
 // aliases "".concat for readability
 const concat = (...args) => "".concat(...args);
 
-exports.getUri = async function getUri(key, params) {
+exports.getUri = async function getUri(params, key) {
   if (!params) { return concat(BASE_SEARCH_URL, institutionView(null)); }
 
   const { institution } = params;
-  const base = await baseQuery(key, params);
+  const base = await baseQuery(params, key);
   const scope = searchScope(institution);
   const vid = institutionView(institution);
 

@@ -5,7 +5,7 @@ const { getUri, institutionLandingUri } = require("./common/targetUri.js");
 module.exports.persistent = async (event, context, callback) => {
   let uri;
   try {
-    uri = await getUri(process.env.WORLDCAT_API_KEY, event.queryStringParameters);
+    uri = await getUri(event.queryStringParameters, process.env.WORLDCAT_API_KEY);
   } catch(err) {
     uri = handleError(err, event);
   }

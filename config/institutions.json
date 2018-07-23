@@ -2,11 +2,11 @@
   "default": "NYU",
   "nyu": "NYU",
   "ns": "NS-NUI",
-  "cu": "CU-NUI",
+  "cu": "CU",
   "nyuad": "NYUAD",
   "nyush": "NYUSH",
   "bhs": "BHS-NUI",
-  "nyhs": "NYHS-NUI",
+  "nyhs": "NYHS",
   "nysid": "NYSID-NUI",
   "hsl": "HSL-NUI"
 }
