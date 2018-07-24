@@ -1,6 +1,7 @@
 # bobcat-linker
 
 [![Coverage Status](https://coveralls.io/repos/github/NYULibraries/bobcat-linker/badge.svg?branch=master)](https://coveralls.io/github/NYULibraries/bobcat-linker?branch=master)
+[![CircleCI](https://circleci.com/gh/NYULibraries/bobcat-linker.svg?style=svg)](https://circleci.com/gh/NYULibraries/bobcat-linker)
 
 AWS Lambda functions for redirects from bobcat permalinks.
 
