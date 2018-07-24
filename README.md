@@ -100,6 +100,10 @@ OCLC record with corresponding title and/or author data. Title and author lookup
 
 [Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/dev/persistent?oclc=732098558&institution=nyu)
 
+### Library.nyu.edu implementation
+
+[See the Wiki](https://github.com/NYULibraries/bobcat-linker/wiki/BobCat-Persistent-Linking)
+
 ### Todo:
 
 - [x] Live demos
