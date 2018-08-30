@@ -1,15 +1,19 @@
-test:
-  build: .
-  command: yarn coveralls
-  environment:
-    COVERALLS_REPO_TOKEN:
+version: '3.2'
+services:
+  test:
+    build:
+      context: .
+    image: bobcat-linker:latest
+    command: yarn coveralls
+    environment:
+      COVERALLS_REPO_TOKEN:
 
-deploy:
-  build: .
-  command: yarn deploy
-  environment:
-    LAMBDA_ROLE:
-    AWS_ACCESS_KEY_ID:
-    AWS_SECRET_ACCESS_KEY:
-    STAGE:
-    WORLDCAT_API_KEY:
+  deploy:
+    image: bobcat-linker:latest
+    command: yarn deploy
+    environment:
+      LAMBDA_ROLE:
+      AWS_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
+      STAGE:
+      WORLDCAT_API_KEY:
