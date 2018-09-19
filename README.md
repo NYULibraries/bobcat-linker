@@ -1,14 +1,13 @@
 # bobcat-linker
 
 [![Coverage Status](https://coveralls.io/repos/github/NYULibraries/bobcat-linker/badge.svg?branch=master)](https://coveralls.io/github/NYULibraries/bobcat-linker?branch=master)
+[![CircleCI](https://circleci.com/gh/NYULibraries/bobcat-linker.svg?style=svg)](https://circleci.com/gh/NYULibraries/bobcat-linker)
 
 AWS Lambda functions for redirects from bobcat permalinks.
 
 ## Configuration
 
-### primo-explore
-
-Configuration of views and base urls are handled via exported javascript objects in the `config/` directory.
+Configuration of views and base urls are handled via `JSON` objects in the `config/` directory.
 
 ## Testing
 
@@ -82,25 +81,29 @@ Returns a redirect HTTP response (302) with the corresponding URL in primo-explo
 
 ISBN/ISSN: Redirects to advanced-mode search view.
 * `/persistent?isbn=9781784392406` redirects to:
-`{BASE_SEARCH_URL}?query=isbn,contains,abcd123456&mode=advanced&search_scope=nyu&vid=NYU`
+`{{ BASE_SEARCH_URL }}?query=isbn,contains,abcd123456&mode=advanced&search_scope=nyu&vid=NYU`
 
 [Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/dev/persistent?isbn=9781784392406&institution=nyu)
 
-LCN: redirect to Primo NUI's fulldisplay page.
+LCN: redirect to Primo NUI's fulldisplay page of item.
 * `/persistent?lcn=nyu_aleph005819529` redirects to:
-`{BASE_FULL_DISPLAY_URL}?&docid=aleph_xyz987&search_scope=nyu&vid=NYU`
+`{{ BASE_FULL_DISPLAY_URL }}?&docid=nyu_aleph005819529&search_scope=nyu&vid=NYU`
 
 [Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/dev/persistent?lcn=nyu_aleph005819529&institution=nyu)
 
-OCLC record with ISBN/ISSN data:
-* `/persistent?oclc=915038328` redirects to: `{BASE_SEARCH_URL}?query=isbn,contains,{fetched_isbn/issn}&mode=advanced&search_scope=nyu&vid=NYU`
+OCLC record with corresponding ISBN/ISSN data. ISBN/ISSN lookups are handled through the [WorldCat Metadata API](https://www.oclc.org/developer/develop/web-services/worldcat-metadata-api.en.html)
+* `/persistent?oclc=915038328` redirects to: `{{ BASE_SEARCH_URL }}?query=isbn,contains,{{ fetched isbn/issn }}&mode=advanced&search_scope=nyu&vid=NYU`
 
 [Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/dev/persistent?oclc=915038328&institution=nyu)
 
-OCLC record which lacks ISBN/ISSN data:
-* `/persistent?oclc=732098558` redirects to: `{BASE_SEARCH_URL}?query=title,exact,{fetched_title},AND&query=creator,exact,{fetched_author}&mode=advanced&search_scope=nyu&vid=NYU`
+OCLC record with corresponding title and/or author data. Title and author lookups are handled through the [WorldCat Metadata API](https://www.oclc.org/developer/develop/web-services/worldcat-metadata-api.en.html)
+* `/persistent?oclc=732098558` redirects to: `{{ BASE_SEARCH_URL }}?query=title,exact,{{ fetched_title }},AND&query=creator,exact,{{ fetched_author }}&mode=advanced&search_scope=nyu&vid=NYU`
 
 [Live link](https://xsxfl2h9e2.execute-api.us-east-1.amazonaws.com/dev/persistent?oclc=732098558&institution=nyu)
+
+### Library.nyu.edu implementation
+
+[See the Wiki](https://github.com/NYULibraries/bobcat-linker/wiki/BobCat-Persistent-Linking)
 
 ### Todo:
 
