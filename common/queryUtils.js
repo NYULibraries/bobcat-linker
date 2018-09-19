@@ -5,7 +5,16 @@ const INSTITUTIONS_TO_VID = require("../config/institutions");
 const { getFromMarc } = require("./marcUtils");
 const ADVANCED_MODE = "&mode=advanced";
 
-const lcnQuery = ({ lcn }) => `${BASE_FULLDISPLAY_URL}&docid=${lcn}`;
+// Checks if all the characters in a string are numbers (isNaN and parseInt are too brittle)
+const isNumerical = string => {
+  for(let i = 0; i < string.length; i++) {
+    if('0123456789'.indexOf(string[i]) < 0) {
+      return false;
+    }
+  }
+  return string.length > 0;
+};
+const lcnQuery = ({ lcn }) => `${BASE_FULLDISPLAY_URL}&docid=${isNumerical(lcn) ? 'nyu_aleph' : ''}${lcn}`;
 const isxnQuery = ({ isbn, issn }) => `${BASE_SEARCH_URL}query=isbn,contains,${isbn || issn}${ADVANCED_MODE}`;
 const titleAuthorQuery = ({ title, author }) => (
   BASE_SEARCH_URL +
