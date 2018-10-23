@@ -16,6 +16,7 @@ package:
 
 functions:
   persistent:
+    name: ${self:service}-persistent-${self:provider.stage}
     events:
       - http:
           method: get
