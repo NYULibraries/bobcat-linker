@@ -1,15 +1,8 @@
 # Aliases
 docker-defaults: &docker-defaults
   docker:
-    - image: docker:17.11.0-ce
+    - image: nyulibraries/circleci_docker:18.06.1-ce-git-compose-1.22.0
   working_directory: ~/app
-
-dc-setup: &dc-setup
-  run:
-    name: Setup docker-compose dependency
-    command: |
-      apk add --no-cache python3
-      pip3 install docker-compose
 
 test: &test
   run:
@@ -23,7 +16,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - <<: *dc-setup
       - <<: *test
       - run:
           name: Deploy via serverless to dev
@@ -35,7 +27,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - <<: *dc-setup
       - <<: *test
       - run:
           name: Deploy via serverless to prod
