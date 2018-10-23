@@ -15,7 +15,7 @@ package:
     - config/**
 
 functions:
-  persistent:
+  persistent-test:
     events:
       - http:
           method: get
