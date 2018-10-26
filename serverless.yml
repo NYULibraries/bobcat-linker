@@ -16,7 +16,7 @@ package:
 
 functions:
   persistent:
-    name: ${self:service}-persistent-${self:provider.stage}
+    name: web-${self:service}-persistent-${self:provider.stage}
     events:
       - http:
           method: get
@@ -28,4 +28,4 @@ resources:
   Resources:
     ApiGatewayRestApi:
       Properties:
-        Name: "${self:service}-${self:provider.stage}"
+        Name: web-"${self:service}-${self:provider.stage}"
