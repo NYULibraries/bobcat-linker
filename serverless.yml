@@ -8,7 +8,7 @@ provider:
   environment:
     WORLDCAT_API_KEY: "${env:WORLDCAT_API_KEY}"
   deploymentBucket:
-    name: nyulibraries-$(self:service}-${self:provider.stage}
+    name: nyulibraries-${self:service}-${env:STAGE}
 
 package:
   include:
@@ -18,7 +18,7 @@ package:
 
 functions:
   persistent:
-    name: web-${self:service}-persistent-${self:provider.stage}
+    name: web-${self:service}-persistent-${env:STAGE}
     events:
       - http:
           method: get
@@ -30,4 +30,4 @@ resources:
   Resources:
     ApiGatewayRestApi:
       Properties:
-        Name: ${self:service}-${self:provider.stage}
+        Name: ${self:service}-${env:STAGE}
