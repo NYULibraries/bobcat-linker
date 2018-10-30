@@ -4,7 +4,7 @@ provider:
   region: us-east-1
   runtime: nodejs8.10
   role: "${env:LAMBDA_ROLE}"
-  stage: web-${self:service}-${env:STAGE}
+  stage: ${env:STAGE}
   environment:
     WORLDCAT_API_KEY: "${env:WORLDCAT_API_KEY}"
   # deploymentBucket:
