@@ -18,7 +18,7 @@ package:
 
 functions:
   persistent:
-    name: web-${self:service}-persistent-${env:STAGE}
+    name: ${self:service}-persistent-${env:STAGE}
     events:
       - http:
           method: get
