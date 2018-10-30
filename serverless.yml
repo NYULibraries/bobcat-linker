@@ -9,6 +9,8 @@ provider:
     WORLDCAT_API_KEY: "${env:WORLDCAT_API_KEY}"
   deploymentBucket:
     name: nyulibraries-${self:service}-${env:STAGE}
+  apiGateway:
+    restApiId: "${env:REST_API_ID}"
 
 package:
   include:

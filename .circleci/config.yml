@@ -20,7 +20,7 @@ jobs:
       - run:
           name: Deploy via serverless to dev
           command: |
-            STAGE=dev docker-compose run deploy
+            STAGE=dev REST_API_ID=$REST_API_ID_DEV docker-compose run deploy
 
   deploy-prod:
     <<: *docker-defaults
@@ -31,7 +31,7 @@ jobs:
       - run:
           name: Deploy via serverless to prod
           command: |
-            STAGE=prod docker-compose run deploy
+            STAGE=prod REST_API_ID=$REST_API_ID_PROD docker-compose run deploy
 
 workflows:
   version: 2

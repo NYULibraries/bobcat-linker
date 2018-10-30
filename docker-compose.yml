@@ -20,3 +20,5 @@ services:
       STAGE:
       REGION:
       WORLDCAT_API_KEY:
+      REST_API_ID_DEV:
+      REST_API_ID_PROD:
