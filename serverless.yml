@@ -1,12 +1,14 @@
-service: bobcat-linker
+service: web-bobcat-linker
 provider:
   name: aws
   region: us-east-1
   runtime: nodejs8.10
   role: "${env:LAMBDA_ROLE}"
-  stage: "${env:STAGE}"
+  stage: web-${self:service}-${env:STAGE}
   environment:
     WORLDCAT_API_KEY: "${env:WORLDCAT_API_KEY}"
+  deploymentBucket:
+    name: nyulibraries-$(self:service}-${self:provider.stage}
 
 package:
   include:
@@ -28,4 +30,4 @@ resources:
   Resources:
     ApiGatewayRestApi:
       Properties:
-        Name: web-"${self:service}-${self:provider.stage}"
+        Name: ${self:service}-${self:provider.stage}
