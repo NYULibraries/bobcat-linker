@@ -11,6 +11,7 @@ provider:
     name: nyulibraries-${self:service}-${env:STAGE}
   apiGateway:
     restApiId: "${env:REST_API_ID}"
+    restApiRootResourceId: "${env:REST_API_ROOT_RESOURCE_ID}"
 
 package:
   include:

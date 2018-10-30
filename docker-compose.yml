@@ -21,3 +21,4 @@ services:
       REGION:
       WORLDCAT_API_KEY:
       REST_API_ID:
+      REST_API_ROOT_RESOURCE_ID:
