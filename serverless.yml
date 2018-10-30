@@ -1,7 +1,7 @@
 service: web-bobcat-linker
 provider:
   name: aws
-  region: us-east-1
+  region: ${env:REGION}
   runtime: nodejs8.10
   role: "${env:LAMBDA_ROLE}"
   stage: ${env:STAGE}
