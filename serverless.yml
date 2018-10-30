@@ -7,8 +7,8 @@ provider:
   stage: web-${self:service}-${env:STAGE}
   environment:
     WORLDCAT_API_KEY: "${env:WORLDCAT_API_KEY}"
-  deploymentBucket:
-    name: nyulibraries-${self:service}-${env:STAGE}
+  # deploymentBucket:
+  #   name: nyulibraries-${self:service}-${env:STAGE}
 
 package:
   include:
