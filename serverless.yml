@@ -5,6 +5,7 @@ provider:
   runtime: nodejs8.10
   role: ${env:LAMBDA_ROLE}
   stage: ${opt:stage, 'dev'}
+  apiName: web-lambdas
   environment:
     WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
   deploymentBucket:
@@ -21,7 +22,7 @@ package:
 
 functions:
   persistent:
-    name: ${self:service}-persistent-${opt:stage, 'dev'}
+    name: ${self:service}-${opt:stage, 'dev'}-persistent
     events:
       - http:
           method: get
