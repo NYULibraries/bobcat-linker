@@ -5,7 +5,6 @@ provider:
   runtime: nodejs8.10
   role: ${env:LAMBDA_ROLE}
   stage: ${opt:stage, 'dev'}
-  apiName: web-lambdas
   environment:
     WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
   deploymentBucket:
