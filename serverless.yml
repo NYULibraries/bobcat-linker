@@ -8,7 +8,7 @@ provider:
   environment:
     WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
   deploymentBucket:
-    name: nyulibraries-${self:service}-${env:STAGE}-deploys
+    name: nyulibraries-${self:service}-${env:STAGE}
   apiGateway:
     restApiId: ${env:REST_API_ID}
     restApiRootResourceId: ${env:REST_API_ROOT_RESOURCE_ID}
