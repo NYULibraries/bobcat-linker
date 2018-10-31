@@ -38,7 +38,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - <<: *auth_docker
-      # - <<: *pull
+      - <<: *pull
       - <<: *build
       - <<: *push
       - <<: *test
@@ -53,7 +53,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - <<: *auth_docker
-      # - <<: *pull
+      - <<: *pull
       - <<: *build
       - <<: *push
       - <<: *test
