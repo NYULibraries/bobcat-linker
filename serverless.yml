@@ -32,5 +32,6 @@ functions:
 resources:
   Resources:
     ApiGatewayRestApi:
+      Type: AWS::ApiGateway::RestApi
       Properties:
         Name: web-lambdas
