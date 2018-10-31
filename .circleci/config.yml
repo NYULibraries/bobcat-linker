@@ -4,6 +4,12 @@ docker-defaults: &docker-defaults
     - image: nyulibraries/circleci_docker:18.06.1-ce-git-compose-1.22.0
   working_directory: ~/app
 
+auth_docker: &auth_docker
+  run:
+    name: Authenticate Docker
+    command: |
+      docker login -u "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD"
+
 pull: &pull
   run:
     name: Pull docker images
@@ -31,6 +37,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - <<: *auth_docker
       # - <<: *pull
       - <<: *build
       - <<: *push
@@ -45,6 +52,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - <<: *auth_docker
       # - <<: *pull
       - <<: *build
       - <<: *push
