@@ -22,7 +22,7 @@ package:
 
 functions:
   persistent:
-    name: ${self:service}-persistent-${opt:stage, 'dev'}
+    name: ${self:service}-${opt:stage, 'dev'}-persistent
     events:
       - http:
           method: get
