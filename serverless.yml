@@ -4,6 +4,7 @@ provider:
   region: ${opt:region, 'us-east-1'}
   runtime: nodejs8.10
   role: ${env:LAMBDA_ROLE}
+  apiName: web-lambdas
   stage: ${opt:stage, 'dev'}
   environment:
     WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
