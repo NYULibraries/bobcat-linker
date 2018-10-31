@@ -35,10 +35,10 @@ functions:
 # settings below necessary for using dev/prod on the same api gateway
 resources:
   Resources:
-    # ApiGatewayRestApi:
-    #   Type: AWS::ApiGateway::RestApi
-    #   Properties:
-    #     Name: ${self:service}-${self:provider.stage}
+    ApiGatewayRestApi:
+      Type: AWS::ApiGateway::RestApi
+      Properties:
+        Name: web-lambdas
     ApiGatewayDeploymentDev:
       Type: AWS::ApiGateway::Deployment
       Properties:
