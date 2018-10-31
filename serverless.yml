@@ -13,6 +13,8 @@ provider:
   apiGateway:
     restApiId: ${env:REST_API_ID}
     restApiRootResourceId: ${env:REST_API_ROOT_RESOURCE_ID}
+    restApiResources:
+      '/bobcat-linker': ${env:REST_API_NAMESPACE_RESOURCE_ID} # ID for '/bobcat-linker' resource
 
 package:
   include:
