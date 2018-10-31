@@ -45,7 +45,7 @@ jobs:
       - run:
           name: Deploy via serverless to dev
           command: |
-            docker-compose run deploy --stage=dev --region=$REGION
+            docker-compose run deploy yarn serverless deploy --stage=dev --region=$REGION
 
   deploy-prod:
     <<: *docker-defaults
@@ -60,7 +60,7 @@ jobs:
       - run:
           name: Deploy via serverless to prod
           command: |
-            docker-compose run deploy --stage=prod --region=$REGION
+            docker-compose run deploy yarn serverless deploy --stage=prod --region=$REGION
 
 workflows:
   version: 2
