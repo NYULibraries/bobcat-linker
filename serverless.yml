@@ -1,14 +1,14 @@
 service: web-bobcat-linker
 provider:
   name: aws
-  region: ${env:REGION}
+  region: ${opt:region, 'us-east-1'}
   runtime: nodejs8.10
   role: ${env:LAMBDA_ROLE}
-  stage: ${env:STAGE}
+  stage: ${opt:stage, 'dev'}
   environment:
     WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
   deploymentBucket:
-    name: nyulibraries-${self:service}-${env:STAGE}
+    name: nyulibraries-${self:service}-${opt:stage, 'dev'}
   apiGateway:
     restApiId: ${env:REST_API_ID}
     restApiRootResourceId: ${env:REST_API_ROOT_RESOURCE_ID}
@@ -21,7 +21,7 @@ package:
 
 functions:
   persistent:
-    name: ${self:service}-persistent-${env:STAGE}
+    name: ${self:service}-persistent-${opt:stage, 'dev'}
     events:
       - http:
           method: get
