@@ -3,15 +3,15 @@ provider:
   name: aws
   region: ${env:REGION}
   runtime: nodejs8.10
-  role: "${env:LAMBDA_ROLE}"
+  role: ${env:LAMBDA_ROLE}
   stage: ${env:STAGE}
   environment:
-    WORLDCAT_API_KEY: "${env:WORLDCAT_API_KEY}"
+    WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
   deploymentBucket:
-    name: nyulibraries-${self:service}-${env:STAGE}
+    name: nyulibraries-${self:service}-${env:STAGE}-deploys
   apiGateway:
-    restApiId: "${env:REST_API_ID}"
-    restApiRootResourceId: "${env:REST_API_ROOT_RESOURCE_ID}"
+    restApiId: ${env:REST_API_ID}
+    restApiRootResourceId: ${env:REST_API_ROOT_RESOURCE_ID}
 
 package:
   include:
@@ -25,12 +25,12 @@ functions:
     events:
       - http:
           method: get
-          path: persistent
+          path: bobcat-linker/persistent
     handler: handler.persistent
     memorySize: 1024
 
-# resources:
-#   Resources:
-#     ApiGatewayRestApi:
-#       Properties:
-#         Name: ${self:service}-${env:STAGE}
+resources:
+  Resources:
+    ApiGatewayRestApi:
+      Properties:
+        Name: web-lambdas
