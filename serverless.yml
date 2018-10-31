@@ -1,12 +1,17 @@
-service: bobcat-linker
+service: web-bobcat-linker
 provider:
   name: aws
-  region: us-east-1
+  region: ${opt:region, 'us-east-1'}
   runtime: nodejs8.10
-  role: "${env:LAMBDA_ROLE}"
-  stage: "${env:STAGE}"
+  role: ${env:LAMBDA_ROLE}
+  stage: ${opt:stage, 'dev'}
   environment:
-    WORLDCAT_API_KEY: "${env:WORLDCAT_API_KEY}"
+    WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
+  deploymentBucket:
+    name: nyulibraries-${self:service}-${opt:stage, 'dev'}
+  apiGateway:
+    restApiId: ${env:REST_API_ID}
+    restApiRootResourceId: ${env:REST_API_ROOT_RESOURCE_ID}
 
 package:
   include:
@@ -16,16 +21,10 @@ package:
 
 functions:
   persistent:
-    name: ${self:service}-persistent-${self:provider.stage}
+    name: ${self:service}-persistent-${opt:stage, 'dev'}
     events:
       - http:
           method: get
-          path: persistent
+          path: bobcat-linker/persistent
     handler: handler.persistent
     memorySize: 1024
-
-resources:
-  Resources:
-    ApiGatewayRestApi:
-      Properties:
-        Name: "${self:service}-${self:provider.stage}"

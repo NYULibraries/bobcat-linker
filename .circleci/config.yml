@@ -4,6 +4,27 @@ docker-defaults: &docker-defaults
     - image: nyulibraries/circleci_docker:18.06.1-ce-git-compose-1.22.0
   working_directory: ~/app
 
+auth_docker: &auth_docker
+  run:
+    name: Authenticate Docker
+    command: |
+      docker login -u "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD"
+
+pull: &pull
+  run:
+    name: Pull docker images
+    command: ./scripts/pull_docker.sh
+
+push: &push
+  run:
+    name: Push docker images
+    command: ./scripts/push_docker.sh
+
+build: &build
+  run:
+    name: Build images
+    command: docker-compose build
+
 test: &test
   run:
     name: Test
@@ -16,22 +37,30 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - <<: *auth_docker
+      - <<: *pull
+      - <<: *build
+      - <<: *push
       - <<: *test
       - run:
           name: Deploy via serverless to dev
           command: |
-            STAGE=dev docker-compose run deploy
+            docker-compose run deploy yarn serverless deploy --stage=dev --region=$REGION
 
   deploy-prod:
     <<: *docker-defaults
     steps:
       - checkout
       - setup_remote_docker
+      - <<: *auth_docker
+      - <<: *pull
+      - <<: *build
+      - <<: *push
       - <<: *test
       - run:
           name: Deploy via serverless to prod
           command: |
-            STAGE=prod docker-compose run deploy
+            docker-compose run deploy yarn serverless deploy --stage=prod --region=$REGION
 
 workflows:
   version: 2

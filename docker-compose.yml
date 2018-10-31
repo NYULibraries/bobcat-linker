@@ -1,21 +1,30 @@
 version: '3.2'
 services:
   test:
-    image: bobcat-linker:latest
+    image: bobcat-linker
     build:
       context: .
+      cache_from:
+        - bobcat-linker
+        - $IMAGES_DOMAIN/bobcat-linker
     command: yarn coveralls
     environment:
       COVERALLS_REPO_TOKEN:
 
   deploy:
-    image: bobcat-linker:latest
+    image: bobcat-linker
     build:
       context: .
+      cache_from:
+        - bobcat-linker
+        - $IMAGES_DOMAIN/bobcat-linker
     command: yarn deploy
     environment:
       LAMBDA_ROLE:
       AWS_ACCESS_KEY_ID:
       AWS_SECRET_ACCESS_KEY:
       STAGE:
+      REGION:
       WORLDCAT_API_KEY:
+      REST_API_ID:
+      REST_API_ROOT_RESOURCE_ID:
