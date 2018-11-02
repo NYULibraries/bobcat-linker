@@ -23,7 +23,6 @@ services:
       LAMBDA_ROLE:
       AWS_ACCESS_KEY_ID:
       AWS_SECRET_ACCESS_KEY:
-      STAGE:
       REGION:
       WORLDCAT_API_KEY:
       REST_API_ID:
