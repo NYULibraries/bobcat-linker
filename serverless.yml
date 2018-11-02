@@ -1,4 +1,4 @@
-service: web-bobcat-linker
+service: web-lambdas-bobcat-linker
 provider:
   name: aws
   region: ${opt:region, 'us-east-1'}
@@ -21,6 +21,9 @@ package:
     - handler.js
     - common/**
     - config/**
+  exclude:
+    - docker-compose*
+    - Dockerfile*
 
 functions:
   persistent:
