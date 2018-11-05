@@ -1,7 +1,7 @@
 # Aliases
 docker-defaults: &docker-defaults
   docker:
-    - image: nyulibraries/circleci_docker:18.06.1-ce-git-compose-1.22.0
+    - image: nyulibraries/circleci_docker:18.06.1-dc-1.22.0-1
   working_directory: ~/app
 
 auth_docker: &auth_docker
@@ -23,18 +23,68 @@ push: &push
 build: &build
   run:
     name: Build images
-    command: docker-compose build
+    command: docker-compose build test
 
 test: &test
   run:
     name: Test
     command: docker-compose run test
 
+check-awsdev-not-disabled: &check-awsdev-not-disabled
+  run:
+    name: Check if development deploy is disabled
+    command: |
+      if [ $DISABLE_AWSDEV == true ]
+      then
+        echo "Deployment to AWS development account has been disabled with the current environment configuration (DISABLE_AWSDEV == true)"
+        circleci step halt
+      fi
+
+check-awsprod-not-disabled: &check-awsprod-not-disabled
+  run:
+    name: Check if production deploy is disabled
+    command: |
+      if [ $DISABLE_AWSPROD == true ]
+      then
+        echo "Deployment to AWS development account has been disabled with the current environment configuration (DISABLE_AWSPROD == true)"
+        circleci step halt
+      fi
+
+set-env-dev: &set-env-dev
+  run:
+    name: Use development stage environment variables
+    command: |
+      echo 'export STAGE="dev"' >> $BASH_ENV
+      echo 'export REST_API_ID="$REST_API_ID_DEV"' >> $BASH_ENV
+      echo 'export REST_API_NAMESPACE_RESOURCE_ID="$REST_API_NAMESPACE_RESOURCE_ID_DEV"' >> $BASH_ENV
+      echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_DEV"' >> $BASH_ENV
+
+
+set-env-prod: &set-env-prod
+  run:
+    name: Use production stage environment variables
+    command: |
+      echo 'export STAGE="prod"' >> $BASH_ENV
+      echo 'export REST_API_ID="$REST_API_ID_PROD"' >> $BASH_ENV
+      echo 'export REST_API_NAMESPACE_RESOURCE_ID="$REST_API_NAMESPACE_RESOURCE_ID_PROD"' >> $BASH_ENV
+      echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_PROD"' >> $BASH_ENV
+
+awsdev-deploy: &awsdev-deploy
+  run:
+    name: Deploy via serverless to aws development account
+    command: docker-compose run deploy
+
+awsprod-deploy: &awsprod-deploy
+  run:
+    name: Deploy via serverless to aws production account
+    command: docker-compose run deploy
+
 version: 2
 jobs:
-  deploy-dev:
+  deploy-staging-awsdev:
     <<: *docker-defaults
     steps:
+      - <<: *check-awsdev-not-disabled
       - checkout
       - setup_remote_docker
       - <<: *auth_docker
@@ -42,17 +92,13 @@ jobs:
       - <<: *build
       - <<: *push
       - <<: *test
-      - run:
-          name: Deploy via serverless to dev
-          command: |
-            REST_API_ID=$REST_API_ID_DEV \
-            REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_DEV \
-            REST_API_ROOT_RESOURCE_ID=$REST_API_ROOT_RESOURCE_ID_DEV \
-            docker-compose run deploy yarn serverless deploy --stage=dev --region=$REGION
+      - <<: *set-env-dev
+      - <<: *awsdev-deploy
 
-  deploy-prod:
+  deploy-staging-awsprod:
     <<: *docker-defaults
     steps:
+      - <<: *check-awsprod-not-disabled
       - checkout
       - setup_remote_docker
       - <<: *auth_docker
@@ -60,23 +106,58 @@ jobs:
       - <<: *build
       - <<: *push
       - <<: *test
-      - run:
-          name: Deploy via serverless to prod
-          command: |
-            REST_API_ID=$REST_API_ID_PROD \
-            REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_PROD \
-            REST_API_ROOT_RESOURCE_ID=$REST_API_ROOT_RESOURCE_ID_PROD \
-            docker-compose run deploy yarn serverless deploy --stage=prod --region=$REGION
+      - <<: *set-env-dev
+      - <<: *awsprod-deploy
+
+  deploy-production-awsdev:
+    <<: *docker-defaults
+    steps:
+      - <<: *check-awsdev-not-disabled
+      - checkout
+      - setup_remote_docker
+      - <<: *auth_docker
+      - <<: *pull
+      - <<: *build
+      - <<: *push
+      - <<: *test
+      - <<: *set-env-prod
+      - <<: *awsdev-deploy
+
+  deploy-production-awsprod:
+    <<: *docker-defaults
+    steps:
+      - <<: *check-awsprod-not-disabled
+      - checkout
+      - setup_remote_docker
+      - <<: *auth_docker
+      - <<: *pull
+      - <<: *build
+      - <<: *push
+      - <<: *test
+      - <<: *set-env-prod
+      - <<: *awsprod-deploy
 
 workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - deploy-dev:
+      - deploy-staging-awsdev:
+          context: web-lambdas-aws-nyulitsdev
           filters:
             branches:
               ignore: master
-      - deploy-prod:
+      - deploy-staging-awsprod:
+          context: web-lambdas-aws-nyulits
+          filters:
+            branches:
+              ignore: master
+      - deploy-production-awsdev:
+          context: web-lambdas-aws-nyulitsdev
+          filters:
+            branches:
+              only: master
+      - deploy-production-awsprod:
+          context: web-lambdas-aws-nyulits
           filters:
             branches:
               only: master
