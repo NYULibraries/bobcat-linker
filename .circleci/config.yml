@@ -81,7 +81,7 @@ awsprod-deploy: &awsprod-deploy
 
 version: 2
 jobs:
-  deploy-staging-awsPROD:
+  deploy-staging-awsdev:
     <<: *docker-defaults
     steps:
       - checkout
