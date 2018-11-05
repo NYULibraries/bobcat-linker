@@ -94,7 +94,7 @@ jobs:
       - <<: *push
       - <<: *test
       - <<: *set-stage-dev
-      - <<: *awsdev-deploy
+      - <<: *awsprod-deploy
 
   deploy-production-awsdev:
     <<: *docker-defaults
@@ -107,7 +107,7 @@ jobs:
       - <<: *push
       - <<: *test
       - <<: *set-stage-prod
-      - <<: *awsprod-deploy
+      - <<: *awsdev-deploy
 
   deploy-production-awsprod:
     <<: *docker-defaults
