@@ -23,7 +23,7 @@ push: &push
 build: &build
   run:
     name: Build images
-    command: docker-compose build
+    command: docker-compose build test
 
 test: &test
   run:
