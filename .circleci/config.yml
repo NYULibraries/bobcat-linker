@@ -32,7 +32,7 @@ test: &test
 
 version: 2
 jobs:
-  deploy-dev:
+  deploy-staging-awsdev:
     <<: *docker-defaults
     steps:
       - checkout
@@ -43,14 +43,31 @@ jobs:
       - <<: *push
       - <<: *test
       - run:
-          name: Deploy via serverless to dev
+          name: Deploy via serverless to development account
+          command: |
+            REST_API_ID=$REST_API_ID_DEV \
+            REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_DEV \
+            REST_API_ROOT_RESOURCE_ID=$REST_API_ROOT_RESOURCE_ID_DEV \
+            docker-compose run deploy yarn serverless deploy --stage=dev --region=$REGION
+  deploy-staging-awsprod:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+      - <<: *auth_docker
+      - <<: *pull
+      - <<: *build
+      - <<: *push
+      - <<: *test
+      - run:
+          name: Deploy via serverless to production account
           command: |
             REST_API_ID=$REST_API_ID_DEV \
             REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_DEV \
             REST_API_ROOT_RESOURCE_ID=$REST_API_ROOT_RESOURCE_ID_DEV \
             docker-compose run deploy yarn serverless deploy --stage=dev --region=$REGION
 
-  deploy-prod:
+  deploy-production-awsdev:
     <<: *docker-defaults
     steps:
       - checkout
@@ -61,7 +78,25 @@ jobs:
       - <<: *push
       - <<: *test
       - run:
-          name: Deploy via serverless to prod
+          name: Deploy via serverless to development account
+          command: |
+            REST_API_ID=$REST_API_ID_PROD \
+            REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_PROD \
+            REST_API_ROOT_RESOURCE_ID=$REST_API_ROOT_RESOURCE_ID_PROD \
+            docker-compose run deploy yarn serverless deploy --stage=prod --region=$REGION
+
+  deploy-production-awsprod:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+      - <<: *auth_docker
+      - <<: *pull
+      - <<: *build
+      - <<: *push
+      - <<: *test
+      - run:
+          name: Deploy via serverless to production account
           command: |
             REST_API_ID=$REST_API_ID_PROD \
             REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_PROD \
@@ -72,11 +107,23 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - deploy-dev:
+      - deploy-staging-awsdev:
+          context: web-lambdas-aws-nyulitsdev
           filters:
             branches:
               ignore: master
-      - deploy-prod:
+      - deploy-staging-awsprod:
+          context: web-lambdas-aws-nyulits
+          filters:
+            branches:
+              ignore: master
+      - deploy-production-awsdev:
+          context: web-lambdas-aws-nyulitsdev
+          filters:
+            branches:
+              only: master
+      - deploy-production-awsprod:
+          context: web-lambdas-aws-nyulits
           filters:
             branches:
               only: master
