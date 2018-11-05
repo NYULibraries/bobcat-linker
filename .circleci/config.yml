@@ -54,20 +54,20 @@ set-env-dev: &set-env-dev
   run:
     name: Use development stage environment variables
     command: |
-      echo 'export STAGE=dev' >> $BASH_ENV
-      echo 'export REST_API_ID=$REST_API_ID_DEV' >> $BASH_ENV
-      echo 'export REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_DEV' >> $BASH_ENV
-      echo 'export REST_API_ROOT_RESOURCE_ID=$REST_API_ROOT_RESOURCE_ID_DEV' >> $BASH_ENV
+      echo 'export STAGE="dev"' >> $BASH_ENV
+      echo 'export REST_API_ID="$REST_API_ID_DEV"' >> $BASH_ENV
+      echo 'export REST_API_NAMESPACE_RESOURCE_ID="$REST_API_NAMESPACE_RESOURCE_ID_DEV"' >> $BASH_ENV
+      echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_DEV"' >> $BASH_ENV
 
 
 set-env-prod: &set-env-prod
   run:
     name: Use production stage environment variables
     command: |
-      echo 'export STAGE=prod' >> $BASH_ENV
-      echo 'export REST_API_ID=$REST_API_ID_PROD' >> $BASH_ENV
-      echo 'export REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_PROD' >> $BASH_ENV
-      echo 'export REST_API_ROOT_RESOURCE_ID=$REST_API_ROOT_RESOURCE_ID_PROD' >> $BASH_ENV
+      echo 'export STAGE="prod"' >> $BASH_ENV
+      echo 'export REST_API_ID="$REST_API_ID_PROD"' >> $BASH_ENV
+      echo 'export REST_API_NAMESPACE_RESOURCE_ID="$REST_API_NAMESPACE_RESOURCE_ID_PROD"' >> $BASH_ENV
+      echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_PROD"' >> $BASH_ENV
 
 awsdev-deploy: &awsdev-deploy
   run:
