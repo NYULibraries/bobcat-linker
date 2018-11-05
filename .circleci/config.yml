@@ -30,47 +30,58 @@ test: &test
     name: Test
     command: docker-compose run test
 
-set-stage-dev: &set-stage-dev
+check-awsdev-not-disabled: &check-awsdev-not-disabled
+  run:
+    name: Check if development deploy is disabled
+    command: |
+      if [ $DISABLE_AWSDEV == true ]
+      then
+        echo "Deployment to AWS development account has been disabled with the current environment configuration (DISABLE_AWSDEV == true)"
+        circleci step halt
+      fi
+
+check-awsprod-not-disabled: &check-awsprod-not-disabled
+  run:
+    name: Check if production deploy is disabled
+    command: |
+      if [ $DISABLE_AWSPROD == true ]
+      then
+        echo "Deployment to AWS development account has been disabled with the current environment configuration (DISABLE_AWSPROD == true)"
+        circleci step halt
+      fi
+
+set-env-dev: &set-env-dev
   run:
     name: Set stage to "dev"
-    command: echo 'export STAGE=dev' >> $BASH_ENV
+    command: |
+      'export STAGE=dev' >> $BASH_ENV
+      'export REST_API_ID=REST_API_ID_DEV' >> $BASH_ENV
+      'export REST_API_NAMESPACE_RESOURCE_ID=REST_API_NAMESPACE_RESOURCE_ID_DEV' >> $BASH_ENV
+      'export REST_API_ROOT_RESOURCE_ID=REST_API_ROOT_RESOURCE_ID_DEV' >> $BASH_ENV
 
-set-stage-prod: &set-stage-prod
+
+set-env-prod: &set-env-prod
   run:
-    name: Set stage to "prod"
-    command: echo 'export STAGE=prod' >> $BASH_ENV
+    name: Use production environment variables
+    command: |
+      'export STAGE=prod' >> $BASH_ENV
+      'export REST_API_ID=REST_API_ID_PROD' >> $BASH_ENV
+      'export REST_API_NAMESPACE_RESOURCE_ID=REST_API_NAMESPACE_RESOURCE_ID_PROD' >> $BASH_ENV
+      'export REST_API_ROOT_RESOURCE_ID=REST_API_ROOT_RESOURCE_ID_PROD' >> $BASH_ENV
 
 awsdev-deploy: &awsdev-deploy
   run:
     name: Deploy via serverless to development account
-    command: |
-      if [ $DISABLE_AWSDEV != true ]
-      then
-        REST_API_ID=$REST_API_ID_DEV \
-        REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_DEV \
-        REST_API_ROOT_RESOURCE_ID=$REST_API_ROOT_RESOURCE_ID_DEV \
-        docker-compose run deploy yarn serverless deploy --stage=$STAGE --region=$REGION
-      else
-        echo "Deployment to AWS development account has been disabled with the current environment configuration (DISABLE_AWSDEV == true)"
-      fi
+    command: docker-compose run deploy yarn serverless deploy --stage=$STAGE --region=$REGION
 
 awsprod-deploy: &awsprod-deploy
   run:
     name: Deploy via serverless to production account
-    command: |
-      if [ $DISABLE_AWSPROD != true ]
-      then
-        REST_API_ID=$REST_API_ID_PROD \
-        REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_PROD \
-        REST_API_ROOT_RESOURCE_ID=$REST_API_ROOT_RESOURCE_ID_PROD \
-        docker-compose run deploy yarn serverless deploy --stage=$STAGE --region=$REGION
-      else
-        echo "Deployment to AWS production account has been disabled with the current environment configuration (DISABLE_AWSPROD == true)"
-      fi
+    command: docker-compose run deploy yarn serverless deploy --stage=$STAGE --region=$REGION
 
 version: 2
 jobs:
-  deploy-staging-awsdev:
+  deploy-staging-awsPROD:
     <<: *docker-defaults
     steps:
       - checkout
@@ -80,7 +91,7 @@ jobs:
       - <<: *build
       - <<: *push
       - <<: *test
-      - <<: *set-stage-dev
+      - <<: *set-env-dev
       - <<: *awsdev-deploy
 
   deploy-staging-awsprod:
@@ -93,7 +104,7 @@ jobs:
       - <<: *build
       - <<: *push
       - <<: *test
-      - <<: *set-stage-dev
+      - <<: *set-env-dev
       - <<: *awsprod-deploy
 
   deploy-production-awsdev:
@@ -106,7 +117,7 @@ jobs:
       - <<: *build
       - <<: *push
       - <<: *test
-      - <<: *set-stage-prod
+      - <<: *set-env-prod
       - <<: *awsdev-deploy
 
   deploy-production-awsprod:
@@ -119,7 +130,7 @@ jobs:
       - <<: *build
       - <<: *push
       - <<: *test
-      - <<: *set-stage-prod
+      - <<: *set-env-prod
       - <<: *awsprod-deploy
 
 workflows:
