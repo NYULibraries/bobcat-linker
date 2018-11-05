@@ -71,13 +71,13 @@ set-env-prod: &set-env-prod
 
 awsdev-deploy: &awsdev-deploy
   run:
-    name: Deploy via serverless to development account
-    command: docker-compose run deploy yarn serverless deploy --stage=$STAGE --region=$REGION
+    name: Deploy via serverless to aws development account
+    command: docker-compose run deploy
 
 awsprod-deploy: &awsprod-deploy
   run:
-    name: Deploy via serverless to production account
-    command: docker-compose run deploy yarn serverless deploy --stage=$STAGE --region=$REGION
+    name: Deploy via serverless to aws production account
+    command: docker-compose run deploy
 
 version: 2
 jobs:
