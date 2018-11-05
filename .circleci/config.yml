@@ -1,7 +1,7 @@
 # Aliases
 docker-defaults: &docker-defaults
   docker:
-    - image: nyulibraries/circleci_docker:18.06.1-ce-git-compose-1.22.0
+    - image: nyulibraries/circleci_docker:18.06.1-dc-1.22.0-1
   working_directory: ~/app
 
 auth_docker: &auth_docker
