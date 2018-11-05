@@ -52,22 +52,22 @@ check-awsprod-not-disabled: &check-awsprod-not-disabled
 
 set-env-dev: &set-env-dev
   run:
-    name: Use development environment variables
+    name: Use development stage environment variables
     command: |
       echo 'export STAGE=dev' >> $BASH_ENV
-      echo 'export REST_API_ID=REST_API_ID_DEV' >> $BASH_ENV
-      echo 'export REST_API_NAMESPACE_RESOURCE_ID=REST_API_NAMESPACE_RESOURCE_ID_DEV' >> $BASH_ENV
-      echo 'export REST_API_ROOT_RESOURCE_ID=REST_API_ROOT_RESOURCE_ID_DEV' >> $BASH_ENV
+      echo 'export REST_API_ID=$REST_API_ID_DEV' >> $BASH_ENV
+      echo 'export REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_DEV' >> $BASH_ENV
+      echo 'export REST_API_ROOT_RESOURCE_ID=$REST_API_ROOT_RESOURCE_ID_DEV' >> $BASH_ENV
 
 
 set-env-prod: &set-env-prod
   run:
-    name: Use production environment variables
+    name: Use production stage environment variables
     command: |
       echo 'export STAGE=prod' >> $BASH_ENV
-      echo 'export REST_API_ID=REST_API_ID_PROD' >> $BASH_ENV
-      echo 'export REST_API_NAMESPACE_RESOURCE_ID=REST_API_NAMESPACE_RESOURCE_ID_PROD' >> $BASH_ENV
-      echo 'export REST_API_ROOT_RESOURCE_ID=REST_API_ROOT_RESOURCE_ID_PROD' >> $BASH_ENV
+      echo 'export REST_API_ID=$REST_API_ID_PROD' >> $BASH_ENV
+      echo 'export REST_API_NAMESPACE_RESOURCE_ID=$REST_API_NAMESPACE_RESOURCE_ID_PROD' >> $BASH_ENV
+      echo 'export REST_API_ROOT_RESOURCE_ID=$REST_API_ROOT_RESOURCE_ID_PROD' >> $BASH_ENV
 
 awsdev-deploy: &awsdev-deploy
   run:
@@ -84,6 +84,7 @@ jobs:
   deploy-staging-awsdev:
     <<: *docker-defaults
     steps:
+      - <<: *check-awsdev-not-disabled
       - checkout
       - setup_remote_docker
       - <<: *auth_docker
@@ -97,6 +98,7 @@ jobs:
   deploy-staging-awsprod:
     <<: *docker-defaults
     steps:
+      - <<: *check-awsprod-not-disabled
       - checkout
       - setup_remote_docker
       - <<: *auth_docker
@@ -110,6 +112,7 @@ jobs:
   deploy-production-awsdev:
     <<: *docker-defaults
     steps:
+      - <<: *check-awsdev-not-disabled
       - checkout
       - setup_remote_docker
       - <<: *auth_docker
@@ -123,6 +126,7 @@ jobs:
   deploy-production-awsprod:
     <<: *docker-defaults
     steps:
+      - <<: *check-awsprod-not-disabled
       - checkout
       - setup_remote_docker
       - <<: *auth_docker
