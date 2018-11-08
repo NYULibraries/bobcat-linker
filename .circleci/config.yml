@@ -6,9 +6,8 @@ docker-defaults: &docker-defaults
 
 auth_docker: &auth_docker
   run:
-    name: Authenticate Docker
-    command: |
-      docker login -u "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD"
+    name: Docker login
+    command: docker login -u "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD"
 
 pull: &pull
   run:
@@ -69,14 +68,9 @@ set-env-prod: &set-env-prod
       echo 'export REST_API_NAMESPACE_RESOURCE_ID="$REST_API_NAMESPACE_RESOURCE_ID_PROD"' >> $BASH_ENV
       echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_PROD"' >> $BASH_ENV
 
-awsdev-deploy: &awsdev-deploy
+aws-deploy: &aws-deploy
   run:
-    name: Deploy via serverless to aws development account
-    command: docker-compose run deploy
-
-awsprod-deploy: &awsprod-deploy
-  run:
-    name: Deploy via serverless to aws production account
+    name: Deploy via serverless to AWS account
     command: docker-compose run deploy
 
 version: 2
@@ -93,7 +87,7 @@ jobs:
       - <<: *push
       - <<: *test
       - <<: *set-env-dev
-      - <<: *awsdev-deploy
+      - <<: *aws-deploy
 
   deploy-staging-awsprod:
     <<: *docker-defaults
@@ -107,7 +101,7 @@ jobs:
       - <<: *push
       - <<: *test
       - <<: *set-env-dev
-      - <<: *awsprod-deploy
+      - <<: *aws-deploy
 
   deploy-production-awsdev:
     <<: *docker-defaults
@@ -121,7 +115,7 @@ jobs:
       - <<: *push
       - <<: *test
       - <<: *set-env-prod
-      - <<: *awsdev-deploy
+      - <<: *aws-deploy
 
   deploy-production-awsprod:
     <<: *docker-defaults
@@ -135,7 +129,7 @@ jobs:
       - <<: *push
       - <<: *test
       - <<: *set-env-prod
-      - <<: *awsprod-deploy
+      - <<: *aws-deploy
 
 workflows:
   version: 2
