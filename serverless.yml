@@ -6,8 +6,6 @@ provider:
   role: ${env:LAMBDA_ROLE}
   apiName: web-lambdas-${opt:stage, 'dev'}
   stage: ${opt:stage, 'dev'}
-  environment:
-    WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
   deploymentBucket:
     name: ${env:S3_BUCKET}
   apiGateway:
@@ -15,6 +13,8 @@ provider:
     restApiRootResourceId: ${env:REST_API_ROOT_RESOURCE_ID}
     restApiResources:
       '/bobcat-linker': ${env:REST_API_NAMESPACE_RESOURCE_ID} # ID for '/bobcat-linker' resource
+  environment:
+    WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
 
 package:
   include:
