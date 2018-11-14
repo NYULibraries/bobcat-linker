@@ -11,8 +11,8 @@ provider:
   apiGateway:
     restApiId: ${env:REST_API_ID}
     restApiRootResourceId: ${env:REST_API_ROOT_RESOURCE_ID}
-    restApiResources:
-      '/bobcat-linker': ${env:REST_API_NAMESPACE_RESOURCE_ID} # ID for '/bobcat-linker' resource
+    # restApiResources:
+    #   '/bobcat-linker': ${env:REST_API_NAMESPACE_RESOURCE_ID} # ID for '/bobcat-linker' resource
   environment:
     WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
 
@@ -31,6 +31,6 @@ functions:
     events:
       - http:
           method: get
-          path: bobcat-linker/persistent
+          path: bobcat-linker
     handler: handler.persistent
     memorySize: 1024
