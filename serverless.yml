@@ -31,6 +31,6 @@ functions:
     events:
       - http:
           method: get
-          path: bobcat-linker
+          path: /bobcat-linker
     handler: handler.persistent
     memorySize: 1024
