@@ -17,7 +17,7 @@ provider:
     WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
 
 package:
-  include:k
+  include:
     - handler.js
     - common/**
     - config/**
