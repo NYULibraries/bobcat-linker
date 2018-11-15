@@ -9,10 +9,9 @@ provider:
   deploymentBucket:
     name: ${env:S3_BUCKET}
   apiGateway:
+    # Resource ids for rest api, so serverless deploys to this static resource vs. creating its own
     restApiId: ${env:REST_API_ID}
     restApiRootResourceId: ${env:REST_API_ROOT_RESOURCE_ID}
-    # restApiResources:
-    #   '/bobcat-linker': ${env:REST_API_NAMESPACE_RESOURCE_ID} # ID for '/bobcat-linker' resource
   environment:
     WORLDCAT_API_KEY: ${env:WORLDCAT_API_KEY}
 

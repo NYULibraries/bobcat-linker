@@ -49,42 +49,22 @@ check-awsprod-not-disabled: &check-awsprod-not-disabled
         circleci step halt
       fi
 
-set-env-awsprod-dev: &set-env-awsprod-dev
-  run:
-    name: Use development stage environment variables in awsprod account
-    command: |
-      echo 'export STAGE="dev"' >> $BASH_ENV
-      echo 'export REST_API_ID="$REST_API_ID_DEV"' >> $BASH_ENV
-      echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_DEV"' >> $BASH_ENV
-      echo 'export REST_API_NAMESPACE_RESOURCE_ID="$AWSPROD_REST_API_NAMESPACE_RESOURCE_ID_DEV"' >> $BASH_ENV
-
-set-env-awsdev-dev: &set-env-awsdev-dev
+set-env-stage-dev: &set-env-stage-dev
   run:
     name: Use development stage environment variables in awsdev account
     command: |
       echo 'export STAGE="dev"' >> $BASH_ENV
       echo 'export REST_API_ID="$REST_API_ID_DEV"' >> $BASH_ENV
       echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_DEV"' >> $BASH_ENV
-      echo 'export REST_API_NAMESPACE_RESOURCE_ID="$AWSDEV_REST_API_NAMESPACE_RESOURCE_ID_DEV"' >> $BASH_ENV
 
 
-set-env-awsprod-prod: &set-env-awsprod-prod
+set-env-stage-prod: &set-env-stage-prod
   run:
     name: Use production stage environment variables in awsprod account
     command: |
       echo 'export STAGE="prod"' >> $BASH_ENV
       echo 'export REST_API_ID="$REST_API_ID_PROD"' >> $BASH_ENV
       echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_PROD"' >> $BASH_ENV
-      echo 'export REST_API_NAMESPACE_RESOURCE_ID="$AWSPROD_REST_API_NAMESPACE_RESOURCE_ID_PROD"' >> $BASH_ENV
-
-set-env-awsdev-prod: &set-env-awsdev-prod
-  run:
-    name: Use production stage environment variables in awsdev account
-    command: |
-      echo 'export STAGE="prod"' >> $BASH_ENV
-      echo 'export REST_API_ID="$REST_API_ID_PROD"' >> $BASH_ENV
-      echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_PROD"' >> $BASH_ENV
-      echo 'export REST_API_NAMESPACE_RESOURCE_ID="$AWSDEV_REST_API_NAMESPACE_RESOURCE_ID_PROD"' >> $BASH_ENV
 
 aws-deploy: &aws-deploy
   run:
@@ -104,7 +84,7 @@ jobs:
       - <<: *build
       - <<: *push
       - <<: *test
-      - <<: *set-env-awsdev-dev
+      - <<: *set-env-stage-dev
       - <<: *aws-deploy
 
   deploy-staging-awsprod:
@@ -118,7 +98,7 @@ jobs:
       - <<: *build
       - <<: *push
       - <<: *test
-      - <<: *set-env-awsprod-dev
+      - <<: *set-env-stage-dev
       - <<: *aws-deploy
 
   deploy-production-awsdev:
@@ -132,7 +112,7 @@ jobs:
       - <<: *build
       - <<: *push
       - <<: *test
-      - <<: *set-env-awsdev-prod
+      - <<: *set-env-stage-prod
       - <<: *aws-deploy
 
   deploy-production-awsprod:
@@ -146,7 +126,7 @@ jobs:
       - <<: *build
       - <<: *push
       - <<: *test
-      - <<: *set-env-awsprod-prod
+      - <<: *set-env-stage-prod
       - <<: *aws-deploy
 
 workflows:
