@@ -22,12 +22,12 @@ push: &push
 build: &build
   run:
     name: Build images
-    command: docker-compose build test
+    command: docker-compose build
 
 test: &test
   run:
     name: Test
-    command: docker-compose run test
+    command: docker-compose run coverage
 
 check-awsdev-not-disabled: &check-awsdev-not-disabled
   run:
@@ -83,7 +83,6 @@ jobs:
       - <<: *pull
       - <<: *build
       - <<: *push
-      - <<: *test
       - <<: *set-env-stage-dev
       - <<: *aws-deploy
 
@@ -97,7 +96,6 @@ jobs:
       - <<: *pull
       - <<: *build
       - <<: *push
-      - <<: *test
       - <<: *set-env-stage-dev
       - <<: *aws-deploy
 
@@ -111,7 +109,6 @@ jobs:
       - <<: *pull
       - <<: *build
       - <<: *push
-      - <<: *test
       - <<: *set-env-stage-prod
       - <<: *aws-deploy
 
@@ -125,31 +122,50 @@ jobs:
       - <<: *pull
       - <<: *build
       - <<: *push
-      - <<: *test
       - <<: *set-env-stage-prod
       - <<: *aws-deploy
+
+  test:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+      - <<: *auth_docker
+      - <<: *pull
+      - <<: *build
+      - <<: *push
+      - <<: *test
 
 workflows:
   version: 2
   build-test-and-deploy:
     jobs:
+      - test
       - deploy-staging-awsdev:
           context: web-lambdas-aws-nyulitsdev
           filters:
             branches:
               ignore: master
+          requires:
+            - test
       - deploy-staging-awsprod:
           context: web-lambdas-aws-nyulits
           filters:
             branches:
               ignore: master
+          requires:
+            - test
       - deploy-production-awsdev:
           context: web-lambdas-aws-nyulitsdev
           filters:
             branches:
               only: master
+          requires:
+            - test
       - deploy-production-awsprod:
           context: web-lambdas-aws-nyulits
           filters:
             branches:
               only: master
+          requires:
+            - test

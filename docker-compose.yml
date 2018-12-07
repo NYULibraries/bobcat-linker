@@ -1,13 +1,13 @@
 version: '3.7'
 services:
-  test:
+  coverage:
     image: bobcat-linker
     build:
       context: .
       cache_from:
         - bobcat-linker
         - $IMAGES_DOMAIN/bobcat-linker
-    command: yarn coveralls
+    command: yarn test-and-report
     environment:
       COVERALLS_REPO_TOKEN:
 
