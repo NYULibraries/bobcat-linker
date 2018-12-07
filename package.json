@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test-and-report": "yarn test && yarn coverage",
     "coverage": "nyc report --reporter=text-lcov | yarn coveralls",
     "test": "yarn nyc jasmine",
     "deploy": "yarn serverless deploy"
