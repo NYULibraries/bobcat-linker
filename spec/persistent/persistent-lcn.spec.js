@@ -68,8 +68,8 @@ describe('LCN', () => {
       .expectResult(result => {
         expect(result.statusCode).toEqual(302);
 
-        const url = escapeRegExp(`${BASE_FULLDISPLAY_URL}&docid=${isPrepended ? 'nyu_aleph' : ''}${lcn}`);
-        const urlMatcher = new RegExp(url + ".*");
+        const url = encodeURI(`${BASE_FULLDISPLAY_URL}&docid=${isPrepended ? 'nyu_aleph' : ''}${lcn}`);
+        const urlMatcher = new RegExp(escapeRegExp(url) + ".*");
         expect(result.headers.Location).toMatch(urlMatcher);
       })
       .verify(done);

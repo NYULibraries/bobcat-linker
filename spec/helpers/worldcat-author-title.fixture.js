@@ -50,8 +50,6 @@ exports.xml = `<?xml version="1.0" encoding="UTF-8"?>
 
 exports.author = "Richardson, Leonard,";
 
-exports.title =  "RESTful web services /" +
-                  " " +
-                  "Modern web architectures";
+exports.title = `RESTful web services / Modern web architectures`;
 
 exports.oclc = "82671871";
