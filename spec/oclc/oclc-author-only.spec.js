@@ -25,8 +25,8 @@ describe("with no ISBN or ISSN", () => {
         expect(authorOnlyRecRequest.isDone()).toBe(true);
         expect(result.statusCode).toEqual(302);
 
-        const url = escapeRegExp(`${BASE_SEARCH_URL}query=creator,exact,${author},&${ADVANCED_MODE}`);
-        const urlMatcher = new RegExp(url + ".*");
+        const url = encodeURI(`${BASE_SEARCH_URL}query=creator,exact,${author},&${ADVANCED_MODE}`);
+        const urlMatcher = new RegExp(escapeRegExp(url) + ".*");
         expect(result.headers.Location).toMatch(urlMatcher);
       })
       .verify(done);

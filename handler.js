@@ -25,6 +25,6 @@ function handleError(err, event) {
 function handleRedirect(uri, callback) {
   callback(null, {
     statusCode: 302,
-    headers: { Location: uri }
+    headers: { Location: encodeURI(uri) }
   });
 }
