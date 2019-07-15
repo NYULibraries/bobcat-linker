@@ -12,7 +12,7 @@ auth_quay: &auth_quay
 pull: &pull
   run:
     name: Pull docker images
-    command: ./scripts/pull_docker.sh
+    command: ./scripts/pull_docker.sh || exit 0
 
 push: &push
   run:
