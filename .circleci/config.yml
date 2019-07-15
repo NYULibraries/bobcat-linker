@@ -4,10 +4,10 @@ docker-defaults: &docker-defaults
     - image: nyulibraries/circleci_docker:18.06.1-dc-1.22.0-1
   working_directory: ~/app
 
-auth_docker: &auth_docker
+auth_quay: &auth_quay
   run:
     name: Docker login
-    command: docker login -u "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD"
+    command: docker login -u "$QUAY_USERNAME" --password "$QUAY_PASSWORD"
 
 pull: &pull
   run:
@@ -79,7 +79,7 @@ jobs:
       - <<: *check-awsdev-not-disabled
       - checkout
       - setup_remote_docker
-      - <<: *auth_docker
+      - <<: *auth_quay
       - <<: *pull
       - <<: *build
       - <<: *push
@@ -92,7 +92,7 @@ jobs:
       - <<: *check-awsprod-not-disabled
       - checkout
       - setup_remote_docker
-      - <<: *auth_docker
+      - <<: *auth_quay
       - <<: *pull
       - <<: *build
       - <<: *push
@@ -105,7 +105,7 @@ jobs:
       - <<: *check-awsdev-not-disabled
       - checkout
       - setup_remote_docker
-      - <<: *auth_docker
+      - <<: *auth_quay
       - <<: *pull
       - <<: *build
       - <<: *push
@@ -118,7 +118,7 @@ jobs:
       - <<: *check-awsprod-not-disabled
       - checkout
       - setup_remote_docker
-      - <<: *auth_docker
+      - <<: *auth_quay
       - <<: *pull
       - <<: *build
       - <<: *push
@@ -130,7 +130,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - <<: *auth_docker
+      - <<: *auth_quay
       - <<: *pull
       - <<: *build
       - <<: *push
