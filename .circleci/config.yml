@@ -1,13 +1,13 @@
 # Aliases
 docker-defaults: &docker-defaults
   docker:
-    - image: nyulibraries/circleci_docker:18.06.1-dc-1.22.0-1
+    - image: nyulibraries/circleci_docker:18.06.3-dc-1.23.2-0
   working_directory: ~/app
 
 auth_quay: &auth_quay
   run:
     name: Docker login
-    command: docker login -u "$QUAY_USERNAME" --password "$QUAY_PASSWORD"
+    command: docker login quay.io -u "$QUAY_USERNAME" --password "$QUAY_PASSWORD"
 
 pull: &pull
   run:
