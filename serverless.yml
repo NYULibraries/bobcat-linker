@@ -2,7 +2,7 @@ service: web-lambdas-bobcat-linker
 provider:
   name: aws
   region: ${opt:region, 'us-east-1'}
-  runtime: nodejs8.10
+  runtime: nodejs10.x
   role: ${env:LAMBDA_ROLE}
   apiName: web-lambdas-${opt:stage, 'dev'}
   stage: ${opt:stage, 'dev'}
