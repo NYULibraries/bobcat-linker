@@ -1,6 +1,6 @@
 const { BASE_SEARCH_URL, ADVANCED_MODE, BASE_API_URL } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
-const { persistent } = require("../helpers/lambdas");
+const { persistent } = require("../../handler");
 const { author, title, xml, oclc: oclcId } = require('../helpers/worldcat-author-title.fixture.js');
 const nock = require('nock');
 
@@ -16,21 +16,19 @@ describe("with no ISBN or ISSN", () => {
           .reply(200, xml);
     });
 
-    it("should perform search with title (exact) and author (exact) query", (done) => {
-      persistent.event({
+    it("should perform search with title (exact) and author (exact) query", async () => {
+      const result = await persistent({
         "queryStringParameters": {
           oclc: oclcId
         }
-      })
-      .expectResult(result => {
-        expect(authorTitleRecRequest.isDone()).toBe(true);
-        expect(result.statusCode).toEqual(302);
+      });
 
-        const url = encodeURI(`${BASE_SEARCH_URL}query=title,exact,${title},AND&query=creator,exact,${author},&${ADVANCED_MODE}`);
-        const urlMatcher = new RegExp(escapeRegExp(url) + ".*");
-        expect(result.headers.Location).toMatch(urlMatcher);
-      })
-      .verify(done);
+      expect(authorTitleRecRequest.isDone()).toBe(true);
+      expect(result.statusCode).toEqual(302);
+
+      const url = encodeURI(`${BASE_SEARCH_URL}query=title,exact,${title},AND&query=creator,exact,${author},&${ADVANCED_MODE}`);
+      const urlMatcher = new RegExp(escapeRegExp(url) + ".*");
+      expect(result.headers.Location).toMatch(urlMatcher);
     });
 
     afterEach(() => {

@@ -1,29 +1,28 @@
 const { BASE_FULLDISPLAY_URL } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
-const { persistent } = require("../helpers/lambdas");
+const { persistent } = require("../../handler");
 
 describe('LCN', () => {
-  it(`should redirect to fulldisplay page with LCN record`, (done) => {
+  it(`should redirect to fulldisplay page with LCN record`, async () => {
     const lcn = "abcd123456789";
-    persistent.event({
+    const result = await persistent({
       "queryStringParameters": {
         lcn
       }
-    })
-    .expectResult(result => {
-      expect(result.statusCode).toEqual(302);
+    });
 
-      const url = escapeRegExp(`${BASE_FULLDISPLAY_URL}&docid=${lcn}`);
-      const urlMatcher = new RegExp(url + ".*");
-      expect(result.headers.Location).toMatch(urlMatcher);
-    })
-    .verify(done);
+    expect(result.statusCode).toEqual(302);
+
+    const url = escapeRegExp(`${BASE_FULLDISPLAY_URL}&docid=${lcn}`);
+    const urlMatcher = new RegExp(url + ".*");
+    expect(result.headers.Location).toMatch(urlMatcher);
   });
 
-  it('should ignore non-lcn parameters', (done) => {
+  it('should ignore non-lcn parameters', async () => {
     const institution = "nyu";
     const lcn = "abcd123456789";
-    persistent.event({
+
+    const result = await persistent({
       "queryStringParameters": {
         institution,
         lcn,
@@ -31,15 +30,13 @@ describe('LCN', () => {
         isbn: "12345678isbn",
         issn: "1234issn"
       }
-    })
-    .expectResult(result => {
-      expect(result.statusCode).toEqual(302);
+    });
 
-      const url = escapeRegExp(`${BASE_FULLDISPLAY_URL}&docid=${lcn}`);
-      const urlMatcher = new RegExp(url + ".*");
-      expect(result.headers.Location).toMatch(urlMatcher);
-    })
-    .verify(done);
+    expect(result.statusCode).toEqual(302);
+
+    const url = escapeRegExp(`${BASE_FULLDISPLAY_URL}&docid=${lcn}`);
+    const urlMatcher = new RegExp(url + ".*");
+    expect(result.headers.Location).toMatch(urlMatcher);
   });
 
   const prependExpectations = {
@@ -53,10 +50,10 @@ describe('LCN', () => {
 
   for (let lcn in prependExpectations) {
     const isPrepended = prependExpectations[lcn];
-    it(`should ${isPrepended ? '' : 'not'} prepend nyu_aleph if lcn is "${lcn}"`, (done) => {
+    it(`should ${isPrepended ? '' : 'not'} prepend nyu_aleph if lcn is "${lcn}"`, async () => {
       const institution = 'nyu';
 
-      persistent.event({
+      const result = await persistent({
         "queryStringParameters": {
           institution,
           lcn,
@@ -64,15 +61,13 @@ describe('LCN', () => {
           isbn: "12345678isbn",
           issn: "1234issn"
         }
-      })
-      .expectResult(result => {
-        expect(result.statusCode).toEqual(302);
+      });
 
-        const url = encodeURI(`${BASE_FULLDISPLAY_URL}&docid=${isPrepended ? 'nyu_aleph' : ''}${lcn}`);
-        const urlMatcher = new RegExp(escapeRegExp(url) + ".*");
-        expect(result.headers.Location).toMatch(urlMatcher);
-      })
-      .verify(done);
+      expect(result.statusCode).toEqual(302);
+
+      const url = encodeURI(`${BASE_FULLDISPLAY_URL}&docid=${isPrepended ? 'nyu_aleph' : ''}${lcn}`);
+      const urlMatcher = new RegExp(escapeRegExp(url) + ".*");
+      expect(result.headers.Location).toMatch(urlMatcher);
     });
   }
 });

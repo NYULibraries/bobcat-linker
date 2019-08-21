@@ -1,6 +1,6 @@
 const { BASE_SEARCH_URL, INSTITUTIONS, INSTITUTIONS_TO_VID, BASE_API_URL } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
-const { persistent } = require("../helpers/lambdas");
+const { persistent } = require("../../handler");
 const worldCatISBN = require('../helpers/worldcat-isbn.fixture.js');
 const nock = require('nock');
 
@@ -16,29 +16,26 @@ describe('institution parameter', () => {
 
   describe('with a valid institution', () => {
     INSTITUTIONS.forEach(institution => {
-      it(`should redirect to ${institution.toUpperCase()}'s search page`, (done) => {
+      it(`should redirect to ${institution.toUpperCase()}'s search page`, async () => {
         const vid = INSTITUTIONS_TO_VID[institution];
         const oclcId = worldCatISBN.oclc;
 
-        persistent.event({
+        const result = await persistent({
           "queryStringParameters": {
             institution,
             oclc: oclcId
           }
         })
-        .expectResult(result => {
-          expect(isbnRecRequest.isDone()).toBe(true);
-          expect(result.statusCode).toEqual(302);
+        expect(isbnRecRequest.isDone()).toBe(true);
+        expect(result.statusCode).toEqual(302);
 
-          const urlMatcher = new RegExp(
-            escapeRegExp(BASE_SEARCH_URL) +
-            ".*" +
-            escapeRegExp(`&search_scope=${institution}&vid=${vid}`)
-          );
+        const urlMatcher = new RegExp(
+          escapeRegExp(BASE_SEARCH_URL) +
+          ".*" +
+          escapeRegExp(`&search_scope=${institution}&vid=${vid}`)
+        );
 
-          expect(result.headers.Location).toMatch(urlMatcher);
-        })
-        .verify(done);
+        expect(result.headers.Location).toMatch(urlMatcher);
       });
     });
   });
@@ -46,43 +43,61 @@ describe('institution parameter', () => {
   describe('with an invalid institution', () => {
     const defaultVid = INSTITUTIONS_TO_VID.default;
 
-    it(`should account for mis-capitalization`, (done) => {
+    it(`should account for mis-capitalization`, async () => {
       const institution = "nYu";
       const vid = INSTITUTIONS_TO_VID[institution.toLowerCase()];
       const oclcId = worldCatISBN.oclc;
 
-      persistent.event({
+      const result = await persistent({
         "queryStringParameters": {
           institution,
           oclc: oclcId
         }
-      })
-      .expectResult(result => {
-        expect(isbnRecRequest.isDone()).toBe(true);
-        expect(result.statusCode).toEqual(302);
+      });
 
-        const urlMatcher = new RegExp(
-          escapeRegExp(BASE_SEARCH_URL) +
-          ".*" +
-          escapeRegExp(`&search_scope=${institution.toLowerCase()}&vid=${vid}`)
-        );
+      expect(isbnRecRequest.isDone()).toBe(true);
+      expect(result.statusCode).toEqual(302);
 
-        expect(result.headers.Location).toMatch(urlMatcher);
-      })
-      .verify(done);
+      const urlMatcher = new RegExp(
+        escapeRegExp(BASE_SEARCH_URL) +
+        ".*" +
+        escapeRegExp(`&search_scope=${institution.toLowerCase()}&vid=${vid}`)
+      );
+
+      expect(result.headers.Location).toMatch(urlMatcher);
     });
 
-    it(`should redirect to ${defaultVid}'s fulldisplay view of record`, (done) => {
+    it(`should redirect to ${defaultVid}'s fulldisplay view of record`, async () => {
       const institution = "banana";
       const oclcId = worldCatISBN.oclc;
 
-      persistent.event({
+      const result = await persistent({
         "queryStringParameters": {
           institution,
           oclc: oclcId
         }
       })
-      .expectResult(result => {
+      expect(isbnRecRequest.isDone()).toBe(true);
+      expect(result.statusCode).toEqual(302);
+
+      const urlMatcher = new RegExp(
+        escapeRegExp(BASE_SEARCH_URL) +
+        ".*" +
+        escapeRegExp(`&vid=${defaultVid}`)
+      );
+
+      expect(result.headers.Location).toMatch(urlMatcher);
+    });
+
+    describe('without an institution', () => {
+      const oclcId = worldCatISBN.oclc;
+
+      it(`should redirect to ${defaultVid}'s fulldisplay view of record`, async () => {
+        const result = await persistent({
+          "queryStringParameters": {
+            oclc: oclcId
+          }
+        });
         expect(isbnRecRequest.isDone()).toBe(true);
         expect(result.statusCode).toEqual(302);
 
@@ -93,32 +108,6 @@ describe('institution parameter', () => {
         );
 
         expect(result.headers.Location).toMatch(urlMatcher);
-      })
-      .verify(done);
-    });
-
-    describe('without an institution', () => {
-      const oclcId = worldCatISBN.oclc;
-
-      it(`should redirect to ${defaultVid}'s fulldisplay view of record`, (done) => {
-        persistent.event({
-          "queryStringParameters": {
-            oclc: oclcId
-          }
-        })
-        .expectResult(result => {
-          expect(isbnRecRequest.isDone()).toBe(true);
-          expect(result.statusCode).toEqual(302);
-
-          const urlMatcher = new RegExp(
-            escapeRegExp(BASE_SEARCH_URL) +
-            ".*" +
-            escapeRegExp(`&vid=${defaultVid}`)
-          );
-
-          expect(result.headers.Location).toMatch(urlMatcher);
-        })
-        .verify(done);
       });
     });
   });

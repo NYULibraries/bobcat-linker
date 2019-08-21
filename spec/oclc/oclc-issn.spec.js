@@ -1,6 +1,6 @@
 const { BASE_SEARCH_URL, ADVANCED_MODE, BASE_API_URL } = require("../helpers/constants");
 const { escapeRegExp } = require("../helpers/common");
-const { persistent } = require("../helpers/lambdas");
+const { persistent } = require("../../handler");
 const { issn, oclc: oclcId, xml } = require('../helpers/worldcat-issn.fixture.js');
 const nock = require('nock');
 
@@ -14,21 +14,19 @@ describe('when ISSN found', () => {
         .reply(200, xml);
   });
 
-  it("should use the record's first ISSN", (done) => {
-    persistent.event({
+  it("should use the record's first ISSN", async () => {
+    const result = await persistent({
       "queryStringParameters": {
         oclc: oclcId
       }
-    })
-    .expectResult(result => {
-      expect(issnRecRequest.isDone()).toBe(true);
-      expect(result.statusCode).toEqual(302);
+    });
 
-      const url = escapeRegExp(`${BASE_SEARCH_URL}query=isbn,contains,${issn}&${ADVANCED_MODE}`);
-      const urlMatcher = new RegExp(url + ".*");
-      expect(result.headers.Location).toMatch(urlMatcher);
-    })
-    .verify(done);
+    expect(issnRecRequest.isDone()).toBe(true);
+    expect(result.statusCode).toEqual(302);
+
+    const url = escapeRegExp(`${BASE_SEARCH_URL}query=isbn,contains,${issn}&${ADVANCED_MODE}`);
+    const urlMatcher = new RegExp(url + ".*");
+    expect(result.headers.Location).toMatch(urlMatcher);
   });
 
   afterEach(() => {

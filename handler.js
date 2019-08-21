@@ -2,29 +2,24 @@
 
 const { getUri, institutionLandingUri } = require("./common/targetUri.js");
 
-module.exports.persistent = async (event, context, callback) => {
+module.exports.persistent = async (event, context) => {
+
   let uri;
   try {
     uri = await getUri(event.queryStringParameters, process.env.WORLDCAT_API_KEY);
   } catch(err) {
-    uri = handleError(err, event);
+    console.error(err);
+    const institution = event &&
+      event.queryStringParameters &&
+      event.queryStringParameters.institution;
+
+    uri = institutionLandingUri(institution);
   }
 
-  return handleRedirect(uri, callback);
-};
-
-function handleError(err, event) {
-  console.error(err);
-  const institution = event
-                      && event.queryStringParameters
-                      && event.queryStringParameters.institution;
-
-  return institutionLandingUri(institution);
-}
-
-function handleRedirect(uri, callback) {
-  callback(null, {
+  return {
     statusCode: 302,
-    headers: { Location: encodeURI(uri) }
-  });
-}
+    headers: {
+      Location: encodeURI(uri)
+    }
+  };
+};
