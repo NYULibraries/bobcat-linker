@@ -29,25 +29,10 @@ test: &test
     name: Test
     command: docker-compose run coverage
 
-check-awsdev-not-disabled: &check-awsdev-not-disabled
-  run:
-    name: Check if development deploy is disabled
-    command: |
-      if [ $DISABLE_AWSDEV == true ]
-      then
-        echo "Deployment to AWS development account has been disabled with the current environment configuration (DISABLE_AWSDEV == true)"
-        circleci step halt
-      fi
-
-check-awsprod-not-disabled: &check-awsprod-not-disabled
-  run:
-    name: Check if production deploy is disabled
-    command: |
-      if [ $DISABLE_AWSPROD == true ]
-      then
-        echo "Deployment to AWS development account has been disabled with the current environment configuration (DISABLE_AWSPROD == true)"
-        circleci step halt
-      fi
+set-bobcat-dev-env: &set-bobcat-dev-env
+  run: 
+    name: Set Bobcat URL for dev
+    command: sed -i 's/bobcat\.library/bobcatdev\.library/g' config/baseUrls.json
 
 set-env-stage-dev: &set-env-stage-dev
   run:
@@ -76,11 +61,11 @@ jobs:
   deploy-staging-awsdev:
     <<: *docker-defaults
     steps:
-      - <<: *check-awsdev-not-disabled
       - checkout
       - setup_remote_docker
       - <<: *auth_quay
       - <<: *pull
+      - <<: *set-bobcat-dev-env
       - <<: *build
       - <<: *push
       - <<: *set-env-stage-dev
@@ -89,33 +74,19 @@ jobs:
   deploy-staging-awsprod:
     <<: *docker-defaults
     steps:
-      - <<: *check-awsprod-not-disabled
       - checkout
       - setup_remote_docker
       - <<: *auth_quay
       - <<: *pull
+      - <<: *set-bobcat-dev-env
       - <<: *build
       - <<: *push
       - <<: *set-env-stage-dev
       - <<: *aws-deploy
 
-  deploy-production-awsdev:
-    <<: *docker-defaults
-    steps:
-      - <<: *check-awsdev-not-disabled
-      - checkout
-      - setup_remote_docker
-      - <<: *auth_quay
-      - <<: *pull
-      - <<: *build
-      - <<: *push
-      - <<: *set-env-stage-prod
-      - <<: *aws-deploy
-
   deploy-production-awsprod:
     <<: *docker-defaults
     steps:
-      - <<: *check-awsprod-not-disabled
       - checkout
       - setup_remote_docker
       - <<: *auth_quay
@@ -153,13 +124,6 @@ workflows:
           filters:
             branches:
               ignore: master
-          requires:
-            - test
-      - deploy-production-awsdev:
-          context: web-lambdas-aws-nyulitsdev
-          filters:
-            branches:
-              only: master
           requires:
             - test
       - deploy-production-awsprod:
