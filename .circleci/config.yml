@@ -62,7 +62,8 @@ jobs:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.13
       - <<: *auth_quay
       - <<: *pull
       - <<: *set-bobcat-dev-env
@@ -75,7 +76,8 @@ jobs:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.13
       - <<: *auth_quay
       - <<: *pull
       - <<: *set-bobcat-dev-env
@@ -88,7 +90,8 @@ jobs:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.13
       - <<: *auth_quay
       - <<: *pull
       - <<: *build
@@ -100,7 +103,8 @@ jobs:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.13
       - <<: *auth_quay
       - <<: *pull
       - <<: *build
