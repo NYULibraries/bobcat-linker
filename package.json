@@ -8,7 +8,7 @@
   "devDependencies": {
     "eslint": "^7.17.0",
     "jasmine": "^3.6.3",
-    "jasmine-spec-reporter": "^4.2.1",
+    "jasmine-spec-reporter": "6.0.0",
     "lambda-tester": "^4.0.1",
     "nock": "^9.6.1",
     "nyc": "^13.1.0",
