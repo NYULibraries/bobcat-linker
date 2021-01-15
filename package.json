@@ -15,7 +15,7 @@
     "serverless": "^2.19.0"
   },
   "dependencies": {
-    "@rgrove/parse-xml": "^1.1.1",
+    "@rgrove/parse-xml": "^2.0.4",
     "axios": "^0.21.1",
     "coveralls": "^3.1.0"
   },
