@@ -41,6 +41,7 @@ resource "aws_lambda_function" "lambda_fn" {
 
    role = local.lambda_exec_arn
 
+  # https://www.terraform.io/docs/configuration/attr-as-blocks.html
   # environment {
   #   variables = {
   #     foo = "bar"
