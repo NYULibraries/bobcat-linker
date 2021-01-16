@@ -41,6 +41,12 @@ resource "aws_lambda_function" "lambda_fn" {
 
    role = local.lambda_exec_arn
 
+  # environment {
+  #   variables = {
+  #     foo = "bar"
+  #   }
+  # }
+
    depends_on = [
     aws_cloudwatch_log_group.lambda_fn_log_group,
   ]
