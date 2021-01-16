@@ -31,3 +31,29 @@ services:
       S3_BUCKET:
       # LAMBDA SECRETS
       WORLDCAT_API_KEY:
+
+  tf_apply:
+    image: lambda-deploy
+    build:
+      context: ./terraform
+    command: ["apply", "-backend-config='dev-backend.env'"]
+    env_file: dev.env
+    environment:
+      TF_LOG: DEBUG
+      # AWS_ACCESS_KEY_ID:
+      # AWS_SECRET_ACCESS_KEY:
+      # TF_VAR_lambda_exec_arn:
+      # TF_VAR_apigw_id:
+      # TF_VAR_apigw_root_resource_id:
+      # TF_VAR_apigw_execution_arn:
+      # TF_VAR_lambda_version:
+
+  tf_init:
+    image: lambda-deploy
+    build:
+      context: ./terraform
+    command: ["init", "-backend-config='dev-backend.env'"]
+    env_file: dev.env
+    environment:
+      TF_LOG: DEBUG
+
