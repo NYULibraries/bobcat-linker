@@ -1,9 +1,8 @@
 FROM hashicorp/terraform:light
 
-ENV BACKEND_CONFIG="dev-backend.dev"
-
+WORKDIR /app
 COPY . .
 
-ENTRYPOINT [ "terraform" ]
+ENTRYPOINT [ "./docker-entrypoint.sh" ]
 
-CMD [ "plan", "-backend-config=${BACKEND_CONFIG}" ]
+CMD [ "terraform", "plan" ]

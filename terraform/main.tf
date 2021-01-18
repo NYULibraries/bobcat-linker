@@ -1,10 +1,13 @@
 terraform {
+  # Use AWS
   required_providers {
     aws = {
       source = "hashicorp/aws"
+      version = "~> 3.24.1"
     }
   }
 
+  # Backend for TF state is S3
   backend "s3" {
   }
 }
@@ -24,12 +27,16 @@ locals {
   apigw_root_resource_id = var.apigw_root_resource_id
   apigw_execution_arn = var.apigw_execution_arn
   apigw_stage = var.apigw_stage
+  # Default is already 128 if left blank but we want the option of env var setting it too
+  # lambda_memory_size = (var.lambda_memory_size) ? var.lambda_memory_size : 128
+  lambda_memory_size = var.lambda_memory_size
 }
 
+# The Lambda Function itself
 resource "aws_lambda_function" "lambda_fn" {
    function_name = local.lambda_full_name
 
-   # The bucket name as created earlier with "aws s3api create-bucket"
+   # The bucket name as created previously
    s3_bucket = local.lambda_s3_bucket
    s3_key    = "${local.lambda_version}/${local.lambda_zip}"
 
@@ -40,6 +47,8 @@ resource "aws_lambda_function" "lambda_fn" {
    runtime = local.lambda_runtime
 
    role = local.lambda_exec_arn
+
+   memory_size = local.lambda_memory_size
 
   # https://www.terraform.io/docs/configuration/attr-as-blocks.html
   # environment {
@@ -53,11 +62,13 @@ resource "aws_lambda_function" "lambda_fn" {
   ]
 }
 
+# The CloudWatch group for the Lambda function
 resource "aws_cloudwatch_log_group" "lambda_fn_log_group" {
   name              = "/aws/lambda/${local.lambda_full_name}"
   retention_in_days = 14
 }
 
+# The API Gateway Resource
 resource "aws_api_gateway_resource" "apigw_res" {
   rest_api_id = local.apigw_id
   parent_id   = local.apigw_root_resource_id
@@ -68,6 +79,7 @@ resource "aws_api_gateway_resource" "apigw_res" {
   ]
 }
 
+# The API Gateway resource method
 resource "aws_api_gateway_method" "apigw_method" {
   rest_api_id   = local.apigw_id
   resource_id   = aws_api_gateway_resource.apigw_res.id
@@ -80,6 +92,7 @@ resource "aws_api_gateway_method" "apigw_method" {
   ]
 }
 
+# The API Gatway resource method integration
 resource "aws_api_gateway_integration" "apigw_integration" {
   rest_api_id = local.apigw_id
   resource_id = aws_api_gateway_method.apigw_method.resource_id
@@ -95,6 +108,22 @@ resource "aws_api_gateway_integration" "apigw_integration" {
   ]
 }
 
+# Redeploy the API Gateway for the new method/integration to take effect
+resource "aws_api_gateway_deployment" "apigw_deploy" {
+  rest_api_id = local.apigw_id
+  stage_name  = local.apigw_stage
+
+  variables = {
+    deployed_at = timestamp()
+  }
+
+  depends_on = [
+    aws_api_gateway_method.apigw_method,
+    aws_api_gateway_integration.apigw_integration
+  ]
+}
+
+# Gives an external source (like a CloudWatch Event Rule) permission to access the Lambda function.
 resource "aws_lambda_permission" "apigw_lambda_perm" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
@@ -107,19 +136,5 @@ resource "aws_lambda_permission" "apigw_lambda_perm" {
 
   depends_on = [
     aws_lambda_function.lambda_fn,
-  ]
-}
-
-resource "aws_api_gateway_deployment" "apigw_deploy" {
-  rest_api_id = local.apigw_id
-  stage_name  = local.apigw_stage
-
-  variables = {
-    deployed_at = timestamp()
-  }
-
-  depends_on = [
-    aws_api_gateway_method.apigw_method,
-    aws_api_gateway_integration.apigw_integration
   ]
 }
