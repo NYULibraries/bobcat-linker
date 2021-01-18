@@ -42,11 +42,12 @@ variable "lambda_memory_size" {
   default = 128
 }
 variable "environment_variables" {
-  type        = "map"
+  type        = map
   description = "Environment variables for the lambda"
   default     = {}
 }
 variable "lambda_cw_schedule_expression" {
 	type = string
+	default = ""
 }
 
