@@ -37,7 +37,7 @@ resource "aws_lambda_function" "lambda_fn" {
 
   # The bucket name as created previously
   s3_bucket = local.lambda_s3_bucket
-  s3_key    = "${local.lambda_version}/${local.lambda_zip}"
+  s3_key    = "${local.lambda_function_name}/${local.lambda_version}/${local.lambda_zip}"
 
   # "main" is the filename within the zip file (main.js) and "handler"
   # is the name of the property under which the handler function was
@@ -132,7 +132,7 @@ resource "aws_lambda_permission" "lambda_apigw_permission" {
 
   # The "/*/*" portion grants access from any method on any resource
   # within the API Gateway REST API.
-  source_arn = "${local.apigw_execution_arn}/*/*/*"
+  source_arn = "${local.apigw_execution_arn}/*/*"
 
   depends_on = [
     aws_lambda_function.lambda_fn,
