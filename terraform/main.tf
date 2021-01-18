@@ -49,8 +49,8 @@ resource "aws_lambda_function" "lambda_fn" {
 
   memory_size = local.lambda_memory_size
 
-  environment = {
-    variables = "${merge(var.environment_variables, map("ManagedBy", "Terraform"))}"
+  environment {
+    variables = merge(var.environment_variables, map("ManagedBy", "Terraform"))
   }
 
   depends_on = [
@@ -65,7 +65,7 @@ resource "aws_cloudwatch_log_group" "lambda_fn_log_group" {
 }
 
 # The API Gateway Resource
-resource "aws_api_gateway_resource" "apigw_res" {d
+resource "aws_api_gateway_resource" "apigw_res" {
   count = (local.apigw_id != "" ? 1 : 0)
   rest_api_id = local.apigw_id
   parent_id   = local.apigw_root_resource_id
@@ -127,12 +127,12 @@ resource "aws_api_gateway_deployment" "apigw_deploy" {
 resource "aws_lambda_permission" "lambda_apigw_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = local.lambda_full_name
+  function_name = aws_lambda_function.lambda_fn.function_name
   principal     = "apigateway.amazonaws.com"
 
   # The "/*/*" portion grants access from any method on any resource
   # within the API Gateway REST API.
-  source_arn = "${local.apigw_execution_arn}/*/*"
+  source_arn = "${local.apigw_execution_arn}/*/*/*"
 
   depends_on = [
     aws_lambda_function.lambda_fn,
@@ -140,14 +140,15 @@ resource "aws_lambda_permission" "lambda_apigw_permission" {
 }
 
 resource "aws_cloudwatch_event_rule" "cw_rule" {
-  count = (local.schedullambda_cw_schedule_expressione_expression != "") ? 1 : 0
+  count = (local.lambda_cw_schedule_expression != "") ? 1 : 0
   name = "${local.lambda_full_name}-Cron-Trigger"
   schedule_expression = local.lambda_cw_schedule_expression
 }
 
 resource "aws_cloudwatch_event_target" "cw_target" {
-  rule = "${aws_cloudwatch_event_rule.cw_rule[0].name}"
-  arn = "${aws_lambda_function.lambda_fn.arn}"
+  count = (local.lambda_cw_schedule_expression != "") ? 1 : 0
+  rule = aws_cloudwatch_event_rule.cw_rule[0].name
+  arn = aws_lambda_function.lambda_fn.arn
 
   depends_on = [
     aws_lambda_function.lambda_fn,
@@ -155,12 +156,13 @@ resource "aws_cloudwatch_event_target" "cw_target" {
   ]
 }
 
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_foo" {
+resource "aws_lambda_permission" "lambda_cw_permission" {
+  count = (local.lambda_cw_schedule_expression != "") ? 1 : 0
   statement_id = "AllowExecutionFromCloudWatch"
   action = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.lambda_fn.function_name}"
+  function_name = aws_lambda_function.lambda_fn.function_name
   principal = "events.amazonaws.com"
-  source_arn = "${aws_cloudwatch_event_rule.cw_rule[0].arn}"
+  source_arn = aws_cloudwatch_event_rule.cw_rule[0].arn
 
   depends_on = [
     aws_lambda_function.lambda_fn,
