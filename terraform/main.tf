@@ -27,37 +27,33 @@ locals {
   apigw_root_resource_id = var.apigw_root_resource_id
   apigw_execution_arn = var.apigw_execution_arn
   apigw_stage = var.apigw_stage
-  # Default is already 128 if left blank but we want the option of env var setting it too
-  # lambda_memory_size = (var.lambda_memory_size) ? var.lambda_memory_size : 128
   lambda_memory_size = var.lambda_memory_size
+  lambda_cw_schedule_expression = var.lambda_cw_schedule_expression
 }
 
 # The Lambda Function itself
 resource "aws_lambda_function" "lambda_fn" {
-   function_name = local.lambda_full_name
+  function_name = local.lambda_full_name
 
-   # The bucket name as created previously
-   s3_bucket = local.lambda_s3_bucket
-   s3_key    = "${local.lambda_version}/${local.lambda_zip}"
+  # The bucket name as created previously
+  s3_bucket = local.lambda_s3_bucket
+  s3_key    = "${local.lambda_version}/${local.lambda_zip}"
 
-   # "main" is the filename within the zip file (main.js) and "handler"
-   # is the name of the property under which the handler function was
-   # exported in that file.
-   handler = local.lambda_handler
-   runtime = local.lambda_runtime
+  # "main" is the filename within the zip file (main.js) and "handler"
+  # is the name of the property under which the handler function was
+  # exported in that file.
+  handler = local.lambda_handler
+  runtime = local.lambda_runtime
 
-   role = local.lambda_exec_arn
+  role = local.lambda_exec_arn
 
-   memory_size = local.lambda_memory_size
+  memory_size = local.lambda_memory_size
 
-  # https://www.terraform.io/docs/configuration/attr-as-blocks.html
-  # environment {
-  #   variables = {
-  #     foo = "bar"
-  #   }
-  # }
+  environment = {
+    variables = "${merge(var.environment_variables, map("ManagedBy", "Terraform"))}"
+  }
 
-   depends_on = [
+  depends_on = [
     aws_cloudwatch_log_group.lambda_fn_log_group,
   ]
 }
@@ -128,7 +124,7 @@ resource "aws_api_gateway_deployment" "apigw_deploy" {
 }
 
 # Gives an external source (like a CloudWatch Event Rule) permission to access the Lambda function.
-resource "aws_lambda_permission" "apigw_lambda_perm" {
+resource "aws_lambda_permission" "lambda_apigw_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
   function_name = local.lambda_full_name
@@ -140,5 +136,34 @@ resource "aws_lambda_permission" "apigw_lambda_perm" {
 
   depends_on = [
     aws_lambda_function.lambda_fn,
+  ]
+}
+
+resource "aws_cloudwatch_event_rule" "cw_rule" {
+  count = (local.schedullambda_cw_schedule_expressione_expression != "") ? 1 : 0
+  name = "${local.lambda_full_name}-Cron-Trigger"
+  schedule_expression = local.lambda_cw_schedule_expression
+}
+
+resource "aws_cloudwatch_event_target" "cw_target" {
+  rule = "${aws_cloudwatch_event_rule.cw_rule[0].name}"
+  arn = "${aws_lambda_function.lambda_fn.arn}"
+
+  depends_on = [
+    aws_lambda_function.lambda_fn,
+    aws_cloudwatch_event_rule.cw_rule[0],
+  ]
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_foo" {
+  statement_id = "AllowExecutionFromCloudWatch"
+  action = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.lambda_fn.function_name}"
+  principal = "events.amazonaws.com"
+  source_arn = "${aws_cloudwatch_event_rule.cw_rule[0].arn}"
+
+  depends_on = [
+    aws_lambda_function.lambda_fn,
+    aws_cloudwatch_event_rule.cw_rule[0],
   ]
 }
