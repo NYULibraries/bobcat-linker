@@ -69,7 +69,8 @@ resource "aws_cloudwatch_log_group" "lambda_fn_log_group" {
 }
 
 # The API Gateway Resource
-resource "aws_api_gateway_resource" "apigw_res" {
+resource "aws_api_gateway_resource" "apigw_res" {d
+  count = (local.apigw_id != "" ? 1 : 0)
   rest_api_id = local.apigw_id
   parent_id   = local.apigw_root_resource_id
   path_part   = local.lambda_function_name
@@ -81,8 +82,9 @@ resource "aws_api_gateway_resource" "apigw_res" {
 
 # The API Gateway resource method
 resource "aws_api_gateway_method" "apigw_method" {
+  count = (local.apigw_id != "" ? 1 : 0)
   rest_api_id   = local.apigw_id
-  resource_id   = aws_api_gateway_resource.apigw_res.id
+  resource_id   = aws_api_gateway_resource.apigw_res[0].id
   http_method   = local.lambda_method
   # Assuming these are all open APIs for now
   authorization = "NONE"
@@ -94,9 +96,10 @@ resource "aws_api_gateway_method" "apigw_method" {
 
 # The API Gatway resource method integration
 resource "aws_api_gateway_integration" "apigw_integration" {
+  count = (local.apigw_id != "" ? 1 : 0)
   rest_api_id = local.apigw_id
-  resource_id = aws_api_gateway_method.apigw_method.resource_id
-  http_method = aws_api_gateway_method.apigw_method.http_method
+  resource_id = aws_api_gateway_method.apigw_method[0].resource_id
+  http_method = aws_api_gateway_method.apigw_method[0].http_method
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
@@ -104,12 +107,13 @@ resource "aws_api_gateway_integration" "apigw_integration" {
 
   depends_on = [
     aws_lambda_function.lambda_fn,
-    aws_api_gateway_method.apigw_method
+    aws_api_gateway_method.apigw_method[0]
   ]
 }
 
 # Redeploy the API Gateway for the new method/integration to take effect
 resource "aws_api_gateway_deployment" "apigw_deploy" {
+  count = (local.apigw_id != "" ? 1 : 0)
   rest_api_id = local.apigw_id
   stage_name  = local.apigw_stage
 
@@ -118,8 +122,8 @@ resource "aws_api_gateway_deployment" "apigw_deploy" {
   }
 
   depends_on = [
-    aws_api_gateway_method.apigw_method,
-    aws_api_gateway_integration.apigw_integration
+    aws_api_gateway_method.apigw_method[0],
+    aws_api_gateway_integration.apigw_integration[0]
   ]
 }
 
