@@ -54,6 +54,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    command: "cat .lambdafiles | xargs zip -r -9 -q v1.0.0.zip"
+    command: sh -c 'cat .lambdafiles | xargs zip -r -9 -q bobcat-linker.zip'
+    # aws s3 cp bobcat-linker.zip s3://nyulits-web-lambdas-example-1/v1.0.0/bobcat-linker.zip
     volumes:
       - ./:/app
