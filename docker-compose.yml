@@ -49,4 +49,11 @@ services:
       # TF_VAR_apigw_execution_arn:
       # TF_VAR_lambda_version:
 
-
+  zip:
+    image: lambda-build
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: "cat .lambdafiles | xargs zip -r -9 -q v1.0.0.zip"
+    volumes:
+      - ./:/app

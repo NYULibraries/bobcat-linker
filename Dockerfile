@@ -9,5 +9,6 @@ RUN cd /tmp && yarn install --frozen-lockfile --ignore-optional \
   && mkdir -p $INSTALL_PATH \
   && cd $INSTALL_PATH \
   && cp -R /tmp/node_modules $INSTALL_PATH \
-  && rm -rf /tmp/*
+  && rm -rf /tmp/* \
+  && apk add zip
 COPY . .
