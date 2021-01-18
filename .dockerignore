@@ -7,3 +7,4 @@ node_modules/
 *.md
 .nyc_output
 *.env
+*.backend
