@@ -37,9 +37,9 @@ services:
     build:
       context: ./terraform
     command: ["terraform", "apply", "-auto-approve"]
-    env_file: test.env
+    env_file: dev.env
     environment:
-      BACKEND_CONFIG: test.backend
+      BACKEND_CONFIG: dev.backend
       # TF_LOG: DEBUG
       # AWS_ACCESS_KEY_ID:
       # AWS_SECRET_ACCESS_KEY:
