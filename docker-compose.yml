@@ -49,7 +49,7 @@ services:
       WORLDCAT_API_KEY:
 
   tf:
-    image: lambda-deploy
+    image: web-lambdas-deploy
     build:
       context: ./terraform
     command: ["terraform", "apply", "-auto-approve"]
