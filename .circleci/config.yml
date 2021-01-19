@@ -61,7 +61,7 @@ aws-deploy: &aws-deploy
 s3_deploy: &s3_deploy
   aws-s3/sync:
     from: dist
-    to: '${TF_VAR_lambda_s3_bucket}/bobcat-linker/${CIRCLE_SHA1}'
+    to: 's3://${TF_VAR_lambda_s3_bucket}/bobcat-linker/${CIRCLE_SHA1}'
     aws-access-key-id: AWS_ACCESS_KEY_ID
     aws-secret-access-key: AWS_SECRET_ACCESS_KEY
     arguments: |
