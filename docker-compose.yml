@@ -71,7 +71,7 @@ services:
       dockerfile: Dockerfile
       args:
         production: "true"
-    command: sh -c 'cat .lambdafiles | xargs zip -r -9 -q ./dist/bobcat-linker.zip'
+    command: sh -c 'mkdir dist; cat .lambdafiles | xargs zip -r -9 -q ./dist/bobcat-linker.zip'
     labels:
       - 'nyulibraries.app=bobcat-linker'
     # volumes:
