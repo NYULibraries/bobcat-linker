@@ -53,7 +53,7 @@ services:
     build:
       context: ./terraform
     command: ["terraform", "apply", "-auto-approve"]
-    env_file: dev.env
+    # env_file: dev.env
     environment:
       - BACKEND_CONFIG=dev.backend
       - TF_VAR_lambda_function_name=bobcat-linker
