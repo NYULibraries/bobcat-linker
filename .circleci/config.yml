@@ -56,8 +56,46 @@ aws-deploy: &aws-deploy
     name: Deploy via serverless to AWS account
     command: docker-compose run deploy
 
-version: 2
+s3_deploy: &s3_deploy
+  aws-s3/sync:
+    from: dist
+    to: '${TF_VAR_lambda_s3_bucket}/bobcat-linker/`date +%Y%m%d%H%M%S`/'
+    aws-access-key-id: AWS_ACCESS_KEY_ID
+    aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+    arguments: |
+      --exclude "*" \
+      --include "bobcat-linker.zip" \
+      --delete
+    overwrite: true
+
+zip: &zip
+  run:
+    name: Zip Lambda files
+    command: docker-compose run build_lambda
+
+get_lambda_zip: &get_lambda_zip
+  run:
+    name: Retrieve zipped lambda from container
+    command: |
+      docker cp $(docker ps -aq --filter 'label=nyulibraries.app=bobcat-linker'):/app/dist .
+
+version: 2.1
+orbs:
+  aws-s3: circleci/aws-s3@1.0.11
 jobs:
+  # Replacement Lambda logic
+  deploy-lambda-dev:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - <<: *set-bobcat-dev-env
+      - <<: *build
+      - <<: *zip
+      - <<: *get_lambda_zip
+      - <<: *s3_deploy
+
   deploy-staging-awsdev:
     <<: *docker-defaults
     steps:
@@ -116,6 +154,13 @@ workflows:
   build-test-and-deploy:
     jobs:
       - test
+      - deploy-lambda-dev:
+          context: web-lambdas-api-gateway
+          filters:
+            branches:
+              ignore: master
+          requires:
+            - test
       - deploy-staging-awsdev:
           context: web-lambdas-aws-nyulitsdev
           filters:
