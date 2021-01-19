@@ -48,7 +48,7 @@ services:
       # LAMBDA SECRETS
       WORLDCAT_API_KEY:
 
-  tf:
+  terraform_deploy:
     image: web-lambdas-deploy
     build:
       context: ./terraform
@@ -60,6 +60,9 @@ services:
       - TF_VAR_lambda_handler=handler.persistent
       - TF_VAR_lambda_runtime=nodejs12.x
       - TF_VAR_lambda_method=GET
+      - TF_VAR_lambda_memory_limit=1024
+      # - TF_VAR_lambda_version=${CIRCLE_SHA1}
+      # - TF_VAR_environment_variables='{"WORLDCAT_API_KEY":"${WORLDCAT_API_KEY}"}'
 
   build_lambda:
     image: bobcat-linker-build
@@ -71,5 +74,5 @@ services:
     command: sh -c 'cat .lambdafiles | xargs zip -r -9 -q ./dist/bobcat-linker.zip'
     labels:
       - 'nyulibraries.app=bobcat-linker'
-    volumes:
-      - ./dist:/app/dist
+    # volumes:
+    #   - ./dist:/app/dist
