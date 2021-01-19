@@ -39,22 +39,33 @@ services:
     command: ["terraform", "apply", "-auto-approve"]
     env_file: dev.env
     environment:
+      TF_LOG: DEBUG
       BACKEND_CONFIG: dev.backend
-      # TF_LOG: DEBUG
-      # AWS_ACCESS_KEY_ID:
-      # AWS_SECRET_ACCESS_KEY:
-      # TF_VAR_lambda_exec_arn:
-      # TF_VAR_apigw_id:
-      # TF_VAR_apigw_root_resource_id:
-      # TF_VAR_apigw_execution_arn:
-      # TF_VAR_lambda_version:
+      AWS_ACCESS_KEY_ID: 
+      AWS_SECRET_ACCESS_KEY: 
+      AWS_DEFAULT_REGION: 
+      TF_VAR_lambda_exec_arn: 
+      TF_VAR_apigw_id: 
+      TF_VAR_apigw_root_resource_id: 
+      TF_VAR_apigw_execution_arn: 
+      TF_VAR_lambda_s3_bucket: 
+      TF_VAR_aws_username: 
+      TF_VAR_apigw_stage: 
+      TF_VAR_lambda_version: 
+      TF_VAR_lambda_function_name: 
+      TF_VAR_lambda_handler: 
+      TF_VAR_lambda_runtime: 
+      TF_VAR_lambda_method: 
+      TF_VAR_environment_variables: 
+      TF_VAR_lambda_memory_limit:
 
-  zip:
-    image: lambda-build
+  build_lambda:
+    image: bobcat-linker-build
     build: 
       context: .
       dockerfile: Dockerfile
-    command: sh -c 'cat .lambdafiles | xargs zip -r -9 -q bobcat-linker.zip'
-    # aws s3 cp bobcat-linker.zip s3://nyulits-web-lambdas-example-1/v1.0.0/bobcat-linker.zip
+      args:
+        production: "true"
+    command: sh -c 'cat .lambdafiles | xargs zip -r -9 -q ./dist/bobcat-linker.zip'
     volumes:
-      - ./:/app
+      - ./dist:/app/dist
