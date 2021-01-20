@@ -1,7 +1,7 @@
 # Aliases
 docker-defaults: &docker-defaults
   docker:
-    - image: quay.io/nyulibraries/circleci_docker:18.06.3-dc-1.23.2-0
+    - image: quay.io/nyulibraries/circleci_docker:feature_add_gettext
   working_directory: ~/app
 
 auth_quay: &auth_quay
