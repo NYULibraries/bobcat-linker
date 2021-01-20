@@ -113,6 +113,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 19.03.13
+      - <<: *auth_quay
       - <<: *terraform_deploy
 
   # To retire after lambda reworking
