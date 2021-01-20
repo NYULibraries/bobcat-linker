@@ -1,5 +1,17 @@
 version: '3.7'
 
+x-environment: &x-environment
+  AWS_ACCESS_KEY_ID: 
+  AWS_SECRET_ACCESS_KEY: 
+  AWS_DEFAULT_REGION: 
+  TF_VAR_lambda_exec_arn: 
+  TF_VAR_apigw_id: 
+  TF_VAR_apigw_root_resource_id: 
+  TF_VAR_apigw_execution_arn: 
+  TF_VAR_lambda_s3_bucket: 
+  TF_VAR_aws_username: 
+  TF_VAR_apigw_stage:
+
 services:
   coverage:
     image: bobcat-linker
@@ -39,13 +51,13 @@ services:
     # env_file: dev.env
     env_file: terraform.env
     environment:
-      - BACKEND_CONFIG=backend-dev.env
-      - TF_VAR_lambda_function_name=bobcat-linker
-      - TF_VAR_lambda_handler=handler.persistent
-      - TF_VAR_lambda_runtime=nodejs12.x
-      - TF_VAR_lambda_method=GET
-      - TF_VAR_lambda_memory_limit=1024
-      - TF_VAR_environment_variables='{"WORLDCAT_API_KEY":"${WORLDCAT_API_KEY}"}'
+      <<: *x-environment
+      TF_VAR_lambda_function_name: bobcat-linker
+      TF_VAR_lambda_handler: handler.persistent
+      TF_VAR_lambda_runtime: nodejs12.x
+      TF_VAR_lambda_method: GET
+      TF_VAR_lambda_memory_limit: 1024
+      TF_VAR_environment_variables: '{"WORLDCAT_API_KEY":"${WORLDCAT_API_KEY}"}'
 
   build_lambda:
     image: bobcat-linker-build
