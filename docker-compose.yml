@@ -34,7 +34,7 @@ services:
       WORLDCAT_API_KEY:
 
   terraform_deploy:
-    image: quay.io/nyulibraries/web-lambdas-deploy:master
+    image: quay.io/nyulibraries/web-lambdas-terraform:master
     command: ["terraform", "apply", "-auto-approve"]
     # env_file: dev.env
     env_file: terraform.env
