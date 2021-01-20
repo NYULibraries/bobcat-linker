@@ -83,7 +83,7 @@ get_lambda_zip: &get_lambda_zip
 
 terraform_deploy: &terraform_deploy
   run:
-    name: 
+    name: Deploy the Lambda to AWS via Terraform
     command: |
       TF_VAR_lambda_version=${CIRCLE_SHA1}
       TF_VAR_environment_variables='{"WORLDCAT_API_KEY":"${WORLDCAT_API_KEY}"}'
@@ -94,7 +94,7 @@ orbs:
   aws-s3: circleci/aws-s3@1.0.11
 jobs:
   # Replacement Lambda logic
-  deploy-lambda-dev:
+  build-lambda:
     <<: *docker-defaults
     steps:
       - checkout
@@ -105,6 +105,15 @@ jobs:
       - <<: *zip
       - <<: *get_lambda_zip
       - <<: *s3_deploy
+  
+  # Replacement Lambda logic
+  deploy-lambda:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - <<: *terraform_deploy
 
   # To retire after lambda reworking
   deploy-staging-awsdev:
@@ -167,13 +176,20 @@ workflows:
   build-test-and-deploy:
     jobs:
       - test
-      - deploy-lambda-dev:
+      - build-lambda:
           context: web-lambdas-api-gateway-dev
           filters:
             branches:
               ignore: master
           requires:
             - test
+      - deploy-lambda:
+          context: web-lambdas-api-gateway-dev
+          filters:
+            branches:
+              ignore: master
+          requires:
+            - build-lambda
       - deploy-staging-awsdev:
           context: web-lambdas-aws-nyulitsdev
           filters:
