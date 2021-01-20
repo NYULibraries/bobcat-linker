@@ -85,8 +85,8 @@ terraform_deploy: &terraform_deploy
   run:
     name: Deploy the Lambda to AWS via Terraform
     command: |
-      TF_VAR_lambda_version=${CIRCLE_SHA1}
-      TF_VAR_environment_variables='{"WORLDCAT_API_KEY":"${WORLDCAT_API_KEY}"}'
+      export TF_VAR_lambda_version=${CIRCLE_SHA1}
+      export TF_VAR_environment_variables='{"WORLDCAT_API_KEY":"${WORLDCAT_API_KEY}"}'
       docker-compose run terraform_deploy
 
 version: 2.1
