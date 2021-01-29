@@ -49,7 +49,7 @@ services:
       WORLDCAT_API_KEY:
 
   terraform_deploy:
-    image: quay.io/nyulibraries/web-lambdas-terraform:chore_data_deployment
+    image: quay.io/nyulibraries/web-lambdas-terraform:chore_deployment_lifecycle
     command: ["terraform", "apply", "-auto-approve"]
     # env_file: dev.env
     environment:
