@@ -1,7 +1,9 @@
 version: '3.7'
 
 x-environment: &x-environment
-  BACKEND_CONFIG: 
+  BACKEND_BUCKET: 
+  BACKEND_REGION: 
+  BACKEND_DYNAMODB_TABLE: 
   AWS_ACCESS_KEY_ID: 
   AWS_SECRET_ACCESS_KEY: 
   AWS_DEFAULT_REGION: 
@@ -49,11 +51,13 @@ services:
       WORLDCAT_API_KEY:
 
   terraform_deploy:
-    image: quay.io/nyulibraries/web-lambdas-terraform:master
+    build:
+      context: deploy/
     command: ["terraform", "apply", "-auto-approve"]
-    # env_file: dev.env
+    env_file: dev.env
     environment:
       <<: *x-environment
+      BACKEND_KEY: lambdas/tf_state/bobcat-linker
       TF_VAR_lambda_function_name: bobcat-linker
       TF_VAR_lambda_handler: handler.persistent
       TF_VAR_lambda_runtime: nodejs12.x
