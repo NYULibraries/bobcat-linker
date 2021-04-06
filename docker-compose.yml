@@ -54,7 +54,7 @@ services:
     build:
       context: deploy/
     command: ["terraform", "apply", "-auto-approve"]
-    env_file: dev.env
+    # env_file: dev.env
     environment:
       <<: *x-environment
       BACKEND_KEY: lambdas/tf_state/bobcat-linker
