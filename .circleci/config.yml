@@ -215,7 +215,7 @@ workflows:
           context: web-lambdas-api-gateway-prod
           filters:
             branches:
-              only: master
+              only: chore/tf_lambda
           requires:
             - test
       - deploy-lambda:
@@ -226,7 +226,7 @@ workflows:
           context: web-lambdas-api-gateway-prod
           filters:
             branches:
-              only: master
+              only: chore/tf_lambda
           requires:
             - build-lambda-prod
       # - deploy-staging-awsdev:
