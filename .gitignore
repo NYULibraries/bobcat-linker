@@ -8,3 +8,5 @@ node_modules
 .serverless
 .nyc_output
 .node-version
+dist/
+.DS_Store
