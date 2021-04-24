@@ -6,8 +6,6 @@ ENV INSTALL_PATH /app
 
 WORKDIR $INSTALL_PATH
 
-RUN echo "Production: $production"
-
 COPY package.json yarn.lock /tmp/
 RUN cd /tmp && yarn install --frozen-lockfile --ignore-optional $(if [[ ! -z $production ]]; then echo "--production"; fi) \
   && mkdir -p $INSTALL_PATH \
