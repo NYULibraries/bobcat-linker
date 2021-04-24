@@ -93,14 +93,24 @@ orbs:
   aws-s3: circleci/aws-s3@1.0.11
 jobs:
   # Replacement Lambda logic
-  build-lambda:
+  build-lambda-dev:
     <<: *docker-defaults
     steps:
       - checkout
       - setup_remote_docker:
           version: 19.03.13
       - <<: *set-bobcat-dev-env
-      - <<: *auth_quay
+      - <<: *build
+      - <<: *zip
+      - <<: *get_lambda_zip
+      - <<: *s3_deploy
+  
+  build-lambda-prod:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
       - <<: *build
       - <<: *zip
       - <<: *get_lambda_zip
@@ -177,7 +187,7 @@ workflows:
   build-test-and-deploy:
     jobs:
       - test
-      - build-lambda:
+      - build-lambda-dev:
           context: web-lambdas-api-gateway-dev
           filters:
             branches:
@@ -190,6 +200,7 @@ workflows:
             branches:
               ignore: master
           requires:
+<<<<<<< HEAD
             - build-lambda
       - deploy-staging-awsdev:
           context: web-lambdas-aws-nyulitsdev
@@ -197,6 +208,8 @@ workflows:
             branches:
               ignore: master
           requires:
+=======
+>>>>>>> cafe52d (Deploy to production)
             - build-lambda-dev
       - build-lambda-prod:
           context: web-lambdas-api-gateway-prod
@@ -206,7 +219,10 @@ workflows:
           requires:
             - test
       - deploy-lambda:
+<<<<<<< HEAD
           name: deploy-lambda-prod
+=======
+>>>>>>> cafe52d (Deploy to production)
           context: web-lambdas-api-gateway-prod
           filters:
             branches:
