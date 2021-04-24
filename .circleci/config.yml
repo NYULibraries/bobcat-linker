@@ -195,21 +195,12 @@ workflows:
           requires:
             - test
       - deploy-lambda:
+          name: deploy-lambda-dev
           context: web-lambdas-api-gateway-dev
           filters:
             branches:
               ignore: master
           requires:
-<<<<<<< HEAD
-            - build-lambda
-      - deploy-staging-awsdev:
-          context: web-lambdas-aws-nyulitsdev
-          filters:
-            branches:
-              ignore: master
-          requires:
-=======
->>>>>>> cafe52d (Deploy to production)
             - build-lambda-dev
       - build-lambda-prod:
           context: web-lambdas-api-gateway-prod
@@ -219,10 +210,7 @@ workflows:
           requires:
             - test
       - deploy-lambda:
-<<<<<<< HEAD
           name: deploy-lambda-prod
-=======
->>>>>>> cafe52d (Deploy to production)
           context: web-lambdas-api-gateway-prod
           filters:
             branches:
