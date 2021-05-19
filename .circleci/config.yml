@@ -1,7 +1,7 @@
 # Aliases
 docker-defaults: &docker-defaults
   docker:
-    - image: quay.io/nyulibraries/circleci_docker:18.06.3-dc-1.23.2-0
+    - image: quay.io/nyulibraries/circleci_docker:19.03.13-dc-1.27.4-1-pre
   working_directory: ~/app
 
 auth_quay: &auth_quay
@@ -34,6 +34,7 @@ set-bobcat-dev-env: &set-bobcat-dev-env
     name: Set Bobcat URL for dev
     command: sed -i 's/bobcat\.library/bobcatdev\.library/g' config/baseUrls.json
 
+# To retire after lambda reworking
 set-env-stage-dev: &set-env-stage-dev
   run:
     name: Use development stage environment variables in awsdev account
@@ -42,7 +43,7 @@ set-env-stage-dev: &set-env-stage-dev
       echo 'export REST_API_ID="$REST_API_ID_DEV"' >> $BASH_ENV
       echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_DEV"' >> $BASH_ENV
 
-
+# To retire after lambda reworking
 set-env-stage-prod: &set-env-stage-prod
   run:
     name: Use production stage environment variables in awsprod account
@@ -51,13 +52,81 @@ set-env-stage-prod: &set-env-stage-prod
       echo 'export REST_API_ID="$REST_API_ID_PROD"' >> $BASH_ENV
       echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_PROD"' >> $BASH_ENV
 
+# To retire after lambda reworking
 aws-deploy: &aws-deploy
   run:
     name: Deploy via serverless to AWS account
     command: docker-compose run deploy
 
-version: 2
+s3_deploy: &s3_deploy
+  aws-s3/sync:
+    from: dist
+    to: 's3://${TF_VAR_lambda_s3_bucket}/bobcat-linker/${CIRCLE_SHA1}'
+    arguments: |
+      --exclude "*" \
+      --include "bobcat-linker.zip" \
+      --delete
+    overwrite: true
+
+zip: &zip
+  run:
+    name: Zip Lambda files
+    command: docker-compose run build_lambda
+
+get_lambda_zip: &get_lambda_zip
+  run:
+    name: Retrieve zipped lambda from container
+    command: |
+      docker cp $(docker ps -aq --filter 'label=nyulibraries.app=bobcat-linker'):/app/dist .
+
+terraform_deploy: &terraform_deploy
+  run:
+    name: Deploy the Lambda to AWS via Terraform
+    command: |
+      apk add gettext
+      export TF_VAR_lambda_version=${CIRCLE_SHA1}
+      export TF_VAR_environment_variables=$(envsubst < .tf_env_vars)
+      docker-compose run terraform_deploy
+
+version: 2.1
+orbs:
+  aws-s3: circleci/aws-s3@1.0.11
 jobs:
+  # Replacement Lambda logic
+  build-lambda-dev:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - <<: *set-bobcat-dev-env
+      - <<: *build
+      - <<: *zip
+      - <<: *get_lambda_zip
+      - <<: *s3_deploy
+  
+  build-lambda-prod:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - <<: *build
+      - <<: *zip
+      - <<: *get_lambda_zip
+      - <<: *s3_deploy
+  
+  # Replacement Lambda logic
+  deploy-lambda:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - <<: *auth_quay
+      - <<: *terraform_deploy
+
+  # To retire after lambda reworking
   deploy-staging-awsdev:
     <<: *docker-defaults
     steps:
@@ -72,6 +141,7 @@ jobs:
       - <<: *set-env-stage-dev
       - <<: *aws-deploy
 
+  # To retire after lambda reworking
   deploy-staging-awsprod:
     <<: *docker-defaults
     steps:
@@ -86,6 +156,7 @@ jobs:
       - <<: *set-env-stage-dev
       - <<: *aws-deploy
 
+  # To retire after lambda reworking
   deploy-production-awsprod:
     <<: *docker-defaults
     steps:
@@ -116,8 +187,16 @@ workflows:
   build-test-and-deploy:
     jobs:
       - test
-      - deploy-staging-awsdev:
-          context: web-lambdas-aws-nyulitsdev
+      - build-lambda-dev:
+          context: web-lambdas-api-gateway-dev
+          filters:
+            branches:
+              ignore: master
+          requires:
+            - test
+      - deploy-lambda:
+          name: deploy-lambda-dev
+          context: web-lambdas-api-gateway-dev
           filters:
             branches:
               ignore: master

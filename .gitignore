@@ -1,9 +1,12 @@
+*.env
+*.backend
+*.zip
+!terraform.env
 # package directories
 node_modules
-
 # Serverless directories
 .serverless
-
 .nyc_output
-
 .node-version
+dist/
+.DS_Store

@@ -1,13 +1,16 @@
 FROM node:12-alpine
 
+ARG production
+
 ENV INSTALL_PATH /app
 
 WORKDIR $INSTALL_PATH
 
 COPY package.json yarn.lock /tmp/
-RUN cd /tmp && yarn install --frozen-lockfile --ignore-optional \
+RUN cd /tmp && yarn install --frozen-lockfile --ignore-optional $(if [[ ! -z $production ]]; then echo "--production"; fi) \
   && mkdir -p $INSTALL_PATH \
   && cd $INSTALL_PATH \
   && cp -R /tmp/node_modules $INSTALL_PATH \
-  && rm -rf /tmp/*
+  && rm -rf /tmp/* \
+  && apk add zip
 COPY . .
