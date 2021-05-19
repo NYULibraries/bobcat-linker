@@ -122,7 +122,29 @@ workflows:
             branches:
               ignore: master
           requires:
+            - build-lambda-dev
+      - build-lambda-prod:
+          context: web-lambdas-api-gateway-prod
+          filters:
+            branches:
+              only: master
+          requires:
             - test
+      - deploy-lambda:
+          name: deploy-lambda-prod
+          context: web-lambdas-api-gateway-prod
+          filters:
+            branches:
+              only: master
+          requires:
+            - build-lambda-prod
+      # - deploy-staging-awsdev:
+      #     context: web-lambdas-aws-nyulitsdev
+      #     filters:
+      #       branches:
+      #         ignore: master
+      #     requires:
+      #       - test
       - deploy-staging-awsprod:
           context: web-lambdas-aws-nyulits
           filters:
