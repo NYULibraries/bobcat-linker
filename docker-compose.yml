@@ -18,7 +18,7 @@ x-environment: &x-environment
   TF_VAR_environment_variables:
 
 services:
-  coverage:
+  test:
     image: bobcat-linker
     build:
       context: .
@@ -28,6 +28,8 @@ services:
     command: yarn test-and-report
     environment:
       COVERALLS_REPO_TOKEN: 
+    # volumes:
+    #   - .:/app
 
   terraform_deploy:
     build:

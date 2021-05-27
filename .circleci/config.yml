@@ -27,7 +27,7 @@ build: &build
 test: &test
   run:
     name: Test
-    command: docker-compose run coverage
+    command: docker-compose run test
 
 set-bobcat-dev-env: &set-bobcat-dev-env
   run: 
