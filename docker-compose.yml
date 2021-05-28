@@ -18,7 +18,7 @@ x-environment: &x-environment
   TF_VAR_environment_variables:
 
 services:
-  coverage:
+  test:
     image: bobcat-linker
     build:
       context: .
@@ -28,27 +28,8 @@ services:
     command: yarn test-and-report
     environment:
       COVERALLS_REPO_TOKEN: 
-
-  deploy:
-    image: bobcat-linker
-    build:
-      context: .
-      cache_from:
-        - bobcat-linker
-        - $IMAGES_DOMAIN/bobcat-linker
-    command: yarn deploy --stage=${STAGE} --region=${REGION}
-    environment:
-      LAMBDA_ROLE:
-      AWS_ACCESS_KEY_ID:
-      AWS_SECRET_ACCESS_KEY:
-      REGION:
-      STAGE:
-      REST_API_ID:
-      REST_API_ROOT_RESOURCE_ID:
-      REST_API_NAMESPACE_RESOURCE_ID:
-      S3_BUCKET:
-      # LAMBDA SECRETS
-      WORLDCAT_API_KEY:
+    # volumes:
+    #   - .:/app
 
   terraform_deploy:
     build:

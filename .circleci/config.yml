@@ -27,36 +27,12 @@ build: &build
 test: &test
   run:
     name: Test
-    command: docker-compose run coverage
+    command: docker-compose run test
 
 set-bobcat-dev-env: &set-bobcat-dev-env
   run: 
     name: Set Bobcat URL for dev
     command: sed -i 's/bobcat\.library/bobcatdev\.library/g' config/baseUrls.json
-
-# To retire after lambda reworking
-set-env-stage-dev: &set-env-stage-dev
-  run:
-    name: Use development stage environment variables in awsdev account
-    command: |
-      echo 'export STAGE="dev"' >> $BASH_ENV
-      echo 'export REST_API_ID="$REST_API_ID_DEV"' >> $BASH_ENV
-      echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_DEV"' >> $BASH_ENV
-
-# To retire after lambda reworking
-set-env-stage-prod: &set-env-stage-prod
-  run:
-    name: Use production stage environment variables in awsprod account
-    command: |
-      echo 'export STAGE="prod"' >> $BASH_ENV
-      echo 'export REST_API_ID="$REST_API_ID_PROD"' >> $BASH_ENV
-      echo 'export REST_API_ROOT_RESOURCE_ID="$REST_API_ROOT_RESOURCE_ID_PROD"' >> $BASH_ENV
-
-# To retire after lambda reworking
-aws-deploy: &aws-deploy
-  run:
-    name: Deploy via serverless to AWS account
-    command: docker-compose run deploy
 
 s3_deploy: &s3_deploy
   aws-s3/sync:
@@ -126,50 +102,6 @@ jobs:
       - <<: *auth_quay
       - <<: *terraform_deploy
 
-  # To retire after lambda reworking
-  deploy-staging-awsdev:
-    <<: *docker-defaults
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-      - <<: *auth_quay
-      - <<: *pull
-      - <<: *set-bobcat-dev-env
-      - <<: *build
-      - <<: *push
-      - <<: *set-env-stage-dev
-      - <<: *aws-deploy
-
-  # To retire after lambda reworking
-  deploy-staging-awsprod:
-    <<: *docker-defaults
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-      - <<: *auth_quay
-      - <<: *pull
-      - <<: *set-bobcat-dev-env
-      - <<: *build
-      - <<: *push
-      - <<: *set-env-stage-dev
-      - <<: *aws-deploy
-
-  # To retire after lambda reworking
-  deploy-production-awsprod:
-    <<: *docker-defaults
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-      - <<: *auth_quay
-      - <<: *pull
-      - <<: *build
-      - <<: *push
-      - <<: *set-env-stage-prod
-      - <<: *aws-deploy
-
   test:
     <<: *docker-defaults
     steps:
@@ -217,24 +149,4 @@ workflows:
               only: master
           requires:
             - build-lambda-prod
-      # - deploy-staging-awsdev:
-      #     context: web-lambdas-aws-nyulitsdev
-      #     filters:
-      #       branches:
-      #         ignore: master
-      #     requires:
-      #       - test
-      - deploy-staging-awsprod:
-          context: web-lambdas-aws-nyulits
-          filters:
-            branches:
-              ignore: master
-          requires:
-            - test
-      - deploy-production-awsprod:
-          context: web-lambdas-aws-nyulits
-          filters:
-            branches:
-              only: master
-          requires:
-            - test
+
