@@ -73,10 +73,7 @@ commands:
       - run: 
           name: Clear old S3 builds
           command: |
-            echo $TF_VAR_lambda_s3_bucket
-            S3_BUCKET=${TF_VAR_lambda_s3_bucket} && \
-              LAMBDA_FN="bobcat-linker" && \
-              ./scripts/clear_old_builds.sh
+            S3_BUCKET=${TF_VAR_lambda_s3_bucket} LAMBDA_FN="bobcat-linker" ./scripts/clear_old_builds.sh
 jobs:
   # Replacement Lambda logic
   build-lambda-dev:
