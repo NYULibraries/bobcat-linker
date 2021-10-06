@@ -16,6 +16,7 @@ x-environment: &x-environment
   TF_VAR_apigw_stage:
   TF_VAR_lambda_version:
   TF_VAR_environment_variables:
+  WORLDCAT_API_KEY:
 
 services:
   test:
