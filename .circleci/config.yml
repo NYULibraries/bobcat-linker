@@ -67,6 +67,15 @@ terraform_deploy: &terraform_deploy
 version: 2.1
 orbs:
   aws-s3: circleci/aws-s3@1.0.11
+commands:
+  clear_old_builds:
+    steps:
+      - run: 
+          name: name
+          command: |
+            S3_BUCKET="${TF_VAR_lambda_s3_bucket}" && \
+            LAMBDA_FN="bobcat-linker" && \
+            ./scripts/clear_old_builds.sh
 jobs:
   # Replacement Lambda logic
   build-lambda-dev:
@@ -79,6 +88,7 @@ jobs:
       - <<: *build
       - <<: *zip
       - <<: *get_lambda_zip
+      - clear_old_builds
       - <<: *s3_deploy
   
   build-lambda-prod:
