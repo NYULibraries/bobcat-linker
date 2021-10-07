@@ -76,8 +76,7 @@ jobs:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
+      - setup_remote_docker
       - run:
           name: Install AWS-CLI
           command: |
@@ -90,8 +89,7 @@ jobs:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
+      - setup_remote_docker
       - set-bobcat-dev-env
       - build
       - zip
@@ -102,8 +100,7 @@ jobs:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
+      - setup_remote_docker
       - build
       - zip
       - get_lambda_zip
@@ -113,8 +110,7 @@ jobs:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
+      - setup_remote_docker
       - auth_quay
       - terraform_deploy
 
@@ -122,8 +118,7 @@ jobs:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
+      - setup_remote_docker
       - auth_quay
       - pull_docker
       - build
