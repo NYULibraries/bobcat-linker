@@ -17,6 +17,8 @@ x-environment: &x-environment
   TF_VAR_lambda_version:
   TF_VAR_environment_variables:
   WORLDCAT_API_KEY:
+  LAMBDA_FN:
+  S3_BUCKET:
 
 services:
   test:
