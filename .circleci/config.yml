@@ -131,6 +131,7 @@ workflows:
   build-test-and-deploy:
     jobs:
       - test
+      - clear_old_builds
       - build-lambda-dev:
           context: web-lambdas-api-gateway-dev
           filters:
