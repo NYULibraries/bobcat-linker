@@ -68,3 +68,5 @@ services:
       context: .
       dockerfile: Dockerfile.deploy
     command: ["./clear_old_builds.sh"]
+    environment:
+      <<: *x-environment

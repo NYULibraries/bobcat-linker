@@ -14,7 +14,6 @@ commands:
           name: Clear old S3 builds
           command: |
             docker-compose run -e S3_BUCKET=${TF_VAR_lambda_s3_bucket} -e LAMBDA_FN="bobcat-linker" clear_old_builds
-            # S3_BUCKET=${TF_VAR_lambda_s3_bucket} LAMBDA_FN="bobcat-linker" ./scripts/clear_old_builds.sh
   terraform_deploy:
     steps:
       -  run:
