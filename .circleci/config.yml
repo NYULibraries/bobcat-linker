@@ -15,7 +15,7 @@ commands:
       - run: 
           name: Clear old S3 builds
           command: |
-            S3_BUCKET=${TF_VAR_lambda_s3_bucket} LAMBDA_FN="${IMAGE_NAME}" ./scripts/clear_old_builds.sh
+            S3_BUCKET=${TF_VAR_lambda_s3_bucket} LAMBDA_FN="$IMAGE_NAME" ./scripts/clear_old_builds.sh
   terraform_deploy:
     steps:
       -  run:
@@ -28,7 +28,7 @@ commands:
       - run:
           name: Retrieve zipped lambda from container
           command: |
-            docker cp $(docker ps -aq --filter 'label=nyulibraries.app=${IMAGE_NAME}'):/app/dist .
+            docker cp $(docker ps -aq --filter 'label=nyulibraries.app=$IMAGE_NAME'):/app/dist .
   zip: 
     steps:
       - run:
@@ -68,10 +68,10 @@ commands:
     steps:
       - aws-s3/sync:
           from: dist
-          to: 's3://${TF_VAR_lambda_s3_bucket}/${IMAGE_NAME}/${CIRCLE_SHA1}'
+          to: 's3://${TF_VAR_lambda_s3_bucket}/$IMAGE_NAME/${CIRCLE_SHA1}'
           arguments: |
             --exclude "*" \
-            --include "${IMAGE_NAME}.zip" \
+            --include "$IMAGE_NAME.zip" \
             --delete
 jobs:
   clear_old_builds:
