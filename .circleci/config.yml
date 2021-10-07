@@ -4,17 +4,7 @@ docker-defaults: &docker-defaults
     - image: cimg/base:2021.07
       environment:
         - IMAGE_NAME=bobcat-linker
-  working_directory: ~/app
-
-s3_deploy: &s3_deploy
-  aws-s3/sync:
-    from: dist
-    to: 's3://${TF_VAR_lambda_s3_bucket}/bobcat-linker/${CIRCLE_SHA1}'
-    arguments: |
-      --exclude "*" \
-      --include "bobcat-linker.zip" \
-      --delete
-    overwrite: true
+  working_directory: ~/app  
 
 version: 2.1
 orbs:
@@ -74,8 +64,25 @@ commands:
       - run:
           name: Test
           command: docker-compose run test
+  s3_deploy:
+    steps:
+      - aws-s3/sync:
+          from: dist
+          to: 's3://${TF_VAR_lambda_s3_bucket}/bobcat-linker/${CIRCLE_SHA1}'
+          arguments: |
+            --exclude "*" \
+            --include "bobcat-linker.zip" \
+            --delete
+          overwrite: true
 jobs:
-  # Replacement Lambda logic
+  clear_old_builds:
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - clear_old_builds
+
   build-lambda-dev:
     <<: *docker-defaults
     steps:
@@ -86,8 +93,7 @@ jobs:
       - build
       - zip
       - get_lambda_zip
-      - clear_old_builds
-      - <<: *s3_deploy
+      - s3_deploy
   
   build-lambda-prod:
     <<: *docker-defaults
@@ -98,9 +104,8 @@ jobs:
       - build
       - zip
       - get_lambda_zip
-      - <<: *s3_deploy
+      - s3_deploy
   
-  # Replacement Lambda logic
   deploy-lambda:
     <<: *docker-defaults
     steps:
