@@ -75,7 +75,8 @@ commands:
             --delete
 jobs:
   clear_old_builds:
-    executor: aws-cli/default
+    docker:
+      - image: bitnami/aws-cli:1.20.55
     steps:
       - checkout
       - setup_remote_docker:
