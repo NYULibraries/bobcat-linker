@@ -15,7 +15,7 @@ commands:
           command: |
             export S3_BUCKET=${TF_VAR_lambda_s3_bucket}
             export LAMBDA_FN="bobcat-linker"
-            docker compose run clear_old_builds
+            docker-compose run clear_old_builds
   terraform_deploy:
     steps:
       -  run:
