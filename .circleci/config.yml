@@ -140,9 +140,15 @@ workflows:
       - clear_old_builds:
           context: web-lambdas-api-gateway-dev
           name: clear_old_builds_dev
+          filters:
+            branches:
+              ignore: master
       - clear_old_builds:
           context: web-lambdas-api-gateway-prod
           name: clear_old_builds_prod
+          filters:
+            branches:
+              only: master
       - build-lambda-dev:
           context: web-lambdas-api-gateway-dev
           filters:
