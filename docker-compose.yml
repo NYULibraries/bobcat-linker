@@ -61,3 +61,10 @@ services:
     command: sh -c 'mkdir dist; cat .lambdafiles | xargs zip -r -9 -q ./dist/bobcat-linker.zip'
     labels:
       - 'nyulibraries.app=bobcat-linker'
+
+  clear_old_builds:
+    image: bobcat-linker-clear-builds
+    build:
+      context: .
+      dockerfile: Dockerfile.deploy
+    command: ["./clear_old_builds.sh"]
