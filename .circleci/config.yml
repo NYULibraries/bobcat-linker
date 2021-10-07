@@ -15,7 +15,7 @@ commands:
           command: |
             export S3_BUCKET=${TF_VAR_lambda_s3_bucket}
             export LAMBDA_FN="bobcat-linker"
-            docker-compose run clear_old_builds
+            ./scripts/create_old_builds.sh
   terraform_deploy:
     steps:
       -  run:
@@ -87,7 +87,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      # - install_awscli
+      - install_awscli
       - clear_old_builds
 
   build-lambda-dev:

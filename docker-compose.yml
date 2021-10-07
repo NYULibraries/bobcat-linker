@@ -17,8 +17,6 @@ x-environment: &x-environment
   TF_VAR_lambda_version:
   TF_VAR_environment_variables:
   WORLDCAT_API_KEY:
-  LAMBDA_FN:
-  S3_BUCKET:
 
 services:
   test:
@@ -63,13 +61,3 @@ services:
     command: sh -c 'mkdir dist; cat .lambdafiles | xargs zip -r -9 -q ./dist/bobcat-linker.zip'
     labels:
       - 'nyulibraries.app=bobcat-linker'
-
-  clear_old_builds:
-    image: bobcat-linker-clear-builds
-    build:
-      context: .
-      dockerfile: Dockerfile.deploy
-    entrypoint: ["sh"]
-    command: ["./clear_old_builds.sh"]
-    environment:
-      <<: *x-environment
