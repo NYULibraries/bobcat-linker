@@ -17,8 +17,5 @@
     "@rgrove/parse-xml": "^2.0.4",
     "axios": "^0.21.1",
     "coveralls": "^3.1.0"
-  },
-  "engines": {
-    "node": "^12"
   }
 }

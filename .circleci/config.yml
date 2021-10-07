@@ -1,132 +1,152 @@
 # Aliases
 docker-defaults: &docker-defaults
   docker:
-    - image: quay.io/nyulibraries/circleci_docker:19.03.13-dc-1.27.4-1-pre
-  working_directory: ~/app
-
-auth_quay: &auth_quay
-  run:
-    name: Docker login
-    command: docker login quay.io -u "$QUAY_USERNAME" --password "$QUAY_PASSWORD"
-
-pull: &pull
-  run:
-    name: Pull docker images
-    command: ./scripts/pull_docker.sh || exit 0
-
-push: &push
-  run:
-    name: Push docker images
-    command: ./scripts/push_docker.sh
-
-build: &build
-  run:
-    name: Build images
-    command: docker-compose build
-
-test: &test
-  run:
-    name: Test
-    command: docker-compose run test
-
-set-bobcat-dev-env: &set-bobcat-dev-env
-  run: 
-    name: Set Bobcat URL for dev
-    command: sed -i 's/bobcat\.library/bobcatdev\.library/g' config/baseUrls.json
-
-s3_deploy: &s3_deploy
-  aws-s3/sync:
-    from: dist
-    to: 's3://${TF_VAR_lambda_s3_bucket}/bobcat-linker/${CIRCLE_SHA1}'
-    arguments: |
-      --exclude "*" \
-      --include "bobcat-linker.zip" \
-      --delete
-    overwrite: true
-
-zip: &zip
-  run:
-    name: Zip Lambda files
-    command: docker-compose run build_lambda
-
-get_lambda_zip: &get_lambda_zip
-  run:
-    name: Retrieve zipped lambda from container
-    command: |
-      docker cp $(docker ps -aq --filter 'label=nyulibraries.app=bobcat-linker'):/app/dist .
-
-terraform_deploy: &terraform_deploy
-  run:
-    name: Deploy the Lambda to AWS via Terraform
-    command: |
-      apk add gettext
-      export TF_VAR_lambda_version=${CIRCLE_SHA1}
-      export TF_VAR_environment_variables=$(envsubst < .tf_env_vars)
-      docker-compose run terraform_deploy
+    - image: cimg/base:2021.07
+  working_directory: ~/app  
 
 version: 2.1
 orbs:
-  aws-s3: circleci/aws-s3@1.0.11
+  aws-s3: circleci/aws-s3@3.0
 commands:
   clear_old_builds:
     steps:
       - run: 
           name: Clear old S3 builds
           command: |
-            S3_BUCKET=${TF_VAR_lambda_s3_bucket} LAMBDA_FN="bobcat-linker" ./scripts/clear_old_builds.sh
+            export S3_BUCKET=${TF_VAR_lambda_s3_bucket}
+            export LAMBDA_FN="bobcat-linker"
+            ./scripts/clear_old_builds.sh
+  terraform_deploy:
+    steps:
+      -  run:
+          name: Deploy the Lambda to AWS via Terraform
+          command: |
+            export TF_VAR_lambda_version=${CIRCLE_SHA1}
+            docker-compose run fn_create
+  get_lambda_zip:
+    steps:
+      - run:
+          name: Retrieve zipped lambda from container
+          command: |
+            docker cp $(docker ps -aq --filter 'label=nyulibraries.app=bobcat-linker'):/app/dist .
+  zip: 
+    steps:
+      - run:
+          name: Zip Lambda files
+          command: docker-compose run build_lambda
+  set-bobcat-dev-env: 
+    steps:
+      - run: 
+          name: Set Bobcat URL for dev
+          command: sed -i 's/bobcat\.library/bobcatdev\.library/g' config/baseUrls.json
+  auth_quay:
+    steps:
+      - run:
+          name: Docker login
+          command: docker login quay.io -u "$QUAY_USERNAME" --password "$QUAY_PASSWORD"
+  pull_docker: 
+    steps:
+      - run:
+          name: Pull docker images
+          command: ./scripts/pull_docker.sh || exit 0
+  push_docker:
+    steps:
+      - run:
+          name: Push docker images
+          command: ./scripts/push_docker.sh
+  build:
+    steps:
+      - run:
+          name: Build images
+          command: docker-compose build
+  test: 
+    steps:
+      - run:
+          name: Test
+          command: docker-compose run test
+  s3_deploy:
+    steps:
+      - aws-s3/sync:
+          from: dist
+          to: 's3://${TF_VAR_lambda_s3_bucket}/bobcat-linker/${CIRCLE_SHA1}'
+          arguments: |
+            --exclude "*" \
+            --include "bobcat-linker.zip" \
+            --delete
+  install_awscli:
+    steps:
+      - run:
+          name: Install AWS-CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
 jobs:
-  # Replacement Lambda logic
+  clear-old-builds:
+    <<: *docker-defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+      - install_awscli
+      - clear_old_builds
+
   build-lambda-dev:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-      - <<: *set-bobcat-dev-env
-      - <<: *build
-      - <<: *zip
-      - <<: *get_lambda_zip
-      - clear_old_builds
-      - <<: *s3_deploy
+      - setup_remote_docker
+      - set-bobcat-dev-env
+      - build
+      - zip
+      - get_lambda_zip
+      - s3_deploy
   
   build-lambda-prod:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-      - <<: *build
-      - <<: *zip
-      - <<: *get_lambda_zip
-      - <<: *s3_deploy
+      - setup_remote_docker
+      - build
+      - zip
+      - get_lambda_zip
+      - s3_deploy
   
-  # Replacement Lambda logic
   deploy-lambda:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-      - <<: *auth_quay
-      - <<: *terraform_deploy
+      - setup_remote_docker
+      - auth_quay
+      - terraform_deploy
 
   test:
     <<: *docker-defaults
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-      - <<: *auth_quay
-      - <<: *pull
-      - <<: *build
-      - <<: *push
-      - <<: *test
+      - setup_remote_docker
+      - auth_quay
+      - pull_docker
+      - build
+      - push_docker
+      - test
 
 workflows:
   version: 2
   build-test-and-deploy:
     jobs:
       - test
+      - clear-old-builds:
+          context: web-lambdas-api-gateway-dev
+          name: clear-old-builds-dev
+          filters:
+            branches:
+              ignore: master
+      - clear-old-builds:
+          context: web-lambdas-api-gateway-prod
+          name: clear-old-builds-prod
+          filters:
+            branches:
+              only: master
       - build-lambda-dev:
           context: web-lambdas-api-gateway-dev
           filters:
@@ -134,6 +154,7 @@ workflows:
               ignore: master
           requires:
             - test
+            - clear-old-builds-dev
       - deploy-lambda:
           name: deploy-lambda-dev
           context: web-lambdas-api-gateway-dev
@@ -149,6 +170,7 @@ workflows:
               only: master
           requires:
             - test
+            - clear-old-builds-prod
       - deploy-lambda:
           name: deploy-lambda-prod
           context: web-lambdas-api-gateway-prod

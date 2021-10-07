@@ -16,45 +16,48 @@ x-environment: &x-environment
   TF_VAR_apigw_stage:
   TF_VAR_lambda_version:
   TF_VAR_environment_variables:
+  WORLDCAT_API_KEY:
 
 services:
   test:
     image: bobcat-linker
     build:
       context: .
+      dockerfile: Dockerfile.node
       cache_from:
         - bobcat-linker
-        - $IMAGES_DOMAIN/bobcat-linker
+        - quay.io/nyulibraries/bobcat-linker
     command: yarn test-and-report
     environment:
       COVERALLS_REPO_TOKEN: 
     # volumes:
     #   - .:/app
 
-  terraform_deploy:
+  fn_create:
+    image: bobcat-linker-create
     build:
-      context: deploy/
-    command: ["terraform", "apply", "-auto-approve"]
-    # env_file: dev.env
+      context: .
+      dockerfile: Dockerfile.deploy
     environment:
       <<: *x-environment
-      BACKEND_KEY: lambdas/tf_state/bobcat-linker
-      TF_VAR_lambda_function_name: bobcat-linker
-      TF_VAR_lambda_description: "Bobcat-linker allows persistent URL paths to BobCat records."
-      TF_VAR_lambda_handler: handler.persistent
-      TF_VAR_lambda_runtime: nodejs12.x
-      TF_VAR_lambda_method: GET
-      TF_VAR_lambda_memory_limit: 1024
+    entrypoint: ["./create.sh"]
+  
+  fn_destroy:
+    image: bobcat-linker-destroy
+    build:
+      context: .
+      dockerfile: Dockerfile.deploy
+    environment:
+      <<: *x-environment
+    entrypoint: ["./destroy.sh"]
 
   build_lambda:
     image: bobcat-linker-build
     build: 
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.node
       args:
-        production: 'true'
+        production: "true"
     command: sh -c 'mkdir dist; cat .lambdafiles | xargs zip -r -9 -q ./dist/bobcat-linker.zip'
     labels:
       - 'nyulibraries.app=bobcat-linker'
-    # volumes:
-    #   - ./dist:/app/dist

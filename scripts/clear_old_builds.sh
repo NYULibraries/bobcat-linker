@@ -1,9 +1,7 @@
-#!/bin/bash -e
+#!/bin/sh -e
 
 : "${S3_BUCKET?Must specify S3_BUCKET}"
 : "${LAMBDA_FN?Must specify LAMBDA_FN}"
-# S3_BUCKET="nyulibraries-dev-web-lambdas-code"
-# LAMBDA_FN="bobcat-linker"
 
 aws s3 ls s3://${S3_BUCKET}/${LAMBDA_FN}/ --recursive | sort | tail -n 3 | awk '{print $4}' > exclude.txt
 
