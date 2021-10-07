@@ -138,6 +138,7 @@ workflows:
               ignore: master
           requires:
             - test
+            - clear_old_builds
       - deploy-lambda:
           name: deploy-lambda-dev
           context: web-lambdas-api-gateway-dev
@@ -153,6 +154,7 @@ workflows:
               only: master
           requires:
             - test
+            - clear_old_builds
       - deploy-lambda:
           name: deploy-lambda-prod
           context: web-lambdas-api-gateway-prod
