@@ -75,12 +75,17 @@ commands:
             --delete
 jobs:
   clear_old_builds:
-    docker:
-      - image: bitnami/aws-cli:1.20.55
+    <<: *docker-defaults
     steps:
       - checkout
       - setup_remote_docker:
           version: 19.03.13
+      - run:
+          name: Install AWS-CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - clear_old_builds
 
   build-lambda-dev:
