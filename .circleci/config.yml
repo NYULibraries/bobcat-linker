@@ -137,7 +137,12 @@ workflows:
   build-test-and-deploy:
     jobs:
       - test
-      - clear_old_builds
+      - clear_old_builds:
+          context: web-lambdas-api-gateway-dev
+          name: clear_old_builds_dev
+      - clear_old_builds:
+          context: web-lambdas-api-gateway-prod
+          name: clear_old_builds_prod
       - build-lambda-dev:
           context: web-lambdas-api-gateway-dev
           filters:
@@ -145,7 +150,7 @@ workflows:
               ignore: master
           requires:
             - test
-            - clear_old_builds
+            - clear_old_builds_dev
       - deploy-lambda:
           name: deploy-lambda-dev
           context: web-lambdas-api-gateway-dev
@@ -161,7 +166,7 @@ workflows:
               only: master
           requires:
             - test
-            - clear_old_builds
+            - clear_old_builds_prod
       - deploy-lambda:
           name: deploy-lambda-prod
           context: web-lambdas-api-gateway-prod
