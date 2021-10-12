@@ -15,6 +15,7 @@ commands:
           command: |
             export S3_BUCKET=${TF_VAR_lambda_s3_bucket}
             export LAMBDA_FN="bobcat-linker"
+            export KEEP_BUILDS_NUM=3
             ./scripts/clear_old_builds.sh
   terraform_deploy:
     steps:
