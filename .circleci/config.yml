@@ -5,17 +5,7 @@ docker-defaults: &docker-defaults
   working_directory: ~/app  
 
 version: 2.1
-orbs:
-  aws-s3: circleci/aws-s3@3.0
 commands:
-  clear_old_builds:
-    steps:
-      - run: 
-          name: Clear old S3 builds
-          command: |
-            export S3_BUCKET=${TF_VAR_lambda_s3_bucket}
-            export LAMBDA_FN="bobcat-linker"
-            ./scripts/clear_old_builds.sh
   terraform_deploy:
     steps:
       -  run:
@@ -73,22 +63,19 @@ commands:
             --exclude "*" \
             --include "bobcat-linker.zip" \
             --delete
-  install_awscli:
-    steps:
-      - run:
-          name: Install AWS-CLI
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
+orbs:
+  aws-s3: circleci/aws-s3@3.0
+  deploy: nyulibraries/deploy@0.0.7
 jobs:
   clear-old-builds:
     <<: *docker-defaults
     steps:
       - checkout
       - setup_remote_docker
-      - install_awscli
-      - clear_old_builds
+      - deploy/clear_old_builds:
+          keep_builds_num: 3
+          s3_bucket: ${TF_VAR_lambda_s3_bucket}
+          lambda_fn: "bobcat-linker"
 
   build-lambda-dev:
     <<: *docker-defaults
