@@ -65,7 +65,7 @@ commands:
             --delete
 orbs:
   aws-s3: circleci/aws-s3@3.0
-  deploy: nyulibraries/deploy@0.0.6
+  deploy: nyulibraries/deploy@dev:alpha
 jobs:
   clear-old-builds:
     <<: *docker-defaults
